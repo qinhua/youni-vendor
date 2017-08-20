@@ -1,10 +1,31 @@
 import $ from 'jquery'
+
 export default {
 
   state: {
+    userInfo: {
+      id: 'xxxxxxx',
+      // id: '',
+      name: ''
+    },
+    wxInfo: {
+      'city': '武汉',
+      'country': '中国',
+      'errorCode': 0,
+      'errorMessage': null,
+      'headimgurl': 'http://wx.qlogo.cn/mmopen/QAm7hEbaujS41jY5T0icQd9ySS9FaRJibTiclJGyysBmLoFmswkhLemAHAibYOQml4hibx3BqD2u8NRIwrAhTyeLgjavI70oxia8uk/0',
+      'nickname': '覃华',
+      'openid': 'oEo51t1PTVGj7H6Ahdqr_kac-1vs',
+      'privilege': [],
+      'province': '湖北',
+      'sex': '1',
+      'subscribe': 0,
+      'subscribeTime': null,
+      'unionid': null
+    },
+    dict: null,
     nickName: '七灵',
-    userId: 'vv58585',
-    name: '全局',
+    sellerId: 'kk58585',
     address: [
       {
         id: 1,
@@ -22,79 +43,78 @@ export default {
       }
     ],
     direction: 'forward',
+    name: '全局',
     level: '第一周',
+    store: {},
     itemNum: 1,
     allTime: 0,
     timer: '',
     itemDetail: [],
-    answerid: {},
-    userInfo: {
-      id: 'xxxxxxx',
-      // id: '',
-      name: ''
-    }
+    answerid: {}
   },
 
-  getters: {
-  },
+  getters: {},
 
   mutations: {
-    getData (state, payload) {
+    getData(state, payload) {
       if (payload.res.httpStatusCode === 200) {
         state.itemDetail = payload.res.topiclist
       }
     },
-    getUser (state, payload) {
+    StoreData(state, response) {
+      state[response['key']] = response.data
+    },
+    getUser(state, payload) {
       state.userInfo = payload
     },
-    addTimeNum (state, payload) {
+    addTimeNum(state, payload) {
       state.itemNum += payload.num
     },
-    rememberAnswer (state, payload) {
+    rememberAnswer(state, payload) {
       state.answerid[state.itemNum] = payload.id
     },
-    rememberTime (state) {
+    rememberTime(state) {
       state.timer = setInterval(() => {
         state.allTime++
       }, 1000)
     },
     /* 更新路由方向 */
-    updateDirection (state, payload) {
+    updateDirection(state, payload) {
       state.direction = payload.direction
     },
-    updateNickName (state, payload) {
-      state.nickName = payload
+    updateStore(state, payload) {
+      state.store = payload
     },
-    updateAddress (state, payload) {
+    updateAddress(state, payload) {
       if (payload.type && payload.type === 'push') {
         state.address.push(payload.data)
       } else {
         state.address = payload.data
       }
     },
-    initialData (state) {
+    initialData(state) {
       state.itemNum = 1
       state.allTime = 0
     }
   },
 
   actions: {
-    addNum ({commit, state}, id) {
-      commit('rememberAnswer', { id })
+    addNum({commit, state}, id) {
+      commit('rememberAnswer', {id})
       if (state.itemNum < state.itemDetail.length) {
         commit('addTimeNum', {
           num: 1
         })
       }
     },
-    getData ({commit, state}) {
+    getData({commit, state}) {
       $.ajax('GET', 'http://operating-activities.putao.com/happyfriday?active_topic_id=4').then(res => {
         commit('getData', {
           res
         })
       })
     },
-    initializeData ({commit}) {
+    initializeData({commit}) {
       commit('initialData')
     }
   }

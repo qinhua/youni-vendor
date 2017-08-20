@@ -2,6 +2,7 @@ import Vue from 'vue'
 import Router from 'vue-router'
 // import App from '@/App'
 import Auth from '@/pages/Auth'
+import Login from '@/pages/my/Login'
 import Home from '@/pages/Home'
 import NearBy from '@/pages/NearBy'
 import Ticket from '@/pages/Ticket'
@@ -18,7 +19,14 @@ import Help from '@/pages/my/Help'
 import About from '@/pages/my/About'
 import GoodsDetail from '@/pages/goods/Detail'
 
+import Store from '@/pages/store/Store'
+import Goods from '@/pages/goods/Goods'
+import EditGoods from '@/pages/goods/Edit'
+import Clients from '@/pages/clients/Clients'
+import Statistic from '@/pages/statistic/Statistic'
+
 import NoPage from '@/pages/NoPage'
+
 Router.prototype.goBack = function () {
   this.isBack = true
   window.history.go(-1)
@@ -26,6 +34,10 @@ Router.prototype.goBack = function () {
 Vue.use(Router)
 
 export default new Router({
+  // mode: '',
+  scrollBehavior (to, from, savedPosition) {
+    return {x: 0, y: 0}
+  },
   routes: [
     {
       path: '/author',
@@ -37,12 +49,21 @@ export default new Router({
       }
     },
     {
+      path: '/login',
+      name: 'login',
+      component: Login,
+      meta: {
+        title: '登录',
+        keepAlive: false
+      }
+    },
+    {
       path: '/',
-      name: 'home',
+      name: '/',
       redirect: '/home',
       component: Home,
       meta: {
-        title: '首页',
+        title: '我的小店',
         keepAlive: false
       }
     },
@@ -51,7 +72,7 @@ export default new Router({
       name: 'home',
       component: Home,
       meta: {
-        title: '首页',
+        title: '我的小店',
         keepAlive: false
       }
     },
@@ -111,6 +132,51 @@ export default new Router({
       component: EditUser,
       meta: {
         title: '我的',
+        keepAlive: false
+      }
+    },
+    {
+      path: '/store',
+      name: 'store',
+      component: Store,
+      meta: {
+        title: '店铺管理',
+        keepAlive: false
+      }
+    },
+    {
+      path: '/goods',
+      name: 'goods',
+      component: Goods,
+      meta: {
+        title: '商品管理',
+        keepAlive: false
+      }
+    },
+    {
+      path: '/edit_goods',
+      name: 'edit_goods',
+      component: EditGoods,
+      meta: {
+        title: '编辑商品',
+        keepAlive: false
+      }
+    },
+    {
+      path: '/clients',
+      name: 'clients',
+      component: Clients,
+      meta: {
+        title: '客户管理',
+        keepAlive: false
+      }
+    },
+    {
+      path: '/statistic',
+      name: 'statistic',
+      component: Statistic,
+      meta: {
+        title: '数据统计',
         keepAlive: false
       }
     },

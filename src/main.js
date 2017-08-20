@@ -7,18 +7,26 @@ import App from './App'
 import router from './router'
 import 'font-awesome/css/font-awesome.css'
 import 'ionicons/dist/css/ionicons.css'
+import 'weui/dist/style/weui.min.css'
 import $ from 'jquery'
 import '../static/js/fastclick.js'
 import 'myMixin'
 import store from './store'
 import VueScroller from 'vue-scroller'
+import AMap from 'vue-amap';
 import {AlertPlugin, ConfirmPlugin, ToastPlugin, LoadingPlugin} from 'vux'
+
 Vue.use(require('vue-wechat-title'))
 Vue.use(ConfirmPlugin)
 Vue.use(AlertPlugin)
 Vue.use(ToastPlugin)
 Vue.use(LoadingPlugin)
 Vue.use(VueScroller)
+Vue.use(AMap)
+AMap.initAMapApiLoader({
+  key: '5472f8bd49fabbd0fa3b9f13b74532c7',
+  plugin: ['Autocomplete', 'PlaceSearch', 'Geolocation', 'Scale', 'OverView', 'ToolBar', 'MapType', 'PolyEditor', 'AMap.CircleEditor']
+});
 
 Vue.config.productionTip = false
 let me = window.me
@@ -72,15 +80,18 @@ router.beforeEach((to, from, next) => {
 /* ajax请求 */
 Vue.prototype.$axios = Axios
 Vue.prototype.loadData = function (url, params, type, sucCb, errCb) {
-  /* $.post(url, {'requestapp': params ? JSON.stringify(params) : '{}'},
-   function (res) {
-   if (res.success) {
-   sucCb ? sucCb(res) : console.log(res, '接口的res')
-   } else {
-   errCb ? errCb(res) : console.error('请求失败！')
-   }
-   }
-   ) */
+  setTimeout(function () {
+    $.extend(params, window.youniMall.userAuth)
+    console.log('%c'+JSON.stringify(params, null, 2), 'color:#fff;background:purple')
+    /*$.post(url, {'requestapp': params ? JSON.stringify(params) : '{}'},
+      function (res) {
+        if (res.success) {
+          sucCb ? sucCb(res) : console.log(res, '接口的res')
+        } else {
+          errCb ? errCb(res) : console.error('请求失败！')
+        }
+      }
+    )*/
   /* Axios.post(url, {'requestapp': '{}'}).then(function (res) {
    sucCb ? sucCb(res) : console.log(res, '接口的res')
    }).catch(function (error) {
@@ -96,6 +107,7 @@ Vue.prototype.loadData = function (url, params, type, sucCb, errCb) {
   }).catch(function (error) {
     errCb ? errCb(error) : console.error(error, '错误信息')
   })
+  }, 0)
 }
 /* alert */
 Vue.prototype.alert = function (title, content, showCb, hideCb) {
@@ -103,10 +115,10 @@ Vue.prototype.alert = function (title, content, showCb, hideCb) {
   _this.$vux.alert.show({
     title: title || '',
     content: content || '',
-    onShow () {
+    onShow() {
       showCb ? showCb() : null
     },
-    onHide () {
+    onHide() {
       hideCb ? hideCb() : null
     }
   })
@@ -118,15 +130,15 @@ Vue.prototype.confirm = function (title, content, confirmCb, cancelCb) {
     theme: 'ios',
     title: title || '',
     content: content || '',
-    onCancel () {
+    onCancel() {
       cancelCb ? cancelCb() : null
     },
-    onConfirm () {
+    onConfirm() {
       confirmCb ? confirmCb() : null
     },
-    onShow () {
+    onShow() {
     },
-    onHide () {
+    onHide() {
     }
   })
 }
@@ -147,7 +159,7 @@ Vue.prototype.toast = function (content, type, position, cb) {
     case 4:
       type = 'text'
       break
-    default:
+    case '':
       type = 'success'
   }
   _this.$vux.toast.show({
@@ -167,7 +179,7 @@ Vue.prototype.processing = function (content, isClose, cb, timeCb) {
     return false
   } else {
     _this.$vux.loading.show({
-      text: content || '努力中…'
+      text: content || ''
     })
     cb ? cb() : null
     setTimeout(function () {
@@ -259,7 +271,7 @@ new Vue({
   store,
   template: '<App/>',
   components: {App},
-  mounted () {
+  mounted() {
     // console.log(XXX)
     // GET
     /* this.$axios.get('/user', {

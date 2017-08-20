@@ -38,7 +38,7 @@ var originalConfig = {
   },
   module: {
     rules: [
-      {
+      /* {
         test: /\.(js|vue)$/,
         loader: 'eslint-loader',
         enforce: 'pre',
@@ -46,7 +46,7 @@ var originalConfig = {
         options: {
           formatter: require('eslint-friendly-formatter')
         }
-      },
+      }, */
       {
         test: /\.vue$/,
         loader: 'vue-loader',

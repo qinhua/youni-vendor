@@ -1,33 +1,52 @@
 <template>
-  <div class="home" ref="home" @scroll="scrollHandler">
-    <!--定位组件-->
-    <div class="location-chooser">
-      <p><span><i class="fa fa-map-marker"></i>&nbsp;您的位置：</span>{{location}}</p>
-      <a @click.prevent="toMap"><i class="right-arrow"></i></a>
-    </div>
-
+  <div class="home" ref="home">
     <!--banner-->
-    <div class="swiper-home">
-      <swiper ref="slider01" skey="s01" :slides="banner" autoPlay="2500"></swiper>
+    <!-- <div class="swiper-home">
+       <swiper ref="slider01" skey="s01" :slides="banner" autoPlay="2500"></swiper>
+     </div>-->
+    <div class="overview" v-cloak>
+      <a href="#/user"><i class="fa fa-user-circle-o user-center"></i></a>
+      <div class="top">
+        <p class="today">今日收入(元)</p>
+        <h2>
+          <countup :start-val="0" :end-val="120500" :decimals="2" :duration="2"></countup>
+        </h2>
+        <p class="yesterday">昨日：10.00</p>
+      </div>
+      <div class="bottom">
+        <div class="col left-col">
+          <p class="today">成交数</p>
+          <h2 class="total">1105</h2>
+          <p class="yesterday">昨日25</p>
+        </div>
+        <div class="col right-col">
+          <p class="today">浏览数</p>
+          <h2 class="total">2020</h2>
+          <p class="yesterday">昨日1550</p>
+        </div>
+      </div>
     </div>
 
     <!--中间入口-->
     <div class="middle-entry">
-      <grid :rows="4">
-        <grid-item label="订水" link="/home" @on-item-click="setPageStatus(1)">
-          <img slot="icon" src="../../static/img/item_water.png">
+      <grid :rows="5">
+        <grid-item label="商品管理" link="/goods">
+          <img slot="icon" src="../../static/img/item_goods.png">
         </grid-item>
-        <grid-item label="订奶" link="/nearby" @on-item-click="setPageStatus(2)">
-          <img slot="icon" src="../../static/img/item_milk.png">
+        <grid-item label="店铺管理" link="/store">
+          <img slot="icon" src="../../static/img/item_store.png">
         </grid-item>
-        <grid-item label="购物车" link="/cart">
-          <img slot="icon" src="../../static/img/item_cart.png">
+        <grid-item label="客户管理" link="/clients">
+          <img slot="icon" src="../../static/img/item_client.png">
         </grid-item>
-        <grid-item label="红包" link="/coupons">
-          <img slot="icon" src="../../static/img/item_redpacket.png">
+        <grid-item label="资金管理" link="/assets">
+          <img slot="icon" src="../../static/img/item_assets.png">
+        </grid-item>
+        <grid-item label="统计数据" link="/statistic">
+          <img slot="icon" src="../../static/img/item_statistic.png">
         </grid-item>
       </grid>
-      <div class="top-notice" v-if="notice.length">
+      <!--<div class="top-notice" v-if="notice.length">
         <div class="inner">
           <div class="ico ico-toutiao"></div>
           <marquee>
@@ -37,77 +56,76 @@
             </marquee-item>
           </marquee>
         </div>
-      </div>
+      </div>-->
     </div>
 
-    <!--过滤条-->
-    <div class="goods-filter" ref="filters">
-      <div class="v-filter-tabs">
-        <ul class="v-f-tabs">
-          <li :class="factive==='goods'?'mfilterActive':''" @click="showFilter('goods',$event)">商品类目<i
-            class="ico-arr-down"></i>
-          </li>
-          <li :class="factive==='brands'?'mfilterActive':''" @click="showFilter('brands',$event)">品牌<i
-            class="ico-arr-down"></i>
-          </li>
-          <li :class="factive==='specials'?'mfilterActive':''" @click="showFilter('specials',$event)">筛选<i
-            class="ico-arr-down"></i></li>
-        </ul>
-        <div class="filter-data" v-if="showFilterCon" @blur="hideFilter" :class="showFilterCon?'show':''">
-          <ul class="filter-tags" v-show="currentFilter">
-            <li v-for="(data,idx) in currentFilter" :class="subActive==idx?'sfilterActive':''" :data-key="data.key"
-                :data-value="data.value" @click="chooseFilter(idx,data.key,data.value,$event)">{{data.value}}
-            </li>
-          </ul>
-        </div>
-      </div>
-    </div>
-
-    <!--商品列表-->
-    <div class="goods-list" ref="goodsList">
-      <scroller class="inner-scroller" lock-x scrollbarY use-pullup use-pulldown :pullup-config="pullupConfig" :pulldown-config="pulldownConfig"
-                @on-scroll="onScroll"
-                @on-pulldown-loading="onPullDown" @on-pullup-loading="onPullUp" @on-scroll-bottom="" ref="myScroll"
-                :scroll-bottom-offst="300">
-        <div class="box">
-          <section class="v-items" v-for="(item, index) in goods" :data-id="item.id">
-            <section class="wrap">
-              <div class="click-wrap" :data-id="item.id" v-jump="['goods_detail',['id'],3]">
+    <!--订单列表-->
+    <div class="orders">
+      <sticky ref="sticky">
+        <tab class="order-tab" ref="orderTab" active-color="#FE6246">
+          <tab-item :selected="params.type==0?true:false" @on-item-click="onItemClick">全部</tab-item>
+          <tab-item :selected="params.type==1?true:false" @on-item-click="onItemClick(1)">待支付</tab-item>
+          <tab-item :selected="params.type==2?true:false" @on-item-click="onItemClick(2)">待派送</tab-item>
+          <tab-item :selected="params.type==3?true:false" @on-item-click="onItemClick(3)">待评价</tab-item>
+          <tab-item :selected="params.type==4?true:false" @on-item-click="onItemClick(4)">已完成</tab-item>
+        </tab>
+      </sticky>
+      <div :class="'order-list' + (orders.length?' hasContent':'')">
+        <scroller class="inner-scroller" ref="orderScroller" :on-refresh="refresh" :on-infinite="infinite"
+                  refreshText="下拉刷新" noDataText="没有更多数据" snapping>
+          <!-- content goes here -->
+          <section class="v-items" v-for="(item, index) in orders" :data-id="item.id"
+                   :data-orderNumber="item.orderNumber">
+            <!--<h4 class="item-top"><i class="ico-store"></i>&nbsp;{{item.sellerName}}&nbsp;&nbsp;<i
+              class="fa fa-angle-right cc"></i><span>{{item.statusName}}</span></h4>-->
+            <section class="item-middle">
+              <div class="img-con">
                 <img :src="item.imgurl">
-                <section class="infos">
-                  <h3>{{item.name}}</h3>
-                  <section class="middle">
-                    <span class="price">￥{{item.price}}</span>
-                    <span class="hasSell">已售{{item.saleCount}}单</span>
-                  </section>
-                  <label>{{item.label}}</label>
-                </section>
               </div>
-              <group class="buy-count">
-                <x-number button-style="round" :min="0" :max="50" align="right" @on-change="changeCount" fillable></x-number>
-              </group>
+              <div class="info-con">
+                <h3>{{item.productName}}</h3>
+                <section class="middle">
+                  <span class="unit-price">￥{{item.unitPrice}}</span>
+                  <span class="order-info">{{item.info}}</span>
+                </section>
+                <label>{{item.label}}</label>
+              </div>
+              <div class="price-con">
+                <p class="price">￥{{item.price}}</p>
+                <p class="buy-count">x{{item.buyCount}}</p>
+              </div>
+            </section>
+            <section class="item-bottom">
+              <div class="extra-info">
+                <p v-for="(ext, idx) in item.extras">{{ext.name}}<span>￥{{ext.type ? '-' : ''}}{{ext.value}}.00</span>
+                </p>
+              </div>
+              <div class="total-price">共{{item.buyCount}}件商品&nbsp;合计：<span>￥{{item.total}}</span>.00（含上楼费）</div>
+              <div class="btns" v-if="item.status===-1">
+                <a class="btn btn-del" @click="delOrder(item.orderId||2)">删除订单</a>
+              </div>
+              <!--<div class="btns" v-if="item.status===0">
+                <a class="btn btn-pay" @click="payOrder(item.orderId||2)">支付</a>
+                <a class="btn btn-cancel" @click="cancelOrder(item.orderId||2)">取消订单</a>
+              </div>-->
+              <div class="btns" v-if="item.status===1">
+                <a class="btn btn-push" @click="pushOrder(item.orderId||2)">催单</a>
+                <a class="btn btn-cancel" @click="cancelOrder(item.orderId||2)">取消订单</a>
+              </div>
+              <div class="btns" v-if="item.status===2">
+                <a class="btn btn-cancel" @click="cancelOrder(item.orderId||2)">取消订单</a>
+              </div>
+              <div class="btns" v-if="item.status===3">
+                <a class="btn btn-appraise" @click="toAppraise(item.orderId||2)">评价</a>
+                <a class="btn btn-del" @click="delOrder(item.orderId||2)">删除订单</a>
+              </div>
+              <div class="btns" v-if="item.status===4">
+                <a class="btn btn-del" @click="delOrder(item.orderId||2)">删除订单</a>
+              </div>
             </section>
           </section>
-          <!--<load-more tip="loading"></load-more>-->
-        </div>
-        <!--<div class="iconNoData" @click="beContinue(curNumber)"><i></i><p>暂无内容</p></div>-->
-      </scroller>
-    </div>
-
-    <!--购物车效果-->
-    <div class="ball-container">
-      <!--小球-->
-      <div v-for="ball in balls">
-        <transition name="drop" @before-enter="beforeDrop" @enter="dropping" @after-enter="afterDrop">
-          <div class="ball" v-show="ball.show">
-            <div class="inner inner-hook"></div>
-          </div>
-        </transition>
+        </scroller>
       </div>
-    </div>
-    <!--悬浮购物车-->
-    <div class="float-cart" ref="floatCart" v-show="curCount && $route.path.indexOf('/home')>-1">
-      <div class="cart-wrap"><i class="cur-count" v-if="curCount">{{curCount}}</i></div>
     </div>
   </div>
 </template>
@@ -118,110 +136,29 @@
   let me
   let vm
   import Swiper from '../components/Swiper'
-  import {Group, GroupTitle, Grid, GridItem, Marquee, MarqueeItem, XNumber, XSwitch, Scroller, LoadMore} from 'vux'
-  import {homeApi} from '../service/main.js'
+  import {
+    Group,
+    GroupTitle,
+    Grid,
+    GridItem,
+    Marquee,
+    MarqueeItem,
+    Countup,
+    Tab,
+    TabItem,
+    Sticky
+  } from 'vux'
+  import {homeApi, orderApi, goodsApi} from '../service/main.js'
   import {mapState, mapMutations} from 'vuex'
+
   export default {
     name: 'home',
-    data () {
+    data() {
       return {
         location: '',
         banner: [],
         notice: [],
-        goods: [],
-        /* filter start */
-        filterOffset: 0,
-        filters: {
-          goods: [
-            {
-              key: 0,
-              value: '全部'
-            },
-            {
-              key: 1,
-              value: '瓶装水'
-            },
-            {
-              key: 2,
-              value: '桶装水'
-            },
-            {
-              key: 3,
-              value: '牛奶'
-            },
-            {
-              key: -1,
-              value: '其它'
-            }
-          ],
-          brands: [
-            {
-              key: 0,
-              value: '全部'
-            },
-            {
-              key: 1,
-              value: '怡宝'
-            },
-            {
-              key: 2,
-              value: '康师傅'
-            },
-            {
-              key: 3,
-              value: '百岁山'
-            },
-            {
-              key: 4,
-              value: '花果山'
-            },
-            {
-              key: 5,
-              value: '水老官'
-            },
-            {
-              key: 6,
-              value: '一方人'
-            },
-            {
-              key: 7,
-              value: '农夫山泉'
-            },
-            {
-              key: 8,
-              value: '八宝山'
-            },
-            {
-              key: 9,
-              value: '昆仑山'
-            }
-          ],
-          specials: [
-            {
-              key: 0,
-              value: '全部'
-            },
-            {
-              key: 1,
-              value: '有优惠'
-            },
-            {
-              key: 2,
-              value: '有红包'
-            },
-            {
-              key: 3,
-              value: '买二送一'
-            }
-          ]
-        },
-        curFilterType: '',
-        currentFilter: null,
-        filterData: [],
-        showFilterCon: false,
-        factive: '',
-        subActive: 0,
-        /* filter end */
+        orders: [],
         showList: true,
         scrollTop: 0,
         onFetching: false,
@@ -244,73 +181,64 @@
           loadingContent: '加载中…',
           clsPrefix: 'xs-plugin-pullup-'
         },
-        count: 0,
-        balls: [ //小球 设为3个
-          {
-            show: false
-          }, {
-            show: false
-          }, {
-            show: false
-          },
-        ],
-        dropBalls: []
+        curOrderFilter: '',
+        params: {
+          type: 0,
+          pagerSize: 10,
+          pageNo: 1,
+          goodsType: 'XXX',
+          goodsCategory: '',
+          brandId: '',
+          filter: ''
+        },
       }
     },
     components: {
-      Swiper,
       Group,
       GroupTitle,
       Grid,
       GridItem,
       Marquee,
       MarqueeItem,
-      XNumber,
-      XSwitch,
-      Scroller,
-      LoadMore
+      Countup,
+      Tab,
+      TabItem,
+      Sticky
     },
-    beforeMount () {
+    beforeMount() {
       me = window.me
     },
-    mounted () {
+    mounted() {
       vm = this
-      // me.attachClick()
-      this.count = this.$store.state.cart.count
-      vm.getPos()
-      vm.getBanner()
-      vm.getNotice()
-      vm.getGoods()
-      // 点击区域之外隐藏筛选栏
-      document.addEventListener('click', (e) => {
-        if (e.target.offsetParent) {
-          if (JSON.stringify(e.target.offsetParent.classList).indexOf('filter') === -1) {
-            vm.hideFilter()
-            return false
-          }
-        }
-      }, false)
+      me.attachClick()
+      // this.count = this.$store.state.cart.count
+      // vm.getPos()
+      // vm.getBanner()
+      // vm.getNotice()
+      vm.getOrders()
       vm.$nextTick(function () {
+        //获取tab位置
         setTimeout(() => {
-        vm.filterOffset = vm.$refs.filters.offsetTop},500) //获取筛选栏位置
-        vm.$refs.myScroll.reset()
-        vm.$refs.myScroll.donePullup()
-        vm.$refs.myScroll.donePulldown()
+          vm.orderOffset = vm.$refs.orderTab.offsetTop
+          console.log(vm.$refs.orderTab)
+        }, 500)
+        vm.$refs.orderScroller.finishInfinite(true)
+        vm.$refs.orderScroller.resize()
       })
     },
     computed: mapState({
       curCount: state => state.cart.count
     }),
     watch: {
-      '$route' (to, from) {
+      '$route'(to, from) {
         vm.getPos()
       }
     },
     methods: {
       // 全局定位
-      getPos () {
+      getPos() {
         var lp = me.locals.get('cur5656Position')
-        setTimeout(function(){
+        setTimeout(function () {
           if (lp) {
             vm.location = JSON.parse(lp).name || JSON.parse(lp).formattedAddress
           } else {
@@ -334,9 +262,10 @@
                 AMap.event.addListener(geolocation, 'complete', onComplete);//返回定位信息
                 AMap.event.addListener(geolocation, 'error', onError);      //返回定位出错信息
               });
+
               // 解析定位结果
               function onComplete(data) {
-                me.locals.set('cur5656Position',JSON.stringify(data))
+                me.locals.set('cur5656Position', JSON.stringify(data))
                 vm.location = data.formattedAddress
                 var str = ['定位成功'];
                 str.push('经度：' + data.position.getLng());
@@ -358,84 +287,57 @@
               console.log(e)
             }
           }
-        },800)
+        }, 800)
       },
       // 向父组件传值
-      setPageStatus (data) {
+      setPageStatus(data) {
         this.$emit('listenPage', data)
       },
-      scrollHandler () {
+      scrollHandler() {
         // 监听dom的scroll事件
-          setTimeout(function(){
-            let scrollTop = vm.$refs.home.scrollTop
-            let target = vm.$refs.filters
-            let list = vm.$refs.goodsList
-            if(vm.showFilterCon){
-              vm.hideFilter()
-            }
-            if(scrollTop >= vm.filterOffset ){
-              target.classList.add('fixed')
-              list.classList.add('fixed')
-            }else{
-              target.classList.remove('fixed')
-              list.classList.remove('fixed')
-            }
-          },300)
+        setTimeout(function () {
+          let scrollTop = vm.$refs.home.scrollTop
+          let target = vm.$refs.orderTab
+          let list = vm.$refs.goodsList
+          if (vm.showFilterCon) {
+            vm.hideFilter()
+          }
+          if (scrollTop >= vm.orderOffset) {
+            target.classList.add('fixed')
+            list.classList.add('fixed')
+          } else {
+            target.classList.remove('fixed')
+            list.classList.remove('fixed')
+          }
+        }, 300)
       },
-      toMap () {
-        vm.$router.push({name: 'map', params: {path: vm.$route.path.replace(/\//g,'_')}})
+      toMap() {
+        vm.$router.push({name: 'map', params: {path: vm.$route.path.replace(/\//g, '_')}})
       },
-      toTopic (url) {
+      toTopic(url) {
         if (vm.showFilterCon) return
         location.href = url
       },
-      toDetail (id) {
+      toDetail(id) {
         if (vm.showFilterCon) return
         vm.$router.push({path: '/detail/' + id})
       },
       /* 页面数据 */
-      getBanner (cb) {
+      getBanner(cb) {
         vm.loadData(homeApi.banner, null, 'POST', function (res) {
           console.log(res.data, '首页Banner')
           vm.banner = res.data.itemList
           cb ? cb() : null
         })
       },
-      getNotice () {
+      getNotice() {
         vm.loadData(homeApi.topNotice, null, 'POST', function (res) {
           console.log(res.data, '首页TopNews')
           vm.notice = res.data.itemList
         })
       },
-      getGoods (isLoadMore) {
-        if (vm.onFetching) return false
-        var params = vm.filterData || {
-            pagerSize: 10,
-            pageNo: 1,
-            goodsType: 'XXX',
-            goodsCategory: '',
-            brandId: '',
-            filter: ''
-          }
-        vm.loadData(homeApi.goodsList, params, 'POST', function (res) {
-          console.log(res.data, '首页GoodsList')
-          if (!isLoadMore) {
-            vm.goods = res.data.itemList
-            if(res.data.noMore){
-              vm.$nextTick(function () {
-                vm.$refs.myScroll.disablePullup ()
-              })
-            }
-          } else {
-            vm.goods.push(res.data.itemList)
-          }
-          vm.onFetching = false
-        }, function () {
-          vm.onFetching = false
-        })
-      },
       /* 商品筛选 */
-      showFilter (type, e) {
+      showFilter(type, e) {
         vm.factive = type
         console.log(vm.subActive)
         if (vm.showFilterCon) {
@@ -454,13 +356,13 @@
         }
         // 默认选中已选择的筛选条件
       },
-      hideFilter () {
-        if(vm.showFilterCon){
+      hideFilter() {
+        if (vm.showFilterCon) {
           vm.showFilterCon = false
           vm.factive = ''
         }
       },
-      chooseFilter (idx, key, value, e) {
+      chooseFilter(idx, key, value, e) {
         vm.goods = []
         console.log(JSON.stringify(vm.filterData), vm.curFilterType)
         if (JSON.stringify(vm.filterData).indexOf(vm.curFilterType) === -1) {
@@ -493,7 +395,7 @@
         vm.getGoods(lastF)
       },
       /* 上下拉刷新 */
-      onPullDown () {
+      onPullDown() {
         if (vm.onFetching) {
           // do nothing
           return false
@@ -509,7 +411,7 @@
           }, 1500)
         }
       },
-      onPullUp () {
+      onPullUp() {
         if (vm.onFetching) {
           // do nothing
           return false
@@ -528,30 +430,132 @@
           }, 200)
         }
       },
-      onScroll (pos) {
+      onScroll(pos) {
         this.scrollTop = pos.top
         vm.factive = ''
         vm.showFilterCon ? vm.showFilterCon = false : null
       },
-      changeCount (obj) {
+      refresh(done) {
+        console.log('下拉加载')
+        setTimeout(function () {
+          vm.getOrders()
+          vm.$refs.orderScroller.finishPullToRefresh()
+        }, 1200)
+      },
+      infinite(done) {
+        console.log('无限滚动')
+        setTimeout(function () {
+          vm.getOrders(true)
+          vm.$refs.orderScroller.finishInfinite(true)
+        }, 1000)
+      },
+      getOrders(isLoadMore) {
+        vm.params.type = vm.$route.params.id
+        if (vm.onFetching) return false
+        vm.processing()
+        vm.onFetching = true
+        vm.loadData(orderApi.orders, vm.params, 'POST', function (res) {
+          var resD = res.data.itemList
+          for (var i = 0; i < resD.length; i++) {
+            switch (resD[i].status) {
+              case -1:
+                resD[i].statusName = '已取消'
+                break
+              case 0:
+                resD[i].statusName = '待支付'
+                break
+              case 1:
+                resD[i].statusName = '待派送'
+                break
+              case 2:
+                resD[i].statusName = '派送中'
+                break
+              case 3:
+                resD[i].statusName = '待评价'
+                break
+              case 4:
+                resD[i].statusName = '已完成'
+                break
+            }
+          }
+          if (!isLoadMore) {
+            vm.orders = resD
+          } else {
+            vm.orders.push(resD)
+          }
+          console.log(vm.orders, '订单数据')
+          vm.onFetching = false
+          vm.processing(0, 1)
+        }, function () {
+          vm.onFetching = false
+          vm.processing(0, 1)
+        })
+      },
+      delOrder(id) {
+        if (vm.isPosting) return false
+        vm.confirm('确认删除？', '订单删除后不可恢复！', function () {
+          vm.isPosting = true
+          vm.loadData(orderApi.delOrder + '?id=' + id, vm.params, 'POST', function (res) {
+            vm.isPosting = false
+          }, function () {
+            vm.isPosting = false
+          })
+        }, function () {
+        })
+      },
+      cancelOrder(id) {
+        if (vm.isPosting) return false
+        vm.confirm('确认取消？', '订单取消后不可恢复！', function () {
+          vm.isPosting = true
+          vm.loadData(orderApi.cancelOrder + '?id=' + id, vm.params, 'POST', function (res) {
+            vm.isPosting = false
+          }, function () {
+            vm.isPosting = false
+          })
+        }, function () {
+          // console.log('no')
+        })
+      },
+      pushOrder(id) {
+        if (vm.isPosting) return false
+        vm.confirm('确认催单？', '请不要频繁催单！', function () {
+          vm.isPosting = true
+          vm.loadData(orderApi.cancelOrder + '?id=' + id, vm.params, 'POST', function (res) {
+            vm.isPosting = false
+          }, function () {
+            vm.isPosting = false
+          })
+        }, function () {
+          // console.log('no')
+        })
+      },
+      onItemClick(type) {
+        if (type === 'undefined') {
+          vm.params.type = ''
+        } else {
+          vm.params.type = type
+        }
+        vm.getOrders()
+      },
+      changeCount(obj) {
         console.log(obj)
-        if (obj.type==='add') {
+        if (obj.type === 'add') {
           this.additem(obj.event)
-          this.count ++
-        } else if (obj.type==='sub') {
-          this.count --
+          this.count++
+        } else if (obj.type === 'sub') {
+          this.count--
         } else {
           this.count = obj.value
         }
-        vm.$store.commit('updateCart', this.count )
+        vm.$store.commit('updateCart', this.count)
         console.log(vm.$store.state.cart.count)
       },
       /* 购物车 */
-      additem(event){
+      additem(event) {
         this.drop(event.target);
       },
       /* 购物车小球动画 */
-      drop (el) {
+      drop(el) {
         //抛物
         for (let i = 0; i < this.balls.length; i++) {
           let ball = this.balls[i]
@@ -563,7 +567,7 @@
           }
         }
       },
-      beforeDrop (el) {
+      beforeDrop(el) {
         let count = this.balls.length
         while (count--) {
           let ball = this.balls[count]
@@ -581,7 +585,7 @@
         }
       },
       /*重置小球数量  样式重置*/
-      dropping (el, done) {
+      dropping(el, done) {
         let rf = el.offsetHeight
         let cartCls = vm.$refs.floatCart.classList
         el.style.webkitTransform = 'translate3d(0,0,0)'
@@ -590,13 +594,13 @@
         inner.style.webkitTransform = 'translate3d(-10px,-80px,0)'
         inner.style.transform = 'translate3d(-10px,-80px,0)'
         el.addEventListener('transitionend', done)
-          cartCls.toggle('bulbing')
-          setTimeout(() => {
-            cartCls.remove('bulbing')
-          },800)
+        cartCls.toggle('bulbing')
+        setTimeout(() => {
+          cartCls.remove('bulbing')
+        }, 800)
       },
       /*初始化小球*/
-      afterDrop (el) {
+      afterDrop(el) {
         let ball = this.dropBalls.shift()
         if (ball) {
           ball.show = false
@@ -613,7 +617,7 @@
 
   .home {
     height: 100%;
-    overflow: scroll; // 此两个属性至关重要，不写@scroll监听不到滚动
+    overflow-y: scroll; // 此两个属性至关重要，不写@scroll监听不到滚动
   }
 
   .location-chooser {
@@ -631,12 +635,12 @@
         .cdiy(#f34c18);
       }
     }
-    .right-arrow{
+    .right-arrow {
       .abs-center-vertical;
     }
   }
 
-  .swiper-home{
+  .swiper-home {
     min-height: 320/@rem;
     margin-bottom: 10/@rem;
     .swiper-container {
@@ -654,10 +658,70 @@
     }
   }
 
+  .overview {
+    .rel;
+    .borBox;
+    padding: 30/@rem 30/@rem 20/@rem;
+    .cf;
+    .bdiy(#FE6246);
+    .user-center {
+      .abs;
+      left: 0;
+      top: 0;
+      padding: 30/@rem;
+      .fz(40);
+      .cf;
+    }
+    .top {
+      padding: 40/@rem 0;
+      .center;
+      //      .bor-b;
+      .bor-b(1px, solid, rgba(255, 255, 255, .2));
+      h2 {
+        padding: 30/@rem 0;
+        line-height: 1;
+        //        .c3;
+        .fz(60);
+      }
+      .today {
+        //        .c6;
+        .fz(30);
+      }
+      .yesterday {
+        //        .c9;
+        .fz(24);
+      }
+    }
+    .bottom {
+      padding-top: 20/@rem;
+      .center;
+      overflow: hidden;
+      .col {
+        .fl;
+        width: 50%;
+      }
+      h2 {
+        padding: 18/@rem 0;
+        line-height: 1;
+        .txt-normal;
+        //        .c3;
+        .fz(36);
+      }
+      .today {
+        //        .c3;
+        .fz(24);
+      }
+      .yesterday {
+        //        .c9;
+        .fz(20);
+      }
+    }
+  }
+
   .middle-entry {
     margin-bottom: 10/@rem;
     .bf;
-    border-top: 1px solid #eee;
+    /*border-top: 1px solid #eee;*/
     border-bottom: 1px solid #eee;
     .weui-grid__icon {
       display: block;
@@ -713,214 +777,154 @@
     }
   }
 
-  .goods-filter {
+  .order-list {
     .rel;
-    z-index: 10;
-    margin-bottom: 10/@rem;
-    .transi(.2s);
-    &.fixed {
-      width: 100%;
-      .fix;
-      top: 0;
+    min-height: 200px;
+    &.hasContent {
+      height: 800px;
     }
-    .v-filter-tabs {
-      width: 100%;
-      padding: 10/@rem 0;
-      border-top: 1px solid #eee;
-      border-bottom: 1px solid #eee;
-      .bf;
-      .v-f-tabs {
-        height: 60/@rem;
-        li {
-          .pointer;
-          .rel;
-          .borBox;
-          .fl;
-          width: 33.3333%;
-          height: 60/@rem;
-          line-height: 60/@rem;
-          .c3;
-          .center;
-          font-size: 14px;
-          .ico-arr-down {
-            position: absolute;
-            width: 30px;
-            height: 30px;
-            top: 6/@rem;
-            &:before {
-              content: "";
-              position: absolute;
-              width: 6px;
-              height: 6px;
-              border: 1px solid #666;
-              border-width: 1px 0 0 1px;
-              -webkit-transform: rotate(-135deg);
-              transform: rotate(-135deg);
-              top: 8px;
-              left: 7px;
-              .transi(.2s);
-            }
-          }
-          &.mfilterActive {
-            .cdiy(#f1582a);
-            .ico-arr-down {
-              &:before {
-                border-color: #f1582a;
-                -webkit-transform-origin: 0 center;
-                transform-origin: 0 center;
-                -webkit-transform: rotate(45deg);
-                transform: rotate(45deg);
-              }
-            }
-          }
-          &:nth-child(2) {
-            border-left: 1px solid #eee;
-            border-right: 1px solid #eee;
-          }
+    .order-tab {
+      z-index: 10;
+      .vux-tab-item {
+        .rel;
+        .vux-tab-item-badge {
+          top: -20px;
+          right: 0;
         }
       }
-      .filter-data {
-        .abs;
-        z-index: 10;
-        .borBox;
-        margin-top: 8/@rem;
-        opacity: 0;
-        height: 0;
+      .transi(.2s);
+      &.fixed {
         width: 100%;
-        .bf;
-        border-top: 1px solid #eee;
-        .bsd(0, 10px, 18px, 0, #ccc);
-        .transi(.2s);
-        &.show {
-          opacity: 1;
-          height: auto;
-          padding: 30/@rem 18/@rem;
-        }
-        .filter-tags {
-          overflow: hidden;
-          li {
-            .pointer;
-            .fl;
-            padding: 3px 10px;
-            margin: 10/@rem;
-            line-height: 1;
-            font-size: 12px;
-            .c6;
-            .bf1;
-            .borR(10px);
-            &.sfilterActive {
-              .cf;
-              .bdiy(#f1582a);
-            }
-          }
-        }
+        .fix;
+        top: 0;
       }
-    }
-  }
-
-  .goods-list {
-    /*max-height:500px;*/
-    overflow: auto;
-    &.fixed {
-      margin-top:100/@rem;
     }
     .inner-scroller {
       .borBox;
-      .static;
+      padding: 0 0 50px;
       .v-items {
-        padding: 20/@rem;
+        .borBox;
+        margin-bottom: 20/@rem;
+        /*padding: 0 20/@rem 20/@rem;*/
         .bf;
-        &:not(:last-child) {
+        .bsd(0, 2px, 10px, 0, #ccc);
+        .item-top {
+          padding: 14/@rem 20/@rem;
+          .txt-normal;
+          .c3;
+          .fz(24);
           .bor-b;
-        }
-        .wrap {
-          .flex;
-          .rel;
-          .h(150);
-        }
-        .click-wrap{
-          .borBox;
-          .flex-r(1);
-          overflow: hidden;
-        }
-        img {
-          .abs;
-          left: 0;
-          top: 0;
-          .size(150, 150);
-          background: #f5f5f5 url(../../static/img/noImg.png) no-repeat center;
-          -webkit-background-size: 30% auto;
-          background-size: 30% auto;
-        }
-        .infos {
-          .flex;
-          .flex-d-v;
-          .borBox;
-          width: 100%;
-          height: 100%;
-          padding-left: 170/@rem;
-          h3 {
-            .flex-r(1);
-            .fz(30);
-            .txt-normal;
-            .c3;
-            .ellipsis;
+          .ico-store {
+            .fl;
+            display: inline-block;
+            margin-top: 2/@rem;
+            font-size: inherit;
+            .size(30, 30);
+            background: url(../../static/img/ico_store.png);
+            .ele-base;
           }
-          .middle {
-            .flex-r(1);
-            padding: 10/@rem 0;
-            .price {
+          span {
+            .fr;
+            .fz(22);
+            .cdiy(@c2);
+          }
+        }
+        .item-middle {
+          padding: 14/@rem 20/@rem;
+          .flex;
+          .bf8;
+          .img-con {
+            .rel;
+            .size(130, 130);
+            img {
+              width: 100%;
+              .abs-center-vh;
             }
-            span {
-              &.price {
+          }
+          .info-con {
+            .flex-r(2);
+            padding: 0 14/@rem;
+            h3 {
+              padding-bottom: 10/@rem;
+              .txt-normal;
+              .c3;
+              .fz(26);
+              .ellipsis-clamp-2;
+            }
+            .middle {
+              .c9;
+              .fz(22);
+              .ellipsis-clamp-2;
+              .unit-price {
+                padding-right: 40/@rem;
                 .c3;
                 .fz(24);
-                .txt-del;
-              }
-              &.hasSell {
-                padding-left: 30/@rem;
-                .c9;
-                .fz(22);
               }
             }
           }
-          label {
+          .price-con {
             .flex-r(1);
-            .cdiy(#f34c18);
-            .fz(22);
+            .right;
+            .price {
+              padding-bottom: 10/@rem;
+              .c3;
+              .fz(24);
+            }
+            .buy-count {
+              .c9;
+              .fz(22);
+            }
           }
         }
-      }
-      .buy-count {
-        .rel;
-        width:160/@rem;
-        .weui-cells {
-          .abs-center-vertical;
-          right: -10/@rem;
-          margin-top: 0;
-          .no-bg;
-          &:before, &:after {
-            .none;
-          }
-          .weui-cell {
-            padding: 0;
-          }
-          .vux-number-input {
-            width: 50/@rem !important;
-            height: 34/@rem !important;
-            .fz(24);
-          }
-          .vux-number-selector, .vux-number-selector-plus {
-            .size(30, 30);
-            padding: 2px;
-            font-size: 0;
-            line-height: 34/@rem;
-            /*border-color: #f34c18;*/
-            svg {
-              .size(30, 30);
-              /*fill: #f34c18;*/
+        .item-bottom {
+          .extra-info {
+            margin-top: 2px;
+            padding: 10/@rem 20/@rem;
+            .bf8;
+            p {
+              .fz(22);
+              .c3;
+              span {
+                .fr;
+              }
+              &:not(:last-child) {
+                padding-bottom: 10/@rem;
+              }
             }
           }
+          .total-price {
+            padding: 10/@rem 20/@rem;
+            .right;
+            .c3;
+            .fz(22);
+            .bor;
+            span {
+              .fz(30);
+            }
+          }
+          .btns {
+            padding: 20/@rem 20/@rem;
+            overflow: hidden;
+            a {
+              .fr;
+              padding: 4px 40/@rem;
+              margin-left: 20/@rem;
+              .cf;
+              .fz(22);
+              .borR(50px);
+              &.btn-cancel, &.btn-del {
+                .c6;
+                .bor(1px, solid, #ccc);
+              }
+              &.btn-push, &.btn-appraise, &.btn-pay {
+                .cdiy(@c2);
+                .bor(1px, solid, @c2);
+              }
+            }
+          }
+        }
+        &.grey {
+          .c9!important;
         }
       }
     }

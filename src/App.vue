@@ -1,9 +1,9 @@
 <template>
   <div class="container">
     <!--地图容器-->
-    <div id="mapContainer"></div>
+    <!--<div id="mapContainer"></div>-->
     <!--标签栏-->
-    <tabbar v-if="showTabbar" style="position:fixed">
+    <!--<tabbar v-if="showTabbar" style="position:fixed">
       <tabbar-item :selected="(curSelected===1||$route.path=='/home')?true:false" link="/home">
         <img slot="icon" src="../static/img/ico_home.png">
         <img slot="icon-active" src="../static/img/ico_home_sel.png">
@@ -29,7 +29,7 @@
         <img slot="icon-active" src="../static/img/ico_my_sel.png">
         <span slot="label">我的</span>
       </tabbar-item>
-    </tabbar>
+    </tabbar>-->
 
     <!--这里是被缓存的视图组件，比如 Home！-->
     <!--<transition :name="'vux-pop-' + (direction === 'forward' ? 'in' : 'out')">-->
@@ -53,8 +53,10 @@
   // import myMixin from 'myMixin'
   let vm
   import Home from './pages/Home'
+  import {homeApi} from './service/main.js'
   import {Tabbar, TabbarItem} from 'vux'
   import {mapState, mapActions} from 'vuex'
+
   export default {
     name: 'app',
     data() {
@@ -73,11 +75,13 @@
     mounted() {
       // me.attachClick()
       vm = this
+      window.youniMall.userAuth = vm.$store.state.global.wxInfo
+      !vm.$store.state.global.wxInfo.dict ? vm.getDict() : null
     },
     computed: {
-      'showTabbar' () {
+      'showTabbar'() {
         let path = this.$route.name
-        return path === 'home' || path === 'nearby' || path === 'ticket' ||path === 'order' || path === 'user'
+        return path === 'home' || path === 'nearby' || path === 'ticket' || path === 'order' || path === 'user'
       },
       'key'() {
         return this.$route.path.replace(/\//g, '_')
@@ -85,15 +89,21 @@
     },
     methods: {
       // 从子组件获取数据
-      getPageStatus (data) {
+      getPageStatus(data) {
         vm.curSelected = data
+      },
+      getDict() {
+        vm.loadData(homeApi.dict, {}, 'POST', function (res) {
+          vm.$store.commit('StoreData', {key: 'dict', data: res.data.itemList})
+        }, function () {
+        })
       }
     },
     watch: {
-      'curCount' () {
+      'curCount'() {
         return vm.$store.state.cart.count
       },
-      '$route' (to, from) {
+      '$route'(to, from) {
         /* let isBack = this.$router.isBack //  监听路由变化时的状态为前进还是后退
         console.log(isBack)
         if (isBack) {

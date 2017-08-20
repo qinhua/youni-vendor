@@ -248,6 +248,12 @@
         right: 0;
       }
     }
+    .transi(.2s);
+    &.fixed {
+      width: 100%;
+      .fix;
+      top: 0;
+    }
   }
 
   .order-list {
