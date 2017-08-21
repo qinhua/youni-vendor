@@ -1,5 +1,5 @@
 <template>
-  <div class="home" ref="home">
+  <div class="home-con" ref="home">
     <!--banner-->
     <!-- <div class="swiper-home">
        <swiper ref="slider01" skey="s01" :slides="banner" autoPlay="2500"></swiper>
@@ -58,21 +58,29 @@
         </div>
       </div>-->
     </div>
-
+    <group>
+      <x-switch :title="'订单类别 ['+(isMilk?'奶':'水')+']'" v-model="isMilk" @on-click="changeType"></x-switch>
+    </group>
     <!--订单列表-->
-    <div class="orders">
+    <div class="orders-list-con">
       <sticky ref="sticky">
-        <tab class="order-tab" ref="orderTab" active-color="#FE6246">
-          <tab-item :selected="params.type==0?true:false" @on-item-click="onItemClick">全部</tab-item>
-          <tab-item :selected="params.type==1?true:false" @on-item-click="onItemClick(1)">待支付</tab-item>
-          <tab-item :selected="params.type==2?true:false" @on-item-click="onItemClick(2)">待派送</tab-item>
-          <tab-item :selected="params.type==3?true:false" @on-item-click="onItemClick(3)">待评价</tab-item>
-          <tab-item :selected="params.type==4?true:false" @on-item-click="onItemClick(4)">已完成</tab-item>
+        <tab class="order-tab" ref="orderTab" active-color="#FE6246" v-if="!isMilk">
+          <tab-item :selected="type==0?true:false" @on-item-click="onItemClick">全部</tab-item>
+          <tab-item :selected="type==1?true:false" @on-item-click="onItemClick(1)">待支付</tab-item>
+          <tab-item :selected="type==2?true:false" @on-item-click="onItemClick(2)">待派送</tab-item>
+          <tab-item :selected="type==3?true:false" @on-item-click="onItemClick(3)">待评价</tab-item>
+          <tab-item :selected="type==4?true:false" @on-item-click="onItemClick(4)">已完成</tab-item>
+        </tab>
+        <tab class="order-tab" ref="orderTab" active-color="#FE6246" v-else>
+          <tab-item :selected="type==0?true:false" @on-item-click="onItemClick">全部</tab-item>
+          <tab-item :selected="type==1?true:false" @on-item-click="onItemClick(1)">配送中</tab-item>
+          <tab-item :selected="type==2?true:false" @on-item-click="onItemClick(2)">已暂停</tab-item>
+          <tab-item :selected="type==4?true:false" @on-item-click="onItemClick(4)">已完成</tab-item>
         </tab>
       </sticky>
       <div :class="'order-list' + (orders.length?' hasContent':'')">
         <scroller class="inner-scroller" ref="orderScroller" :on-refresh="refresh" :on-infinite="infinite"
-                  refreshText="下拉刷新" noDataText="没有更多数据" snapping>
+                  refreshText="下拉刷新" noDataText="没有更多数据" snapping v-if="!isMilk">
           <!-- content goes here -->
           <section class="v-items" v-for="(item, index) in orders" :data-id="item.id"
                    :data-orderNumber="item.orderNumber">
@@ -109,10 +117,64 @@
                 <a class="btn btn-cancel" @click="cancelOrder(item.orderId||2)">取消订单</a>
               </div>-->
               <div class="btns" v-if="item.status===1">
-                <a class="btn btn-push" @click="pushOrder(item.orderId||2)">催单</a>
                 <a class="btn btn-cancel" @click="cancelOrder(item.orderId||2)">取消订单</a>
               </div>
               <div class="btns" v-if="item.status===2">
+                <a class="btn btn-cancel" @click="cancelOrder(item.orderId||2)">取消订单</a>
+              </div>
+              <div class="btns" v-if="item.status===3">
+                <a class="btn btn-appraise" @click="toAppraise(item.orderId||2)">评价</a>
+                <a class="btn btn-del" @click="delOrder(item.orderId||2)">删除订单</a>
+              </div>
+              <div class="btns" v-if="item.status===4">
+                <a class="btn btn-del" @click="delOrder(item.orderId||2)">删除订单</a>
+              </div>
+            </section>
+          </section>
+        </scroller>
+
+        <scroller class="inner-scroller" ref="orderScroller" :on-refresh="refresh" :on-infinite="infinite"
+                  refreshText="下拉刷新" noDataText="没有更多数据" snapping v-else>
+          <!-- content goes here -->
+          <section class="v-items" v-for="(item, index) in orders" :data-id="item.id"
+                   :data-orderNumber="item.orderNumber">
+            <h4 class="item-top"><i class="fa fa-address-card"></i>&nbsp;王亮的订单&nbsp;&nbsp;<i
+              class="fa fa-angle-right cc"></i><span>{{item.statusName}}</span></h4>
+            <section class="item-middle">
+              <div class="img-con">
+                <img :src="item.imgurl">
+              </div>
+              <div class="info-con">
+                <h3>{{item.productName}}</h3>
+                <section class="middle">
+                  <span class="unit-price">￥{{item.unitPrice}}</span>
+                  <span class="order-info">{{item.info}}</span>
+                </section>
+                <label class="progress"><span>已送：5次</span>&nbsp;&nbsp;<span>待送：13次</span></label>
+              </div>
+              <div class="price-con">
+                <p class="price">￥{{item.price}}</p>
+                <p class="buy-count">x{{item.buyCount}}</p>
+              </div>
+            </section>
+            <section class="item-bottom">
+              <div class="extra-info">
+                <p v-for="(ext, idx) in item.extras">{{ext.name}}<span>￥{{ext.type ? '-' : ''}}{{ext.value}}.00</span>
+                </p>
+              </div>
+              <div class="total-price">共{{item.buyCount}}件商品&nbsp;合计：<span>￥{{item.total}}</span>.00（含上楼费）</div>
+              <div class="btns" v-if="item.status===-1">
+                <a class="btn btn-del" @click="delOrder(item.orderId||2)">删除订单</a>
+              </div>
+              <!--<div class="btns" v-if="item.status===0">
+                <a class="btn btn-pay" @click="payOrder(item.orderId||2)">支付</a>
+                <a class="btn btn-cancel" @click="cancelOrder(item.orderId||2)">取消订单</a>
+              </div>-->
+              <div class="btns" v-if="item.status===1">
+                <a class="btn btn-cancel" @click="cancelOrder(item.orderId||2)">取消订单</a>
+              </div>
+              <div class="btns" v-if="item.status===2">
+                <a class="btn btn-del" @click="delOrder(item.orderId||2)">恢复配送</a>
                 <a class="btn btn-cancel" @click="cancelOrder(item.orderId||2)">取消订单</a>
               </div>
               <div class="btns" v-if="item.status===3">
@@ -146,6 +208,7 @@
     Countup,
     Tab,
     TabItem,
+    XSwitch,
     Sticky
   } from 'vux'
   import {homeApi, orderApi, goodsApi} from '../service/main.js'
@@ -155,7 +218,9 @@
     name: 'home',
     data() {
       return {
+        isMilk: true,
         location: '',
+        type: 0,
         banner: [],
         notice: [],
         orders: [],
@@ -181,16 +246,7 @@
           loadingContent: '加载中…',
           clsPrefix: 'xs-plugin-pullup-'
         },
-        curOrderFilter: '',
-        params: {
-          type: 0,
-          pagerSize: 10,
-          pageNo: 1,
-          goodsType: 'XXX',
-          goodsCategory: '',
-          brandId: '',
-          filter: ''
-        },
+        curOrderFilter: ''
       }
     },
     components: {
@@ -203,6 +259,7 @@
       Countup,
       Tab,
       TabItem,
+      XSwitch,
       Sticky
     },
     beforeMount() {
@@ -217,21 +274,23 @@
       // vm.getNotice()
       vm.getOrders()
       vm.$nextTick(function () {
-        //获取tab位置
-        setTimeout(() => {
-          vm.orderOffset = vm.$refs.orderTab.offsetTop
-          console.log(vm.$refs.orderTab)
-        }, 500)
-        vm.$refs.orderScroller.finishInfinite(true)
-        vm.$refs.orderScroller.resize()
+        vm.$nextTick(function () {
+          vm.$refs.orderScroller.finishInfinite(true)
+          vm.$refs.orderScroller.resize()
+        })
       })
     },
-    computed: mapState({
-      curCount: state => state.cart.count
-    }),
+    computed: {
+      curType () {
+        return vm.isMilk ? 'milk' : 'water'
+      }
+    },
     watch: {
-      '$route'(to, from) {
-        vm.getPos()
+//      '$route'(to, from) {
+//        vm.getPos()
+//      }
+      isMilk () {
+        vm.getOrders()
       }
     },
     methods: {
@@ -288,9 +347,10 @@
             }
           }
         }, 800)
-      },
+      }
+      ,
       // 向父组件传值
-      setPageStatus(data) {
+      setPageStatus(data){
         this.$emit('listenPage', data)
       },
       scrollHandler() {
@@ -311,19 +371,19 @@
           }
         }, 300)
       },
-      toMap() {
+      toMap(){
         vm.$router.push({name: 'map', params: {path: vm.$route.path.replace(/\//g, '_')}})
       },
       toTopic(url) {
         if (vm.showFilterCon) return
         location.href = url
       },
-      toDetail(id) {
+      toDetail(id){
         if (vm.showFilterCon) return
         vm.$router.push({path: '/detail/' + id})
       },
       /* 页面数据 */
-      getBanner(cb) {
+      getBanner(cb){
         vm.loadData(homeApi.banner, null, 'POST', function (res) {
           console.log(res.data, '首页Banner')
           vm.banner = res.data.itemList
@@ -337,7 +397,7 @@
         })
       },
       /* 商品筛选 */
-      showFilter(type, e) {
+      showFilter(type, e){
         vm.factive = type
         console.log(vm.subActive)
         if (vm.showFilterCon) {
@@ -362,7 +422,7 @@
           vm.factive = ''
         }
       },
-      chooseFilter(idx, key, value, e) {
+      chooseFilter(idx, key, value, e){
         vm.goods = []
         console.log(JSON.stringify(vm.filterData), vm.curFilterType)
         if (JSON.stringify(vm.filterData).indexOf(vm.curFilterType) === -1) {
@@ -394,8 +454,11 @@
         }
         vm.getGoods(lastF)
       },
+      changeType (){
+        vm.getOrders()
+      },
       /* 上下拉刷新 */
-      onPullDown() {
+      onPullDown()   {
         if (vm.onFetching) {
           // do nothing
           return false
@@ -411,7 +474,7 @@
           }, 1500)
         }
       },
-      onPullUp() {
+      onPullUp()      {
         if (vm.onFetching) {
           // do nothing
           return false
@@ -430,31 +493,39 @@
           }, 200)
         }
       },
-      onScroll(pos) {
+      onScroll(pos)      {
         this.scrollTop = pos.top
         vm.factive = ''
         vm.showFilterCon ? vm.showFilterCon = false : null
       },
-      refresh(done) {
+      refresh(done)      {
         console.log('下拉加载')
         setTimeout(function () {
           vm.getOrders()
           vm.$refs.orderScroller.finishPullToRefresh()
         }, 1200)
       },
-      infinite(done) {
+      infinite(done)      {
         console.log('无限滚动')
         setTimeout(function () {
           vm.getOrders(true)
           vm.$refs.orderScroller.finishInfinite(true)
         }, 1000)
       },
-      getOrders(isLoadMore) {
-        vm.params.type = vm.$route.params.id
+      getOrders(isLoadMore)      {
         if (vm.onFetching) return false
+        var params = {
+          type: 0,
+          pagerSize: 10,
+          pageNo: 1,
+          goodsType: vm.curType || 'water',
+          goodsCategory: '',
+          brandId: '',
+          filter: ''
+        }
         vm.processing()
         vm.onFetching = true
-        vm.loadData(orderApi.orders, vm.params, 'POST', function (res) {
+        vm.loadData(orderApi.orders, params, 'POST', function (res) {
           var resD = res.data.itemList
           for (var i = 0; i < resD.length; i++) {
             switch (resD[i].status) {
@@ -491,11 +562,11 @@
           vm.processing(0, 1)
         })
       },
-      delOrder(id) {
+      delOrder(id)      {
         if (vm.isPosting) return false
         vm.confirm('确认删除？', '订单删除后不可恢复！', function () {
           vm.isPosting = true
-          vm.loadData(orderApi.delOrder + '?id=' + id, vm.params, 'POST', function (res) {
+          vm.loadData(orderApi.delOrder + '?id=' + id, {id: id}, 'POST', function (res) {
             vm.isPosting = false
           }, function () {
             vm.isPosting = false
@@ -503,11 +574,11 @@
         }, function () {
         })
       },
-      cancelOrder(id) {
+      cancelOrder(id)      {
         if (vm.isPosting) return false
         vm.confirm('确认取消？', '订单取消后不可恢复！', function () {
           vm.isPosting = true
-          vm.loadData(orderApi.cancelOrder + '?id=' + id, vm.params, 'POST', function (res) {
+          vm.loadData(orderApi.cancelOrder + '?id=' + id, {id: id}, 'POST', function (res) {
             vm.isPosting = false
           }, function () {
             vm.isPosting = false
@@ -516,11 +587,11 @@
           // console.log('no')
         })
       },
-      pushOrder(id) {
+      pushOrder(id)      {
         if (vm.isPosting) return false
         vm.confirm('确认催单？', '请不要频繁催单！', function () {
           vm.isPosting = true
-          vm.loadData(orderApi.cancelOrder + '?id=' + id, vm.params, 'POST', function (res) {
+          vm.loadData(orderApi.cancelOrder + '?id=' + id, {id: id}, 'POST', function (res) {
             vm.isPosting = false
           }, function () {
             vm.isPosting = false
@@ -529,15 +600,15 @@
           // console.log('no')
         })
       },
-      onItemClick(type) {
+      onItemClick(type)      {
         if (type === 'undefined') {
-          vm.params.type = ''
+          vm.type = ''
         } else {
-          vm.params.type = type
+          vm.type = type
         }
         vm.getOrders()
       },
-      changeCount(obj) {
+      changeCount(obj)      {
         console.log(obj)
         if (obj.type === 'add') {
           this.additem(obj.event)
@@ -551,11 +622,11 @@
         console.log(vm.$store.state.cart.count)
       },
       /* 购物车 */
-      additem(event) {
+      additem(event)      {
         this.drop(event.target);
       },
       /* 购物车小球动画 */
-      drop(el) {
+      drop(el)      {
         //抛物
         for (let i = 0; i < this.balls.length; i++) {
           let ball = this.balls[i]
@@ -567,7 +638,7 @@
           }
         }
       },
-      beforeDrop(el) {
+      beforeDrop(el)      {
         let count = this.balls.length
         while (count--) {
           let ball = this.balls[count]
@@ -585,7 +656,7 @@
         }
       },
       /*重置小球数量  样式重置*/
-      dropping(el, done) {
+      dropping(el, done){
         let rf = el.offsetHeight
         let cartCls = vm.$refs.floatCart.classList
         el.style.webkitTransform = 'translate3d(0,0,0)'
@@ -595,7 +666,7 @@
         inner.style.transform = 'translate3d(-10px,-80px,0)'
         el.addEventListener('transitionend', done)
         cartCls.toggle('bulbing')
-        setTimeout(() => {
+        setTimeout(function () {
           cartCls.remove('bulbing')
         }, 800)
       },
@@ -615,7 +686,7 @@
 <style lang='less'>
   @import '../../static/css/tools.less';
 
-  .home {
+  .home-con {
     height: 100%;
     overflow-y: scroll; // 此两个属性至关重要，不写@scroll监听不到滚动
   }
@@ -638,6 +709,9 @@
     .right-arrow {
       .abs-center-vertical;
     }
+  }
+
+  .orders-list-con {
   }
 
   .swiper-home {
@@ -777,6 +851,14 @@
     }
   }
 
+  .vux-x-switch {
+    .fz(24) !important;
+    .weui-switch:checked {
+      border-color: #fe6246;
+      background-color: #fe6246;
+    }
+  }
+
   .order-list {
     .rel;
     min-height: 200px;
@@ -859,6 +941,14 @@
                 padding-right: 40/@rem;
                 .c3;
                 .fz(24);
+              }
+            }
+            label {
+              .fz(22);
+              .progress {
+                span {
+                  padding-right: 20/@rem;
+                }
               }
             }
           }

@@ -6,7 +6,7 @@
       <tab-item @on-item-click="onItemClick(2)">半年</tab-item>
     </tab>
     <div class="echarts">
-      <IEcharts :option="bar" :loading="loading" @ready="onReady" @click="onClick"></IEcharts>
+      <IEcharts ref="myChart" :option="bar" :loading="loading" @ready="onReady" @click="onClick"></IEcharts>
       <button @click="doRandom">生成</button>
     </div>
   </div>
@@ -63,8 +63,12 @@
     },
     mounted() {
       vm = this
-      vm.params.sellerId = vm.$store.state.global.sellerId
+      vm.sellerId = vm.$store.state.global.sellerId
       vm.getStatistic()
+      var myChart=vm.$refs.myChart
+      window.onresize = function(){
+        myChart.resize();
+      }
     },
     computed: {},
     methods: {

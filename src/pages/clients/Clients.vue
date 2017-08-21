@@ -20,7 +20,7 @@
         <!-- content goes here -->
         <swipeout>
           <swipeout-item @on-close="" @on-open="" transition-mode="follow" v-for="(item, index) in clients"
-                         :data-id="item.id" :data-orderNumber="item.orderNumber">
+                         :data-id="item.id" :data-orderNumber="item.orderNumber" key="index">
             <div slot="right-menu">
               <!--<swipeout-button @click.native="onButtonClick('fav')" type="primary">yes</swipeout-button>-->
               <swipeout-button @click.native="onButtonClick('delete')" type="warn">删除</swipeout-button>
@@ -73,7 +73,7 @@
     },
     mounted() {
       vm = this
-      vm.params.sellerId = vm.$store.state.global.sellerId
+      vm.sellerId = vm.$store.state.global.sellerId
       vm.getClients()
       vm.$nextTick(() => {
         vm.$refs.clientScroller.finishInfinite(true)
