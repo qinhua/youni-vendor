@@ -24,6 +24,7 @@ import Goods from '@/pages/goods/Goods'
 import EditGoods from '@/pages/goods/Edit'
 import Clients from '@/pages/clients/Clients'
 import Statistic from '@/pages/statistic/Statistic'
+import Regist from '@/pages/my/Regist'
 
 import NoPage from '@/pages/NoPage'
 
@@ -46,6 +47,15 @@ export default new Router({
       meta: {
         title: '微信授权',
         keepAlive: false // 是否需要缓存
+      }
+    },
+    {
+      path: '/regist',
+      name: 'regist',
+      component: Regist,
+      meta: {
+        title: '商家入驻',
+        keepAlive: false
       }
     },
     {
