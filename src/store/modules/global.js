@@ -3,6 +3,7 @@ import $ from 'jquery'
 export default {
 
   state: {
+    geo: {},
     userInfo: {
       id: 'xxxxxxx',
       // id: '',
@@ -61,8 +62,63 @@ export default {
         state.itemDetail = payload.res.topiclist
       }
     },
-    StoreData(state, response) {
+    storeGeo(state, response) {
+      state.geo = response
+    },
+    storeData(state, response) {
       state[response['key']] = response.data
+    },
+    logout(state) {
+      state = {
+        userInfo: {
+          id: 'xxxxxxx',
+          // id: '',
+          name: ''
+        },
+        wxInfo: {
+          'city': '武汉',
+          'country': '中国',
+          'errorCode': 0,
+          'errorMessage': null,
+          'headimgurl': 'http://wx.qlogo.cn/mmopen/QAm7hEbaujS41jY5T0icQd9ySS9FaRJibTiclJGyysBmLoFmswkhLemAHAibYOQml4hibx3BqD2u8NRIwrAhTyeLgjavI70oxia8uk/0',
+          'nickname': '覃华',
+          'openid': 'oEo51t1PTVGj7H6Ahdqr_kac-1vs',
+          'privilege': [],
+          'province': '湖北',
+          'sex': '1',
+          'subscribe': 0,
+          'subscribeTime': null,
+          'unionid': null
+        },
+        dict: null,
+        nickName: '七灵',
+        sellerId: 'kk58585',
+        address: [
+          {
+            id: 1,
+            name: '七灵',
+            phone: 13260610021,
+            address: '在武汉光谷软件园十万八千里深的坑里，遥望月球上两个小姐姐',
+            isCurrent: true
+          },
+          {
+            id: 3,
+            name: '天启2',
+            phone: 13260610021,
+            address: '爱情对我来说就像龙卷风，像大多数人一样从来没见过',
+            isCurrent: false
+          }
+        ],
+        direction: 'forward',
+        name: '全局',
+        level: '第一周',
+        store: {},
+        itemNum: 1,
+        allTime: 0,
+        timer: '',
+        itemDetail: [],
+        answerid: {}
+      }
     },
     getUser(state, payload) {
       state.userInfo = payload

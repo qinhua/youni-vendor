@@ -137,13 +137,13 @@
         }
       },
       register() {
-        console.log(vm.params)
         if (vm.isPosting || !vm.validate()) return false
         vm.switchData(vm.types, vm.tmpType, 'type')
         vm.switchData(vm.levels, vm.tmpLevel, 'authLevel')
+        console.log(vm.params)
         vm.isPosting = true
         vm.processing()
-        vm.loadData(userApi.updateName, vm.params, 'POST', function (res) {
+        vm.loadData(userApi.regist, vm.params, 'POST', function (res) {
           vm.isPosting = false
           vm.processing(0, 1)
         }, function () {
@@ -151,13 +151,10 @@
           vm.processing(0, 1)
         })
       },
-      logHide(str) {
-        console.log('on-hide', str)
-      },
       changeArea(ids, names) {
         console.log(ids, names)
-        vm.province = ids[0]
-        vm.city = ids[1]
+        vm.params.province = ids[0]
+        vm.params.city = ids[1]
       },
       changeType(val) {
         console.log(val, vm.params.type)

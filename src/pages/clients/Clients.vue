@@ -56,7 +56,7 @@
   import {clientApi} from '../../service/main.js'
 
   export default {
-    name: 'order',
+    name: 'clients-con',
     data() {
       return {
         sellerId: null,

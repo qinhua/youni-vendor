@@ -8,6 +8,7 @@ import NearBy from '@/pages/NearBy'
 import Ticket from '@/pages/Ticket'
 import Order from '@/pages/Order'
 import Map from '@/pages/Map'
+import Geo from '@/pages/Geo'
 import My from '@/pages/My'
 import EditUser from '@/pages/my/EditUser'
 import EditAddress from '@/pages/my/EditAddress'
@@ -20,11 +21,16 @@ import About from '@/pages/my/About'
 import GoodsDetail from '@/pages/goods/Detail'
 
 import Store from '@/pages/store/Store'
+import Topic from '@/pages/store/Topic'
+import Coupons from '@/pages/store/Coupons'
+import EditCoupon from '@/pages/store/EditCoupon'
 import Goods from '@/pages/goods/Goods'
 import EditGoods from '@/pages/goods/Edit'
 import Clients from '@/pages/clients/Clients'
+import Assets from '@/pages/assets/Assets'
 import Statistic from '@/pages/statistic/Statistic'
 import Regist from '@/pages/my/Regist'
+import Password from '@/pages/my/Password'
 
 import NoPage from '@/pages/NoPage'
 
@@ -137,11 +143,20 @@ export default new Router({
        }] */
     },
     {
-      path: '/edit_user',
+      path: '/edit_user/:id',
       name: 'edit_user',
       component: EditUser,
       meta: {
         title: '我的',
+        keepAlive: false
+      }
+    },
+    {
+      path: '/password',
+      name: 'password',
+      component: Password,
+      meta: {
+        title: '修改密码',
         keepAlive: false
       }
     },
@@ -151,6 +166,33 @@ export default new Router({
       component: Store,
       meta: {
         title: '店铺管理',
+        keepAlive: false
+      }
+    },
+    {
+      path: '/store_topic',
+      name: 'store_topic',
+      component: Topic,
+      meta: {
+        title: '店铺公告',
+        keepAlive: false
+      }
+    },
+    {
+      path: '/coupons',
+      name: 'Coupons',
+      component: Coupons,
+      meta: {
+        title: '优惠管理',
+        keepAlive: false
+      }
+    },
+    {
+      path: '/edit_coupon',
+      name: 'edit_coupon',
+      component: EditCoupon,
+      meta: {
+        title: '优惠编辑',
         keepAlive: false
       }
     },
@@ -178,6 +220,15 @@ export default new Router({
       component: Clients,
       meta: {
         title: '客户管理',
+        keepAlive: false
+      }
+    },
+    {
+      path: '/assets',
+      name: 'assets',
+      component: Assets,
+      meta: {
+        title: '资金管理',
         keepAlive: false
       }
     },
@@ -259,6 +310,15 @@ export default new Router({
       component: Map,
       meta: {
         title: '地图',
+        keepAlive: false
+      }
+    },
+    {
+      path: '/geo',
+      name: 'geo',
+      component: Geo,
+      meta: {
+        title: '当前位置',
         keepAlive: false
       }
     },

@@ -1,27 +1,17 @@
 <template>
   <div class="store-con">
-    <group>
-      <x-input title="店铺名称：" placeholder="店铺名称" required text-align="right" v-model="storeName"></x-input>
-      <!--<x-input title="公司名称：" placeholder="公司名称" required v-model="companyName"></x-input>-->
-      <!--<x-input title="店铺简介：" placeholder="店铺简介" required v-model="description"></x-input>-->
-      <x-textarea title="店铺简介：" :max="20" placeholder="店铺简介" @on-blur="" v-model="description" show-clear></x-textarea>
-      <x-input title="认证信息：" placeholder="认证信息" text-align="right" v-model="authInfo"></x-input>
-      <x-input title="店铺头像：" placeholder="上传店铺头像" text-align="right" v-model="storeImg"></x-input>
+    <group class="list-modal">
+      <cell title="店铺公告" link="/store_topic">
+        <i slot="icon" width="20" style="margin-right:5px;" class="fa fa-credit-card"></i>
+      </cell>
+      <cell title="优惠管理" link="/coupons">
+        <i slot="icon" width="20" style="margin-right:5px;" class="fa fa-money"></i>
+      </cell>
+      <!--<cell title="使用帮助" link="/help"><i slot="icon" width="20" style="margin-right:5px;"
+                                         class="fa fa-question-circle"></i></cell>
+      <cell title="关于友你" link="/aboutus"><i slot="icon" width="20" style="margin-right:5px;"
+                                            class="fa fa-info-circle"></i></cell>-->
     </group>
-    <group class="bottom">
-      <!--<x-input title="店铺公告：" placeholder="店铺公告" v-model="topic"></x-input>-->
-      <x-textarea title="店铺公告：" :max="20" placeholder="店铺公告" @on-blur="" v-model="topic" show-clear></x-textarea>
-      <x-address class="address-area" title="所在地区" @on-hide="logHide" @on-shadow-change="changeArea" :list="addressData"
-                 placeholder="请选择地区">
-        <template slot="title" scope="props">
-        <span :class="props.labelClass" :style="props.labelStyle" style="height:24px;">
-          <span style="vertical-align:middle;">所在地区：</span>
-        </span>
-        </template>
-      </x-address>
-      <x-input title="详细地址：" placeholder="输入详细地址" required text-align="right" v-model="detailAddress"></x-input>
-    </group>
-    <div class="btn btn-save" @click="updateStore"><i class="fa fa-save"></i>&nbsp;保存</div>
   </div>
 </template>
 
@@ -29,93 +19,50 @@
   /* eslint-disable no-unused-vars */
   let me
   let vm
-  import {Group, Cell, XInput, XTextarea, XAddress, ChinaAddressV3Data} from 'vux'
-  import {userApi} from '../../service/main.js'
+  import {Grid, GridItem, Group, Cell} from 'vux'
 
   export default {
-    name: 'my-edit',
-    data() {
+    name: 'my',
+    data () {
       return {
-        onFetching: false,
-        isPosting: false,
-        addressData: ChinaAddressV3Data,
-        sellerId: null,
-        storeName: '',
-        storeImg: '',
-        authInfo: '',
-        description: '',
-        topic: '',
-        area: '',
-        detailAddress: ''
+        sellerName: '水一波旗舰店',
+        count: 0
       }
     },
-    components: {Group, Cell, XInput, XTextarea, XAddress, ChinaAddressV3Data},
-    beforeMount() {
+    components: {Grid, GridItem, Group, Cell},
+    beforeMount () {
       me = window.me
     },
-    mounted() {
-      vm = this
+    mounted () {
       // me.attachClick()
-      // vm.userId = vm.$route.query.userId
-      vm.sellerId = vm.$store.state.sellerId
-      console.log(vm.sellerId)
-      vm.getStore()
+      this.count = this.$store.state.cart.count
     },
+    watch: {
+      '$route' (to, from) {
+        this.count = this.$store.state.cart.count
+      }
+    },
+    computed: {},
     methods: {
-      getStore() {
-        vm.processing()
-        vm.loadData(userApi.updateName, {id: vm.sellerId}, 'POST', function (res) {
-          console.log(res.data, '店铺信息')
-          this.$store.commit('updateStore', res.data)
-          vm.processing(0, 1)
-        }, function () {
-          vm.processing(0, 1)
-        })
+      // 向父组件传值
+      setPageStatus (data) {
+        this.$emit('listenPage', data)
       },
-      validate() {
-        if (!vm.storeName) {
-          vm.toast('请填写店铺名！')
-          return false
+      jumpTo (pathName, param, type) {
+        /* [type=2] 1:'path'2:'name',3:'query' */
+        type = type || 'name'
+        if (pathName) {
+          if (type === 1) {
+            this.$router.push({path: '/' + pathName + (param ? '/' + param : '')})
+          }
+          if (type === 2) {
+            this.$router.push({name: pathName, params: param || ''})
+          }
+          if (type === 3) {
+            this.$router.push({path: '/' + pathName, query: param || ''})
+          }
         }
-        if (!vm.description) {
-          vm.toast('请填写店铺简介！')
-          return false
-        }
-        if (!vm.detailAddress) {
-          vm.toast('请填写店铺地址！')
-          return false
-        }
-      },
-      updateStore() {
-        if (vm.isPosting || !vm.validate()) return false
-        vm.isPosting = true
-        vm.processing()
-        vm.loadData(userApi.updateName, {
-          id: vm.sellerId,
-          name: vm.storeName,
-          avtar: vm.storeImg,
-          authInfo: vm.authInfo,
-          description: vm.description,
-          topic: vm.topic,
-          area: vm.area,
-          detailAddress: vm.detailAddress
-        }, 'POST', function (res) {
-          this.$store.commit('updateStore', res.data)
-          vm.$router.back()
-          vm.isPosting = false
-          vm.processing(0, 1)
-        }, function () {
-          vm.isPosting = false
-          vm.processing(0, 1)
-        })
-      },
-      logHide(str) {
-        console.log('on-hide', str)
-      },
-      changeArea(ids, names) {
-        console.log(ids, names)
-        vm.area = names.join('')
-      },
+      }
     }
   }
 </script>
@@ -125,31 +72,16 @@
   @import '../../../static/css/tools.less';
 
   .store-con {
-    .bottom {
-      margin-top: 10/@rem;
-    }
-    .vux-no-group-title {
-      margin-top: 0;
-      .vux-x-input {
-        padding: 24/@rem 30/@rem;
+    overflow-x: hidden;
+    .list-modal {
+      .weui-cells {
+        margin-top: 10/@rem;
+        padding: 0;
       }
-      .vux-x-input,.address-area,.vux-x-textarea {
-        .fz(26);
+      .weui-cell {
+        padding: 24/@rem !important;
+        .fz(26) !important;
       }
-    }
-    .btn-save {
-      .fix;
-      bottom: 0;
-      z-index: 20;
-      width: 100%;
-      .ma-w(640);
-      .borBox;
-      letter-spacing: 2px;
-      padding: 24/@rem;
-      .center;
-      .cf;
-      .fz(28);
-      .bdiy(@c2);
     }
   }
 

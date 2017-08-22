@@ -1,10 +1,7 @@
 <template>
   <div class="map-container">
     <!-- 地图容器 -->
-    <el-amap ref="vAmap" vid="amap" :amap-manager="amapManager" :center="center" :zoom="zoom" :plugin="plugin"
-             :events="events"></el-amap>
-    <el-amap-search-box class="search-box" :search-option="searchOption"
-                        :on-search-result="onSearchResult"></el-amap-search-box>
+
     <!-- 搜索框-->
     <!--<div id="searchBox">
       <input id="tipinput" type="input" placeholder="请输入关键字搜索"/>
@@ -21,10 +18,10 @@
 <!--/* eslint-disable no-unused-vars */-->
 <script>
   /* eslint-disable */
+  import VMap from 'vue-amap';
   let me
   let vm
-  import AMap from 'vue-amap';
-  let amapManager = new AMap.AMapManager();
+  let amapManager = new VMap.AMapManager();
   export default {
     name: 'map',
     data() {
@@ -32,7 +29,6 @@
         lastPage: '',
         amapManager,
         zoom: 16,
-        center: [121.59996, 31.197646],
         markers: [
           [121.59996, 31.197646],
           [121.40018, 31.197622],
@@ -42,9 +38,18 @@
           city: '',
           citylimit: false
         },
-        events: {
+        markerEvts: {
           init: (o) => {
-            console.log(o.getCenter())
+            console.log(this.$refs.maker01.$$getPosition())
+            console.log(this.$refs.maker01.$$getInstance(), 8888888888888888)
+          },
+          'dragend': (e) => {
+            console.log(this.$refs.maker01.$$getPosition(), 'marker拖动后的坐标')
+            vm.getResult(this.$refs.maker01.$$getPosition())
+          }
+        },
+        mapEvts: {
+          init: (o) => {
             console.log(this.$refs.vAmap.$$getInstance())
             o.getCity(result => {
               console.log(result)
@@ -55,11 +60,14 @@
           'zoomchange': () => {
           },
           'click': (e) => {
-            alert('map clicked')
+            console.log(this.$refs.vAmap.$$getCenter())
           },
           'dragend': (e) => {
+            console.log(this.$refs.vAmap.$$getInstance().getCenter(function (result) {
+              console.log(result, '地图拖动后的坐标')
+            }))
             this.$refs.vAmap.$$getInstance().getCity(function (result) {
-              console.log(result, '拖动后的位置数据')
+              console.log(result, '地图拖动后的位置数据')
             })
           }
         },
@@ -68,7 +76,7 @@
           defaultType: 0,
           events: {
             init(o) {
-              console.log(o);
+              // console.log(o);
             }
           }
         }, {
@@ -101,23 +109,20 @@
     mounted() {
       vm = this
       // me.attachClick()
-      vm.showMap()
+      // vm.showMap()
+      /*vm.$nextTick(function () {
+      })*/
     },
     computed: {},
-    watch: {
+    /*watch: {
       '$route'(to, from) {
         vm.showMap()
       }
-    },
+    },*/
     methods: {
       // 向父组件传值
       setPageStatus(data) {
         this.$emit('listenPage', data)
-      },
-      addMarker: function () {
-        let lng = 121.5 + Math.round(Math.random() * 1000) / 10000;
-        let lat = 31.197646 + Math.round(Math.random() * 500) / 10000;
-        this.markers.push([lng, lat]);
       },
       getMap() {
         // amap vue component
@@ -139,9 +144,13 @@
             lng: lngSum / pois.length,
             lat: latSum / pois.length
           };
-          this.mapCenter = [center.lng, center.lat];
+          this.$refs.vAmap.$$getInstance().setCenter([center.lng, center.lat])
+          // console.log('搜索结果：' + JSON.stringify(pois))
         }
-        console.log('搜索结果：' + JSON.stringify(pois))
+      },
+      getResult(coords){
+        console.info(coords)
+        this.$refs.vAmap.$$getInstance().getCity(coords)
       },
       showMap() {
         vm.lastPage = vm.$route.params.path ? vm.$route.params.path.replace(/\_/g, '/') : ''

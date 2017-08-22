@@ -8,12 +8,13 @@ import router from './router'
 import 'font-awesome/css/font-awesome.css'
 import 'ionicons/dist/css/ionicons.css'
 import 'weui/dist/style/weui.min.css'
+import weui from '../static/js/weui.js'
 import $ from 'jquery'
 import '../static/js/fastclick.js'
 import 'myMixin'
 import store from './store'
 import VueScroller from 'vue-scroller'
-import AMap from 'vue-amap';
+// import AMap from 'vue-amap';
 import {AlertPlugin, ConfirmPlugin, ToastPlugin, LoadingPlugin} from 'vux'
 
 Vue.use(require('vue-wechat-title'))
@@ -22,11 +23,11 @@ Vue.use(AlertPlugin)
 Vue.use(ToastPlugin)
 Vue.use(LoadingPlugin)
 Vue.use(VueScroller)
-Vue.use(AMap)
-AMap.initAMapApiLoader({
-  key: '5472f8bd49fabbd0fa3b9f13b74532c7',
-  plugin: ['Autocomplete', 'PlaceSearch', 'Geolocation', 'Scale', 'OverView', 'ToolBar', 'MapType', 'PolyEditor', 'AMap.CircleEditor']
-});
+// Vue.use(AMap)
+// AMap.initAMapApiLoader({
+//   key: '5472f8bd49fabbd0fa3b9f13b74532c7',
+//   plugin: ['Autocomplete', 'PlaceSearch', 'Geolocation', 'Scale', 'ToolBar', 'MapType', 'PolyEditor', 'AMap.CircleEditor']
+// });
 
 Vue.config.productionTip = false
 let me = window.me
@@ -78,11 +79,12 @@ router.beforeEach((to, from, next) => {
 
 /* ----- 封装一些方法 -------- */
 /* ajax请求 */
+Vue.prototype.weui = weui
 Vue.prototype.$axios = Axios
 Vue.prototype.loadData = function (url, params, type, sucCb, errCb) {
   setTimeout(function () {
     $.extend(params, window.youniMall.userAuth)
-    console.log('%c'+JSON.stringify(params, null, 2), 'color:#fff;background:purple')
+    // console.log('%c'+JSON.stringify(params, null, 2), 'color:#fff;background:purple')
     /*$.post(url, {'requestapp': params ? JSON.stringify(params) : '{}'},
       function (res) {
         if (res.success) {
@@ -92,21 +94,21 @@ Vue.prototype.loadData = function (url, params, type, sucCb, errCb) {
         }
       }
     )*/
-  /* Axios.post(url, {'requestapp': '{}'}).then(function (res) {
-   sucCb ? sucCb(res) : console.log(res, '接口的res')
-   }).catch(function (error) {
-   errCb ? errCb(error) : console.error(error, '错误信息')
-   }) */
-  Axios({
-    method: type || 'POST',
-    url: url,
-    data: {'requestapp': params ? JSON.stringify(params) : '{}'},
-    responseType: 'JSON'
-  }).then(function (res) {
-    sucCb ? sucCb(res) : console.log(res, '接口的res')
-  }).catch(function (error) {
-    errCb ? errCb(error) : console.error(error, '错误信息')
-  })
+    /* Axios.post(url, {'requestapp': '{}'}).then(function (res) {
+     sucCb ? sucCb(res) : console.log(res, '接口的res')
+     }).catch(function (error) {
+     errCb ? errCb(error) : console.error(error, '错误信息')
+     }) */
+    Axios({
+      method: type || 'POST',
+      url: url,
+      data: {'requestapp': params ? JSON.stringify(params) : '{}'},
+      responseType: 'JSON'
+    }).then(function (res) {
+      sucCb ? sucCb(res) : console.log(res, '接口的res')
+    }).catch(function (error) {
+      errCb ? errCb(error) : console.error(error, '错误信息')
+    })
   }, 0)
 }
 /* alert */
@@ -170,6 +172,15 @@ Vue.prototype.toast = function (content, type, position, cb) {
   })
   cb ? cb() : null
   // _this.$vux.toast.text('hello', 'top')
+}
+Vue.prototype.tips = function (content, duration, cls, cb) {
+  weui.topTips(content, {
+    duration: duration || 3000,
+    className: cls || 'custom-classname',
+    callback: function () {
+      cb ? cb() : null
+    }
+  })
 }
 /* loading */
 Vue.prototype.processing = function (content, isClose, cb, timeCb) {

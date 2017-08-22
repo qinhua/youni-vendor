@@ -94,7 +94,7 @@
       },
       getDict() {
         vm.loadData(homeApi.dict, {}, 'POST', function (res) {
-          vm.$store.commit('StoreData', {key: 'dict', data: res.data.itemList})
+          vm.$store.commit('storeData', {key: 'dict', data: res.data.itemList})
         }, function () {
         })
       }

@@ -20,26 +20,22 @@
           </checker-item>
         </checker>
       </div>
-      <!--<x-textarea title="商品头图：" :max="20" placeholder="商品头图" @on-blur="" v-model="params.description"-->
-      <!--show-clear></x-textarea>-->
       <div class="upload-group">
-        <label>商品头图</label>
-        <div class="uploader-con">
-          <uploader :count="3" :maxlength="5" @weui-input-change="handleFileInputChange">
-            <!-- Uploader的标题slot -->
-            <span slot="title">图片上传</span>
-            <!-- 需要预览时，增加UploaderFiles容器 -->
-            <uploader-files slot="uploader-files">
-              <uploader-file image-url="..."></uploader-file>
-              <!-- 预览图片可以包含status -->
-              <uploader-file image-url="..." has-status>
-                <icon slot="status" name="warn"></icon>
-              </uploader-file>
-              <uploader-file image-url="..." has-status>
-                <span slot="status">50%</span>
-              </uploader-file>
-            </uploader-files>
-          </uploader>
+        <div class="weui-cells weui-cells_form" id="uploader">
+          <div class="weui-cell">
+            <div class="weui-cell__bd">
+              <div class="weui-uploader">
+                <div class="weui-uploader__hd"><p class="weui-uploader__title">图片上传</p>
+                  <div class="weui-uploader__info"><span id="uploadCount">1</span>/5</div>
+                </div>
+                <div class="weui-uploader__bd">
+                  <ul class="weui-uploader__files" id="uploaderFiles"></ul>
+                  <div class="weui-uploader__input-box"><input id="uploaderInput" class="weui-uploader__input"
+                                                               type="file" accept="image/*" multiple=""></div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
       <x-input title="折扣价：" placeholder="折扣价" text-align="right" v-model="params.discountPrice"></x-input>
@@ -93,8 +89,6 @@
   } from 'vux'
   import axios from 'axios'
   import {VueEditor} from 'vue2-editor'
-  import {Icon, Uploader, UploaderFiles, UploaderFile} from 'vue-weui'
-  //  import weui from '../../../static/js/weui.min.js'
   import {goodsApi, fileApi} from '../../service/main.js'
 
   export default {
@@ -147,42 +141,7 @@
       XAddress,
       ChinaAddressV3Data,
       VueEditor,
-      Icon,
-      Uploader,
-      UploaderFiles,
-      UploaderFile,
-      'tags-input': require('vue-tagsinput/src/input.vue'), /**
-       * 已上传文件数量
-       * 注意，Uploader并不会对真实文件数量进行控制，count仅用于显示
-       */
-      count: {
-        type: Number,
-        required: false,
-        validator: function (value) {
-          return value >= 0;
-        }
-      },
-      /**
-       * 显示的最大可上传数量
-       * 注意，Uploader并不会对真实文件数量进行控制，maxlength仅用于显示
-       */
-      maxlength: {
-        type: Number,
-        required: false,
-        validator: function (value) {
-          return value > 0;
-        }
-      },
-
-      /**
-       * 是否包含input元素
-       */
-      hasInput: {
-        type: Boolean,
-        required: false,
-        default: true
-      }
-
+      'tags-input': require('vue-tagsinput/src/input.vue')
     },
     beforeMount() {
       me = window.me
@@ -193,14 +152,96 @@
       vm.params.sellerId = vm.$store.state.global.sellerId
       vm.goodsId = this.$route.query.id || ''
       vm.goodsId ? vm.getGoods() : null
-
-      /* 图片自动上传 */
-
+      vm.initImgPicker()
     },
     computed: {},
     methods: {
-      handleFileInputChange() {
-        console.log(arguments)
+      initImgPicker() {
+        /* 图片自动上传 */
+        var uploadCount = 0, uploadList = []
+        var uploadCountDom = document.getElementById("uploadCount")
+        vm.weui.uploader('#uploader', {
+          url: fileApi.uploadImg,
+          auto: true,
+          type: 'file',
+          fileVal: 'imgurl',
+          compress: {
+            width: 1600,
+            height: 1600,
+            quality: .8
+          },
+          onBeforeQueued: function (files) {
+            if (["image/jpg", "image/jpeg", "image/png", "image/gif"].indexOf(this.type) < 0) {
+              vm.weui.alert('请上传图片')
+              return false
+            }
+            if (this.size > 10 * 1024 * 1024) {
+              vm.weui.alert('请上传不超过10M的图片')
+              return false
+            }
+            if (files.length > 5) { // 防止一下子选中过多文件
+              vm.weui.alert('最多只能上传5张图片，请重新选择')
+              return false
+            }
+            if (uploadCount + 1 > 5) {
+              vm.weui.alert('最多只能上传5张图片')
+              return false
+            }
+            ++uploadCount
+            uploadCountDom.innerHTML = uploadCount
+          },
+          onQueued: function () {
+            uploadList.push(this)
+            // console.log(this)
+          },
+          onBeforeSend: function (data, headers) {
+            // console.log(this, data, headers)
+            // $.extend(data, { test: 1 }) // 可以扩展此对象来控制上传参数
+            // $.extend(headers, { Origin: 'http://127.0.0.1' }) // 可以扩展此对象来控制上传头部
+            // return false // 阻止文件上传
+          },
+          onProgress: function (procent) {
+            console.log(this, procent)
+          },
+          onSuccess: function (ret) {
+            console.log(this, ret, 8858)
+          },
+          onError: function (err) {
+            console.log(this, err)
+          }
+        })
+        // 缩略图预览
+        document.querySelector('#uploaderFiles').addEventListener('click', function (e) {
+          var target = e.target
+          while (!target.classList.contains('weui-uploader__file') && target) {
+            target = target.parentNode
+          }
+          if (!target) return
+
+          var url = target.getAttribute('style') || ''
+          var id = target.getAttribute('data-id')
+          if (url) {
+            url = url.match(/url\((.*?)\)/)[1].replace(/"/g, '')
+          }
+          var gallery = vm.weui.gallery(url, {
+            className: 'custom-name',
+            onDelete: function () {
+              vm.weui.confirm('确定删除该图片？', function () {
+                --uploadCount
+                uploadCountDom.innerHTML = (uploadCount >= 0) ? uploadCount : 0
+                for (var i = 0, len = uploadList.length; i < len; ++i) {
+                  var file = uploadList[i]
+                  if (file.id == id) {
+                    file.stop()
+                    break
+                  }
+                }
+                target.remove()
+                gallery.hide()
+              })
+            }
+          })
+        })
       },
       switchData(data, value, target,) {
         let tmp
@@ -274,7 +315,7 @@
         // a.比如把goodsType和goodsCategory转换成对应的数值
         let curApi
         vm.switchData(vm.types, vm.tmpType, 'goodsType')
-        vm.switchData(vm.categories, vm.tmpCat, 'goodsCategory')
+        vm.switchData(vm.categories, vm.tmpCat, 'category')
         vm.formatNewTag()
         if (vm.goodsId) {
           curApi = goodsApi.update
@@ -435,13 +476,16 @@
       }
       .upload-group {
         .rel;
-        .flex;
-        padding: 24/@rem 30/@rem;
+        padding: 0 30/@rem;
         .fz(26);
-        label {
-          .block;
-          width: 180/@rem;
-          /* padding-bottom: 18/@rem;*/
+        #uploader {
+          margin-top: 0;
+          .weui-cell {
+            padding: 10px 0;
+          }
+          &:after {
+            .none;
+          }
         }
       }
       .editor-group {

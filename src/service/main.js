@@ -10,7 +10,7 @@ window.youniMall = {
 // if (config.needMock) {
 // import '../../mock/mock.js'
 // }
-import '../../mock/mock.js'
+// import '../../mock/mock.js'
 
 const homeApi = {
   banner: host + '/home/banner',
@@ -38,9 +38,12 @@ const clientApi = {
   updateOrder: host + '/home/updateOrder'
 }
 const userApi = {
-  userInfo: host + '/user/userInfo',
-  updateName: host + '/user/updateName',
-  login: host + '/seller/login'
+  login: host + '/seller/login',
+  regist: host + '/seller/applySeller',
+  code: host + '/seller/code',
+  userInfo: host + '/seller/userInfo',
+  updateSeller: host + '/seller/updateSeller',
+  coupons: host + '/user/coupons'
 }
 const statisticApi = {
   list: host + '/seller/statistic',

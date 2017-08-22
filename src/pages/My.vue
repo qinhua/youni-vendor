@@ -1,58 +1,30 @@
 <template>
-  <div class="my">
+  <div class="my" v-cloak>
     <!--<router-view></router-view>-->
     <div class="user-modal">
       <div class="user-inner">
         <img src="../../static/img/av.jpg">
-        <p class="user-name" :data-userId="255" v-jump="['edit_user', ['userId'], 3]">{{nickName}}<i class="fa fa-pencil-square-o"></i></p>
+        <p class="user-name">{{sellerName}}</p>
       </div>
-      <canvas id="canvas" style="position:absolute;bottom:0px;left:0px;z-index:1;"></canvas>
-    </div>
-    <div class="order-model">
-      <div class="arc"></div>
-      <grid :rows="5">
-        <grid-item @on-item-click="jumpTo('order', {id:1}, 2)">
-          <p>{{count}}</p>
-          <label>待支付</label>
-        </grid-item>
-        <grid-item @on-item-click="jumpTo('order', null, 2)">
-          <p>0</p>
-          <label>待接单</label>
-        </grid-item>
-        <grid-item @on-item-click="jumpTo('order', {id:2}, 2)">
-          <p>0</p>
-          <label>待派送</label>
-        </grid-item>
-        <grid-item @on-item-click="jumpTo('order', null, 2)">
-          <p>1</p>
-          <label>派送中</label>
-        </grid-item>
-        <grid-item @on-item-click="jumpTo('order', {id:3}, 2)">
-          <p>2</p>
-          <label>待评价</label>
-        </grid-item>
-      </grid>
     </div>
     <group class="list-modal">
-      <cell title="我的卡券" link="/mycoupons">
+      <cell title="店铺资料" link="/edit_user/255">
         <i slot="icon" width="20" style="margin-right:5px;" class="fa fa-credit-card"></i>
-        3
       </cell>
-      <cell title="我的水票" link="/ticket/2">
-        <i slot="icon" width="20" style="margin-right:5px;" class="fa fa-ticket"></i>
-        1
-      </cell>
-      <cell title="我的押金" link="/myguarantee">
+      <cell title="押金列表" link="/myguarantee">
         <i slot="icon" width="20" style="margin-right:5px;" class="fa fa-money"></i>
       </cell>
-      <cell title="收货地址" link="/myaddress"><i slot="icon" width="20" style="margin-right:5px;"
-                                              class="fa fa-map-signs"></i></cell>
-      <cell title="我的收藏" link="/myfavor"><i slot="icon" width="20" style="margin-right:5px;"
-                                            class="fa fa-star"></i></cell>
       <cell title="使用帮助" link="/help"><i slot="icon" width="20" style="margin-right:5px;"
                                          class="fa fa-question-circle"></i></cell>
       <cell title="关于友你" link="/aboutus"><i slot="icon" width="20" style="margin-right:5px;"
                                             class="fa fa-info-circle"></i></cell>
+    </group>
+    <group class="bottom">
+      <cell title="修改密码" style="color:#666" @click.native="modPassword"><i slot="icon" width="20"
+                                                                           style="margin-right:5px;"
+                                                                           class="fa fa-wrench"></i></cell>
+      <cell title="退出登录" style="color:#666" @click.native="logout"><i slot="icon" width="20" style="margin-right:5px;"
+                                                                      class="fa fa-sign-out"></i></cell>
     </group>
   </div>
 </template>
@@ -65,87 +37,40 @@
 
   export default {
     name: 'my',
-    data () {
+    data() {
       return {
-        nickName: '七灵',
+        sellerName: '水一波旗舰店',
+        sellerId: null,
         count: 0
       }
     },
     components: {Grid, GridItem, Group, Cell},
-    beforeMount () {
+    beforeMount() {
       me = window.me
     },
-    mounted () {
+    mounted() {
       // me.attachClick()
-      this.count = this.$store.state.cart.count
-      var canvas = document.getElementById('canvas')
-      var ctx = canvas.getContext('2d')
-      canvas.width = canvas.parentNode.offsetWidth
-      canvas.height = canvas.parentNode.offsetHeight
-      // 如果浏览器支持requestAnimFrame则使用requestAnimFrame否则使用setTimeout
-      window.requestAnimFrame = (function () {
-        return window.requestAnimationFrame ||
-          window.webkitRequestAnimationFrame ||
-          window.mozRequestAnimationFrame ||
-          function (callback) {
-            window.setTimeout(callback, 1000 / 60)
-          }
-      })()
-      // 初始角度为0
-      var step = 0
-      // 定义三条不同波浪的颜色
-      var lines = ['rgba(0,222,255, 0.2)',
-        'rgba(157,192,249, 0.2)',
-        'rgba(0,168,255, 0.2)']
-      var loop = function () {
-        ctx.clearRect(0, 0, canvas.width, canvas.height)
-        step++
-        // 画3个不同颜色的矩形
-        for (var j = lines.length - 1; j >= 0; j--) {
-          ctx.fillStyle = lines[j]
-          // 每个矩形的角度都不同，每个之间相差45度
-          var angle = (step + j * 45) * Math.PI / 180
-          var deltaHeight = Math.sin(angle) * 50
-          var deltaHeightRight = Math.cos(angle) * 50
-          ctx.beginPath()
-          ctx.moveTo(0, canvas.height / 2 + deltaHeight)
-          ctx.bezierCurveTo(canvas.width / 2, canvas.height / 2 + deltaHeight - 50, canvas.width / 2, canvas.height / 2 + deltaHeightRight - 50, canvas.width, canvas.height / 2 + deltaHeightRight)
-          ctx.lineTo(canvas.width, canvas.height)
-          ctx.lineTo(0, canvas.height)
-          ctx.lineTo(0, canvas.height / 2 + deltaHeight)
-          ctx.closePath()
-          ctx.fill()
-        }
-        window.requestAnimFrame(loop)
-      }
-      loop()
+      vm = this
+      vm.sellerId = vm.$store.state.global.sellerId
     },
-    watch: {
-      '$route' (to, from) {
-        this.count = this.$store.state.cart.count
-      }
-    },
+    /* watch: {
+       '$route'(to, from) {
+         this.count = this.$store.state.cart.count
+       }
+     },*/
     computed: {},
     methods: {
       // 向父组件传值
-      setPageStatus (data) {
+      setPageStatus(data) {
         this.$emit('listenPage', data)
       },
-      jumpTo (pathName, param, type) {
-        /* [type=2] 1:'path'2:'name',3:'query' */
-        type = type || 'name'
-        if (pathName) {
-          if (type === 1) {
-            this.$router.push({path: '/' + pathName + (param ? '/' + param : '')})
-          }
-          if (type === 2) {
-            this.$router.push({name: pathName, params: param || ''})
-          }
-          if (type === 3) {
-            this.$router.push({path: '/' + pathName, query: param || ''})
-          }
-        }
-      }
+      logout() {
+        this.$store.commit('logout')
+        this.$router.push({name: 'login'})
+      },
+      modPassword() {
+        this.$router.push({name: 'password', query: {id: vm.sellerId}})
+      },
     }
   }
 </script>
@@ -165,7 +90,7 @@
       .user-inner {
         .rel;
         z-index: 2;
-        padding: 50/@rem 20/@rem 90/@rem;
+        padding: 50/@rem 20/@rem;
         > img {
           .block;
           .size(130, 130);
@@ -186,47 +111,8 @@
           }
         }
       }
-      canvas{
+      canvas {
         opacity: .25;
-      }
-    }
-    .order-model {
-      .rel;
-      z-index: 5;
-      margin-top: -50/@rem;
-      .center;
-      .arc {
-        height: 50/@rem;
-        background: url(../../static/img/arc.png);
-        -webkit-background-size: 100% auto;
-        background-size: 100% auto;
-      }
-      .weui-grids {
-        margin-top: -10/@rem;
-        .bf;
-        &:before, &:after {
-          .none;
-          .no-bor;
-        }
-      }
-      .weui-grid {
-        .pointer;
-        padding: 8px 10px;
-        &:before {
-          top: 20px;
-          bottom: 20px;
-        }
-        &:after {
-          .none;
-        }
-      }
-      label {
-        .fz(24);
-        .c9;
-      }
-      p {
-        .fz(46);
-        .cdiy(#212225);
       }
     }
     .list-modal {
@@ -234,10 +120,13 @@
         margin-top: 10/@rem;
         padding: 0;
       }
-      .weui-cell {
-        padding: 24/@rem !important;
-        .fz(24) !important;
-      }
+    }
+    .bottom {
+      margin-top: 10/@rem;
+    }
+    .weui-cell {
+      padding: 24/@rem !important;
+      .fz(26) !important;
     }
   }
 

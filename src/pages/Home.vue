@@ -1,10 +1,11 @@
 <template>
-  <div class="home-con" ref="home">
+  <div class="home-con" ref="home" v-cloak>
+    <geo :visible="false" :events="geoEvts" @listenGeo="getMap"></geo>
     <!--banner-->
     <!-- <div class="swiper-home">
        <swiper ref="slider01" skey="s01" :slides="banner" autoPlay="2500"></swiper>
      </div>-->
-    <div class="overview" v-cloak>
+    <div class="overview">
       <a href="#/user"><i class="fa fa-user-circle-o user-center"></i></a>
       <div class="top">
         <p class="today">今日收入(元)</p>
@@ -198,6 +199,7 @@
   let me
   let vm
   import Swiper from '../components/Swiper'
+  import Geo from './Geo'
   import {
     Group,
     GroupTitle,
@@ -218,6 +220,12 @@
     name: 'home',
     data() {
       return {
+        geo: {},
+        geoEvts: {
+          'click': () => {
+            alert('been clicked')
+          }
+        },
         isMilk: true,
         location: '',
         type: 0,
@@ -250,6 +258,7 @@
       }
     },
     components: {
+      Geo,
       Group,
       GroupTitle,
       Grid,
@@ -281,7 +290,7 @@
       })
     },
     computed: {
-      curType () {
+      curType() {
         return vm.isMilk ? 'milk' : 'water'
       }
     },
@@ -289,12 +298,35 @@
 //      '$route'(to, from) {
 //        vm.getPos()
 //      }
-      isMilk () {
+      isMilk() {
         vm.getOrders()
       }
     },
     methods: {
       // 全局定位
+      getMap(data) {
+        console.log(data, 'home geo info')
+        vm.geo = {}
+        if (data.type === 'complete') {
+          vm.geo = {
+            success: true,
+            responseText: '定位成功',
+            province: data.addressComponent.province,
+            city: data.addressComponent.city,
+            cityCode: data.addressComponent.adcode,
+            provinceCode: data.addressComponent.citycode,
+            lat: data.position.lat,
+            lng: data.position.lng,
+            address: data.formattedAddress
+          }
+          vm.$store.commit('storeGeo', vm.geo)
+        } else {
+          vm.geo = {
+            success: false,
+            responseText: '定位失败'
+          }
+        }
+      },
       getPos() {
         var lp = me.locals.get('cur5656Position')
         setTimeout(function () {
@@ -347,10 +379,9 @@
             }
           }
         }, 800)
-      }
-      ,
+      },
       // 向父组件传值
-      setPageStatus(data){
+      setPageStatus(data) {
         this.$emit('listenPage', data)
       },
       scrollHandler() {
@@ -371,19 +402,19 @@
           }
         }, 300)
       },
-      toMap(){
+      toMap() {
         vm.$router.push({name: 'map', params: {path: vm.$route.path.replace(/\//g, '_')}})
       },
       toTopic(url) {
         if (vm.showFilterCon) return
         location.href = url
       },
-      toDetail(id){
+      toDetail(id) {
         if (vm.showFilterCon) return
         vm.$router.push({path: '/detail/' + id})
       },
       /* 页面数据 */
-      getBanner(cb){
+      getBanner(cb) {
         vm.loadData(homeApi.banner, null, 'POST', function (res) {
           console.log(res.data, '首页Banner')
           vm.banner = res.data.itemList
@@ -397,7 +428,7 @@
         })
       },
       /* 商品筛选 */
-      showFilter(type, e){
+      showFilter(type, e) {
         vm.factive = type
         console.log(vm.subActive)
         if (vm.showFilterCon) {
@@ -422,7 +453,7 @@
           vm.factive = ''
         }
       },
-      chooseFilter(idx, key, value, e){
+      chooseFilter(idx, key, value, e) {
         vm.goods = []
         console.log(JSON.stringify(vm.filterData), vm.curFilterType)
         if (JSON.stringify(vm.filterData).indexOf(vm.curFilterType) === -1) {
@@ -454,11 +485,11 @@
         }
         vm.getGoods(lastF)
       },
-      changeType (){
+      changeType() {
         vm.getOrders()
       },
       /* 上下拉刷新 */
-      onPullDown()   {
+      onPullDown() {
         if (vm.onFetching) {
           // do nothing
           return false
@@ -474,7 +505,7 @@
           }, 1500)
         }
       },
-      onPullUp()      {
+      onPullUp() {
         if (vm.onFetching) {
           // do nothing
           return false
@@ -493,26 +524,26 @@
           }, 200)
         }
       },
-      onScroll(pos)      {
+      onScroll(pos) {
         this.scrollTop = pos.top
         vm.factive = ''
         vm.showFilterCon ? vm.showFilterCon = false : null
       },
-      refresh(done)      {
+      refresh(done) {
         console.log('下拉加载')
         setTimeout(function () {
           vm.getOrders()
           vm.$refs.orderScroller.finishPullToRefresh()
         }, 1200)
       },
-      infinite(done)      {
+      infinite(done) {
         console.log('无限滚动')
         setTimeout(function () {
           vm.getOrders(true)
           vm.$refs.orderScroller.finishInfinite(true)
         }, 1000)
       },
-      getOrders(isLoadMore)      {
+      getOrders(isLoadMore) {
         if (vm.onFetching) return false
         var params = {
           type: 0,
@@ -562,7 +593,7 @@
           vm.processing(0, 1)
         })
       },
-      delOrder(id)      {
+      delOrder(id) {
         if (vm.isPosting) return false
         vm.confirm('确认删除？', '订单删除后不可恢复！', function () {
           vm.isPosting = true
@@ -574,7 +605,7 @@
         }, function () {
         })
       },
-      cancelOrder(id)      {
+      cancelOrder(id) {
         if (vm.isPosting) return false
         vm.confirm('确认取消？', '订单取消后不可恢复！', function () {
           vm.isPosting = true
@@ -587,7 +618,7 @@
           // console.log('no')
         })
       },
-      pushOrder(id)      {
+      pushOrder(id) {
         if (vm.isPosting) return false
         vm.confirm('确认催单？', '请不要频繁催单！', function () {
           vm.isPosting = true
@@ -600,7 +631,7 @@
           // console.log('no')
         })
       },
-      onItemClick(type)      {
+      onItemClick(type) {
         if (type === 'undefined') {
           vm.type = ''
         } else {
@@ -608,7 +639,7 @@
         }
         vm.getOrders()
       },
-      changeCount(obj)      {
+      changeCount(obj) {
         console.log(obj)
         if (obj.type === 'add') {
           this.additem(obj.event)
@@ -622,11 +653,11 @@
         console.log(vm.$store.state.cart.count)
       },
       /* 购物车 */
-      additem(event)      {
+      additem(event) {
         this.drop(event.target);
       },
       /* 购物车小球动画 */
-      drop(el)      {
+      drop(el) {
         //抛物
         for (let i = 0; i < this.balls.length; i++) {
           let ball = this.balls[i]
@@ -638,7 +669,7 @@
           }
         }
       },
-      beforeDrop(el)      {
+      beforeDrop(el) {
         let count = this.balls.length
         while (count--) {
           let ball = this.balls[count]
@@ -656,7 +687,7 @@
         }
       },
       /*重置小球数量  样式重置*/
-      dropping(el, done){
+      dropping(el, done) {
         let rf = el.offsetHeight
         let cartCls = vm.$refs.floatCart.classList
         el.style.webkitTransform = 'translate3d(0,0,0)'
