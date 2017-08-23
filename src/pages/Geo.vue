@@ -1,5 +1,5 @@
 <template>
-  <div :class="['geo-container',!visible ? 'hide' :'']" @click="events.click">
+  <div :class="['geo-container',!visible ? 'hide' :'']">
     <div id="geo-map"></div>
     <div id="tip">
       <div id="info">初始化加载地图时，center及level属性缺省，地图默认显示用户所在城市范围</div>
@@ -7,7 +7,6 @@
   </div>
 </template>
 
-<!--/* eslint-disable no-unused-vars */-->
 <script>
   /* eslint-disable */
   let me
@@ -45,10 +44,6 @@
       }
     },*/
     methods: {
-      // 向父组件传值
-      setPageStatus(data) {
-        this.$emit('listenPage', data)
-      },
       /*浏览器定位*/
       geoLocation() {
         /***** 由于Chrome、IOS10等已不再支持非安全域的浏览器定位请求，为保证定位成功率和精度，请尽快升级您的站点到HTTPS。******/
@@ -82,17 +77,14 @@
           str.push('是否经过偏移：' + (data.isConverted ? '是' : '否'))
           document.getElementById('tip').innerHTML = str.join('<br>')
           alert(JSON.stringify(data, null, 2))
-          vm.$emit('listenGeo', data)
+          vm.$emit('on-geo-end', data)
         }
 
         //03.解析定位错误信息
         function onError(data) {
           document.getElementById('tip').innerHTML = '定位失败'
-          vm.$emit('listenGeo', data)
+          vm.$emit('on-geo-end', data)
         }
-      },
-      jumpTo(path, param) {
-        this.$router.push({path: path + (param ? '/' + param : '')})
       }
     }
   }
@@ -111,7 +103,7 @@
       width: 0;
       height: 0;
     }
-    #mapContainer {
+    #geo-map {
       width: 100%;
       height: 100%;
     }

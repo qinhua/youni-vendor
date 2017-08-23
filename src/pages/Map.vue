@@ -1,7 +1,7 @@
 <template>
   <div class="map-container">
     <!-- 地图容器 -->
-
+    <div id="my-map"></div>
     <!-- 搜索框-->
     <!--<div id="searchBox">
       <input id="tipinput" type="input" placeholder="请输入关键字搜索"/>
@@ -12,95 +12,45 @@
     <!-- 结果面板 -->
     <!-- loading -->
     <!--<div id="loader"></div>-->
+    <div id="container" class="map" tabindex="0"></div>
+    <div id='right'>
+      <div>
+        <div class='title'>选择模式</div>
+        <input type='radio' name='mode' value='dragMap' checked>拖拽地图模式</input>
+        </br>
+        <input type='radio' name='mode' value='dragMarker'>拖拽Marker模式</input>
+      </div>
+      <div>
+        <button id='start'>开始选点</button>
+        <button id='stop'>关闭选点</button>
+      </div>
+      <div>
+        <div class='title'>选址结果</div>
+        <div class='c'>经纬度:</div>
+        <div id='lnglat'></div>
+        <div class='c'>地址:</div>
+        <div id='address'></div>
+        <div class='c'>最近的路口:</div>
+        <div id='nearestJunction'></div>
+        <div class='c'>最近的路:</div>
+        <div id='nearestRoad'></div>
+        <div class='c'>最近的POI:</div>
+        <div id='nearestPOI'></div>
+      </div>
+    </div>
+
   </div>
 </template>
 
 <!--/* eslint-disable no-unused-vars */-->
 <script>
   /* eslint-disable */
-  import VMap from 'vue-amap';
   let me
   let vm
-  let amapManager = new VMap.AMapManager();
   export default {
     name: 'map',
     data() {
-      return {
-        lastPage: '',
-        amapManager,
-        zoom: 16,
-        markers: [
-          [121.59996, 31.197646],
-          [121.40018, 31.197622],
-          [121.69991, 31.207649]
-        ],
-        searchOption: {
-          city: '',
-          citylimit: false
-        },
-        markerEvts: {
-          init: (o) => {
-            console.log(this.$refs.maker01.$$getPosition())
-            console.log(this.$refs.maker01.$$getInstance(), 8888888888888888)
-          },
-          'dragend': (e) => {
-            console.log(this.$refs.maker01.$$getPosition(), 'marker拖动后的坐标')
-            vm.getResult(this.$refs.maker01.$$getPosition())
-          }
-        },
-        mapEvts: {
-          init: (o) => {
-            console.log(this.$refs.vAmap.$$getInstance())
-            o.getCity(result => {
-              console.log(result)
-            })
-          },
-          'moveend': () => {
-          },
-          'zoomchange': () => {
-          },
-          'click': (e) => {
-            console.log(this.$refs.vAmap.$$getCenter())
-          },
-          'dragend': (e) => {
-            console.log(this.$refs.vAmap.$$getInstance().getCenter(function (result) {
-              console.log(result, '地图拖动后的坐标')
-            }))
-            this.$refs.vAmap.$$getInstance().getCity(function (result) {
-              console.log(result, '地图拖动后的位置数据')
-            })
-          }
-        },
-        plugin: ['ToolBar', {
-          pName: 'MapType',
-          defaultType: 0,
-          events: {
-            init(o) {
-              // console.log(o);
-            }
-          }
-        }, {
-          pName: 'Geolocation',
-          events: {
-            init(o) {
-              // o 是高德地图定位插件实例
-              o.getCurrentPosition((status, result) => {
-                console.log(status, result)
-                if (result && result.position) {
-                  self.lng = result.position.lng;
-                  self.lat = result.position.lat;
-                  self.center = [self.lng, self.lat];
-                  self.loaded = true;
-                  self.$nextTick();
-                }
-              });
-            }
-          }
-        }],
-        lng: 0,
-        lat: 0,
-        loaded: false
-      }
+      return {}
     },
     components: {},
     beforeMount() {
@@ -108,57 +58,71 @@
     },
     mounted() {
       vm = this
-      // me.attachClick()
-      // vm.showMap()
       /*vm.$nextTick(function () {
       })*/
+
+      AMapUI.loadUI(['misc/PositionPicker'], function(PositionPicker) {
+        var map = new AMap.Map('my-map', {
+          zoom: 16,
+          scrollWheel: false
+        })
+        var positionPicker = new PositionPicker({
+          mode: 'dragMap',
+          map: map
+        });
+        AMap.plugin(['AMap.ToolBar','AMap.Scale','AMap.Geolocation','MapType'],
+          function(){
+            map.addControl(new AMap.ToolBar());
+            map.addControl(new AMap.Scale());
+            map.addControl(new AMap.Geolocation());
+            map.addControl(new AMap.MapType());
+          });
+        positionPicker.on('success', function(positionResult) {
+          document.getElementById('lnglat').innerHTML = positionResult.position;
+          document.getElementById('address').innerHTML = positionResult.address;
+          document.getElementById('nearestJunction').innerHTML = positionResult.nearestJunction;
+          document.getElementById('nearestRoad').innerHTML = positionResult.nearestRoad;
+          document.getElementById('nearestPOI').innerHTML = positionResult.nearestPOI;
+        });
+        positionPicker.on('fail', function(positionResult) {
+          document.getElementById('lnglat').innerHTML = ' ';
+          document.getElementById('address').innerHTML = ' ';
+          document.getElementById('nearestJunction').innerHTML = ' ';
+          document.getElementById('nearestRoad').innerHTML = ' ';
+          document.getElementById('nearestPOI').innerHTML = ' ';
+        });
+        var onModeChange = function(e) {
+          positionPicker.setMode(e.target.value)
+        }
+        var startButton = document.getElementById('start');
+        var stopButton = document.getElementById('stop');
+        var dragMapMode = document.getElementsByName('mode')[0];
+        var dragMarkerMode = document.getElementsByName('mode')[1];
+        AMap.event.addDomListener(startButton, 'click', function() {
+          positionPicker.start(map.getBounds().getSouthWest())
+        })
+        AMap.event.addDomListener(stopButton, 'click', function() {
+          positionPicker.stop();
+        })
+        AMap.event.addDomListener(dragMapMode, 'change', onModeChange)
+        AMap.event.addDomListener(dragMarkerMode, 'change', onModeChange);
+        positionPicker.start();
+        map.panBy(0, 1);
+
+        map.addControl(new AMap.ToolBar({
+          liteStyle: true
+        }))
+      });
+
+
+
     },
     computed: {},
     /*watch: {
       '$route'(to, from) {
-        vm.showMap()
       }
     },*/
     methods: {
-      // 向父组件传值
-      setPageStatus(data) {
-        this.$emit('listenPage', data)
-      },
-      getMap() {
-        // amap vue component
-        console.log(amapManager._componentMap);
-        // gaode map instance
-        console.log(amapManager._map);
-      },
-      onSearchResult(pois) {
-        let latSum = 0;
-        let lngSum = 0;
-        if (pois.length > 0) {
-          pois.forEach(poi => {
-            let {lng, lat} = poi;
-            lngSum += lng;
-            latSum += lat;
-            this.markers.push([poi.lng, poi.lat]);
-          });
-          let center = {
-            lng: lngSum / pois.length,
-            lat: latSum / pois.length
-          };
-          this.$refs.vAmap.$$getInstance().setCenter([center.lng, center.lat])
-          // console.log('搜索结果：' + JSON.stringify(pois))
-        }
-      },
-      getResult(coords){
-        console.info(coords)
-        this.$refs.vAmap.$$getInstance().getCity(coords)
-      },
-      showMap() {
-        vm.lastPage = vm.$route.params.path ? vm.$route.params.path.replace(/\_/g, '/') : ''
-        console.log('上一页：' + vm.lastPage)
-      },
-      jumpTo(path, param) {
-        this.$router.push({path: path + (param ? '/' + param : '')})
-      }
     }
   }
 </script>
@@ -169,6 +133,10 @@
   .map-container {
     width: 100%;
     height: 100%;
+    #my-map{
+      width: 100%;
+      height: 100%;
+    }
     .map-wrapper {
       width: 100%;
       height: 100%;
@@ -207,6 +175,53 @@
         text-align: center;
       }*/
     }
+  }
+
+  .map {
+    height: 100%;
+    width: 60%;
+    float: left;
+  }
+
+  #right {
+    color: #444;
+    background-color: #f8f8f8;
+    width: 40%;
+    float: left;
+    height: 100%;
+  }
+
+  #start,
+  #stop,
+  #right input {
+    margin: 4px;
+    margin-left: 15px;
+  }
+
+  .title {
+    width: 100%;
+    background-color: #dadada
+  }
+
+  button {
+    border: solid 1px;
+    margin-left: 15px;
+    background-color: #dadafa;
+  }
+
+  .c {
+    font-weight: 600;
+    padding-left: 15px;
+    padding-top: 4px;
+  }
+
+  #lnglat,
+  #address,
+  #nearestJunction,
+  #nearestRoad,
+  #nearestPOI,
+  .title {
+    padding-left: 15px;
   }
 
 </style>

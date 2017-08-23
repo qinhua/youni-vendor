@@ -85,7 +85,7 @@ Vue.prototype.loadData = function (url, params, type, sucCb, errCb) {
   setTimeout(function () {
     $.extend(params, window.youniMall.userAuth)
     // console.log('%c'+JSON.stringify(params, null, 2), 'color:#fff;background:purple')
-    /*$.post(url, {'requestapp': params ? JSON.stringify(params) : '{}'},
+    $.post(url, {'requestapp': params ? JSON.stringify(params) : '{}'},
       function (res) {
         if (res.success) {
           sucCb ? sucCb(res) : console.log(res, '接口的res')
@@ -93,13 +93,13 @@ Vue.prototype.loadData = function (url, params, type, sucCb, errCb) {
           errCb ? errCb(res) : console.error('请求失败！')
         }
       }
-    )*/
+    )
     /* Axios.post(url, {'requestapp': '{}'}).then(function (res) {
      sucCb ? sucCb(res) : console.log(res, '接口的res')
      }).catch(function (error) {
      errCb ? errCb(error) : console.error(error, '错误信息')
      }) */
-    Axios({
+   /* Axios({
       method: type || 'POST',
       url: url,
       data: {'requestapp': params ? JSON.stringify(params) : '{}'},
@@ -108,7 +108,7 @@ Vue.prototype.loadData = function (url, params, type, sucCb, errCb) {
       sucCb ? sucCb(res) : console.log(res, '接口的res')
     }).catch(function (error) {
       errCb ? errCb(error) : console.error(error, '错误信息')
-    })
+    })*/
   }, 0)
 }
 /* alert */

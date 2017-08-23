@@ -1,6 +1,6 @@
 <template>
   <div class="home-con" ref="home" v-cloak>
-    <geo :visible="false" :events="geoEvts" @listenGeo="getMap"></geo>
+    <geo :visible="false" @on-geo-end="getMap"></geo>
     <!--banner-->
     <!-- <div class="swiper-home">
        <swiper ref="slider01" skey="s01" :slides="banner" autoPlay="2500"></swiper>
@@ -221,11 +221,6 @@
     data() {
       return {
         geo: {},
-        geoEvts: {
-          'click': () => {
-            alert('been clicked')
-          }
-        },
         isMilk: true,
         location: '',
         type: 0,
