@@ -2,6 +2,7 @@
   <div class="map-container">
     <!-- 地图容器 -->
     <div id="my-map"></div>
+    <div id="panel"></div>
     <!-- 搜索框-->
     <!--<div id="searchBox">
       <input id="tipinput" type="input" placeholder="请输入关键字搜索"/>
@@ -16,9 +17,8 @@
     <div id='right'>
       <div>
         <div class='title'>选择模式</div>
-        <input type='radio' name='mode' value='dragMap' checked>拖拽地图模式</input>
-        </br>
-        <input type='radio' name='mode' value='dragMarker'>拖拽Marker模式</input>
+        <input type='radio' name='mode' value='dragMap' checked>拖拽地图模式
+        <input type='radio' name='mode' value='dragMarker'>拖拽Marker模式
       </div>
       <div>
         <button id='start'>开始选点</button>
@@ -47,6 +47,7 @@
   /* eslint-disable */
   let me
   let vm
+  //  import $ from 'zeptojs/zepto.js'
   export default {
     name: 'map',
     data() {
@@ -59,49 +60,53 @@
     mounted() {
       vm = this
       /*vm.$nextTick(function () {
-      })*/
+       })*/
 
-      AMapUI.loadUI(['misc/PositionPicker'], function(PositionPicker) {
+      AMapUI.loadUI(['misc/PositionPicker'], function (PositionPicker) {
         var map = new AMap.Map('my-map', {
           zoom: 16,
+          resizeEnable: true,
           scrollWheel: false
         })
         var positionPicker = new PositionPicker({
-          mode: 'dragMap',
-          map: map
+          mode: 'dragMarker',
+          map: map,
+          draggable: true,
         });
-        AMap.plugin(['AMap.ToolBar','AMap.Scale','AMap.Geolocation','MapType'],
-          function(){
+
+        // 加载插件
+        map.plugin(['AMap.ToolBar', 'AMap.Geolocation', 'AMap.MapType', 'AMap.PlaceSearch'],
+          function () {
             map.addControl(new AMap.ToolBar());
-            map.addControl(new AMap.Scale());
             map.addControl(new AMap.Geolocation());
+            map.addControl(new AMap.PlaceSearch());
             map.addControl(new AMap.MapType());
-          });
-        positionPicker.on('success', function(positionResult) {
-          document.getElementById('lnglat').innerHTML = positionResult.position;
-          document.getElementById('address').innerHTML = positionResult.address;
-          document.getElementById('nearestJunction').innerHTML = positionResult.nearestJunction;
-          document.getElementById('nearestRoad').innerHTML = positionResult.nearestRoad;
-          document.getElementById('nearestPOI').innerHTML = positionResult.nearestPOI;
+          })
+        positionPicker.on('success', function (positionResult) {
+          /*document.getElementById('lnglat').innerHTML = positionResult.position;
+           document.getElementById('address').innerHTML = positionResult.address;
+           document.getElementById('nearestJunction').innerHTML = positionResult.nearestJunction;
+           document.getElementById('nearestRoad').innerHTML = positionResult.nearestRoad;
+           document.getElementById('nearestPOI').innerHTML = positionResult.nearestPOI;*/
         });
-        positionPicker.on('fail', function(positionResult) {
-          document.getElementById('lnglat').innerHTML = ' ';
-          document.getElementById('address').innerHTML = ' ';
-          document.getElementById('nearestJunction').innerHTML = ' ';
-          document.getElementById('nearestRoad').innerHTML = ' ';
-          document.getElementById('nearestPOI').innerHTML = ' ';
+        positionPicker.on('fail', function (positionResult) {
+          /*document.getElementById('lnglat').innerHTML = ' ';
+           document.getElementById('address').innerHTML = ' ';
+           document.getElementById('nearestJunction').innerHTML = ' ';
+           document.getElementById('nearestRoad').innerHTML = ' ';
+           document.getElementById('nearestPOI').innerHTML = ' ';*/
         });
-        var onModeChange = function(e) {
+        var onModeChange = function (e) {
           positionPicker.setMode(e.target.value)
         }
         var startButton = document.getElementById('start');
         var stopButton = document.getElementById('stop');
         var dragMapMode = document.getElementsByName('mode')[0];
         var dragMarkerMode = document.getElementsByName('mode')[1];
-        AMap.event.addDomListener(startButton, 'click', function() {
+        AMap.event.addDomListener(startButton, 'click', function () {
           positionPicker.start(map.getBounds().getSouthWest())
         })
-        AMap.event.addDomListener(stopButton, 'click', function() {
+        AMap.event.addDomListener(stopButton, 'click', function () {
           positionPicker.stop();
         })
         AMap.event.addDomListener(dragMapMode, 'change', onModeChange)
@@ -109,21 +114,26 @@
         positionPicker.start();
         map.panBy(0, 1);
 
-        map.addControl(new AMap.ToolBar({
-          liteStyle: true
-        }))
+
+//        AMap.service(["AMap.PlaceSearch"], function() {
+//          var placeSearch = new AMap.PlaceSearch({ //构造地点查询类
+//            pageSize: 5,
+//            pageIndex: 1,
+////            city: "010", //城市
+//            map: map,
+//            panel: "panel"
+//          });
+//          //关键字查询
+//          placeSearch.search('光谷');
+//        });
       });
-
-
-
     },
     computed: {},
     /*watch: {
-      '$route'(to, from) {
-      }
-    },*/
-    methods: {
-    }
+     '$route'(to, from) {
+     }
+     },*/
+    methods: {}
   }
 </script>
 
@@ -133,7 +143,8 @@
   .map-container {
     width: 100%;
     height: 100%;
-    #my-map{
+    overflow: hidden;
+    #my-map {
       width: 100%;
       height: 100%;
     }
@@ -213,6 +224,12 @@
     font-weight: 600;
     padding-left: 15px;
     padding-top: 4px;
+  }
+
+  #panel {
+    position: absolute;
+    left: 0;
+    top: 0;
   }
 
   #lnglat,

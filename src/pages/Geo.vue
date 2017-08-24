@@ -76,7 +76,6 @@
           }//如为IP精确定位结果则没有精度信息
           str.push('是否经过偏移：' + (data.isConverted ? '是' : '否'))
           document.getElementById('tip').innerHTML = str.join('<br>')
-          alert(JSON.stringify(data, null, 2))
           vm.$emit('on-geo-end', data)
         }
 

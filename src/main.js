@@ -23,12 +23,11 @@ Vue.use(AlertPlugin)
 Vue.use(ToastPlugin)
 Vue.use(LoadingPlugin)
 Vue.use(VueScroller)
-// Vue.use(AMap)
-// AMap.initAMapApiLoader({
-//   key: '5472f8bd49fabbd0fa3b9f13b74532c7',
-//   plugin: ['Autocomplete', 'PlaceSearch', 'Geolocation', 'Scale', 'ToolBar', 'MapType', 'PolyEditor', 'AMap.CircleEditor']
-// });
-
+ //Vue.use(AMap)
+ //AMap.initAMapApiLoader({
+ //  key: '5472f8bd49fabbd0fa3b9f13b74532c7',
+ //  plugin: ['Autocomplete', 'PlaceSearch', 'Geolocation', 'Scale', 'ToolBar', 'MapType', 'PolyEditor', 'AMap.CircleEditor']
+ //});
 Vue.config.productionTip = false
 let me = window.me
 

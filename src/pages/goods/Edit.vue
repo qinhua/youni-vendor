@@ -87,7 +87,6 @@
     XAddress,
     ChinaAddressV3Data
   } from 'vux'
-  import axios from 'axios'
   import {VueEditor} from 'vue2-editor'
   import {goodsApi, fileApi} from '../../service/main.js'
 
@@ -164,7 +163,7 @@
           url: fileApi.uploadImg,
           auto: true,
           type: 'file',
-          fileVal: 'imgurl',
+          fileVal: 'image',
           compress: {
             width: 1600,
             height: 1600,
@@ -201,10 +200,11 @@
             // return false // 阻止文件上传
           },
           onProgress: function (procent) {
-            console.log(this, procent)
+            // console.log(this, procent)
           },
           onSuccess: function (ret) {
-            console.log(this, ret, 8858)
+            vm.params.imgUrl = window.youniMall.host + '/' + ret.imageUrl
+            console.info(window.youniMall.host + '/' + ret.imageUrl)
           },
           onError: function (err) {
             console.log(this, err)
@@ -243,7 +243,7 @@
           })
         })
       },
-      switchData(data, value, target,) {
+      switchData(data, value, target) {
         let tmp
         if (typeof value === 'number') {
           tmp = []
@@ -380,10 +380,12 @@
         // An example of using FormData
         // NOTE: Your key could be different such as:
         // formData.append('file', file)
-
         var formData = new FormData();
         formData.append('image', file)
         vm.loadData(fileApi.uploadImg, formData, 'POST', function (res) {
+          let url = res.data.url // Get url from response
+          console.log(res)
+          Editor.insertEmbed(cursorLocation, 'image', url);
           vm.$router.back()
           vm.isPosting = false
           vm.processing(0, 1)
@@ -391,18 +393,6 @@
           vm.isPosting = false
           vm.processing(0, 1)
         })
-        axios({
-          url: 'https://101.132.35.4/file/uploadImage',
-          method: 'POST',
-          data: formData
-        })
-          .then((result) => {
-            let url = result.data.url // Get url from response
-            Editor.insertEmbed(cursorLocation, 'image', url);
-          })
-          .catch((err) => {
-            console.log(err);
-          })
       },
       preFormat() {
       }

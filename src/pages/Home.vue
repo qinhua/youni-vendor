@@ -306,13 +306,13 @@
           vm.geo = {
             success: true,
             responseText: '定位成功',
-            province: data.addressComponent.province,
-            city: data.addressComponent.city,
-            cityCode: data.addressComponent.adcode,
-            provinceCode: data.addressComponent.citycode,
+            province: data.addressComponent ? data.addressComponent.province : '',
+            city: data.addressComponent ? data.addressComponent.city : '',
+            cityCode: data.addressComponent ? data.addressComponent.adcode : '',
+            provinceCode: data.addressComponent ? data.addressComponent.citycode : '',
             lat: data.position.lat,
             lng: data.position.lng,
-            address: data.formattedAddress
+            address: data.formattedAddress || ''
           }
           vm.$store.commit('storeGeo', vm.geo)
         } else {
