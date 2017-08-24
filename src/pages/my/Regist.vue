@@ -13,7 +13,7 @@
       <popup-picker title="认证级别" :data="levels" :columns="1" v-model="tmpLevel" @on-show=""
                     @on-hide="" @on-change="changeLevel"></popup-picker>
       <!--<x-textarea title="店铺公告：" :max="20" placeholder="店铺公告" @on-blur="" v-model="topic" show-clear></x-textarea>-->
-      <x-address class="address-area" title="所在地区" @on-hide="logHide" @on-shadow-change="changeArea" :list="addressData"
+      <x-address class="address-area" title="所在地区" @on-hide="" @on-shadow-change="changeArea" :list="addressData"
                  placeholder="请选择地区">
         <template slot="title" scope="props">
         <span :class="props.labelClass" :style="props.labelStyle" style="height:24px;">
@@ -22,7 +22,7 @@
         </template>
       </x-address>
       <x-input title="详细地址：" placeholder="输入详细地址" required text-align="right" v-model="params.detailAddress"></x-input>
-      <x-input title="营业执照：" placeholder="上传营业执照" text-align="right" v-model="hasImg"></x-input>
+      <x-input title="营业执照：" placeholder="上传营业执照" text-align="right" v-model="params.businessLicense"></x-input>
     </group>
     <div class="btn btn-save" @click="register"><i class="fa fa-save"></i>&nbsp;提交申请</div>
   </div>
@@ -58,11 +58,11 @@
           phone: '',
           passwd: '',
           companyName: '',
-          address: '',
-          lat: '',
-          lon: '',
-          province: '',
-          city: '',
+          address: '南湖大道',
+          lat: '30.576734',
+          lon: '114.172691',
+          province: '420000',
+          city: '420100',
           type: '',
           authLevel: '',
           businessLicense: '',
@@ -137,19 +137,21 @@
         }
       },
       register() {
-        if (vm.isPosting || !vm.validate()) return false
-        vm.switchData(vm.types, vm.tmpType, 'type')
-        vm.switchData(vm.levels, vm.tmpLevel, 'authLevel')
-        console.log(vm.params)
-        vm.isPosting = true
-        vm.processing()
-        vm.loadData(userApi.regist, vm.params, 'POST', function (res) {
-          vm.isPosting = false
-          vm.processing(0, 1)
-        }, function () {
-          vm.isPosting = false
-          vm.processing(0, 1)
-        })
+        if (vm.isPosting) return
+        if (vm.validate()){
+          vm.switchData(vm.types, vm.tmpType, 'type')
+          vm.switchData(vm.levels, vm.tmpLevel, 'authLevel')
+          console.log(vm.params)
+          vm.isPosting = true
+          vm.processing()
+          vm.loadData(userApi.regist, vm.params, 'POST', function (res) {
+            vm.isPosting = false
+            vm.processing(0, 1)
+          }, function () {
+            vm.isPosting = false
+            vm.processing(0, 1)
+          })
+        }
       },
       changeArea(ids, names) {
         console.log(ids, names)

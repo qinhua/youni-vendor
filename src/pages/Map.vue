@@ -62,71 +62,40 @@
       /*vm.$nextTick(function () {
        })*/
 
-      AMapUI.loadUI(['misc/PositionPicker'], function (PositionPicker) {
-        var map = new AMap.Map('my-map', {
-          zoom: 16,
-          resizeEnable: true,
-          scrollWheel: false
-        })
-        var positionPicker = new PositionPicker({
-          mode: 'dragMarker',
-          map: map,
-          draggable: true,
-        });
-
-        // 加载插件
-        map.plugin(['AMap.ToolBar', 'AMap.Geolocation', 'AMap.MapType', 'AMap.PlaceSearch'],
-          function () {
-            map.addControl(new AMap.ToolBar());
-            map.addControl(new AMap.Geolocation());
-            map.addControl(new AMap.PlaceSearch());
-            map.addControl(new AMap.MapType());
-          })
-        positionPicker.on('success', function (positionResult) {
-          /*document.getElementById('lnglat').innerHTML = positionResult.position;
-           document.getElementById('address').innerHTML = positionResult.address;
-           document.getElementById('nearestJunction').innerHTML = positionResult.nearestJunction;
-           document.getElementById('nearestRoad').innerHTML = positionResult.nearestRoad;
-           document.getElementById('nearestPOI').innerHTML = positionResult.nearestPOI;*/
-        });
-        positionPicker.on('fail', function (positionResult) {
-          /*document.getElementById('lnglat').innerHTML = ' ';
-           document.getElementById('address').innerHTML = ' ';
-           document.getElementById('nearestJunction').innerHTML = ' ';
-           document.getElementById('nearestRoad').innerHTML = ' ';
-           document.getElementById('nearestPOI').innerHTML = ' ';*/
-        });
-        var onModeChange = function (e) {
-          positionPicker.setMode(e.target.value)
-        }
-        var startButton = document.getElementById('start');
-        var stopButton = document.getElementById('stop');
-        var dragMapMode = document.getElementsByName('mode')[0];
-        var dragMarkerMode = document.getElementsByName('mode')[1];
-        AMap.event.addDomListener(startButton, 'click', function () {
-          positionPicker.start(map.getBounds().getSouthWest())
-        })
-        AMap.event.addDomListener(stopButton, 'click', function () {
-          positionPicker.stop();
-        })
-        AMap.event.addDomListener(dragMapMode, 'change', onModeChange)
-        AMap.event.addDomListener(dragMarkerMode, 'change', onModeChange);
-        positionPicker.start();
-        map.panBy(0, 1);
-
-
-//        AMap.service(["AMap.PlaceSearch"], function() {
-//          var placeSearch = new AMap.PlaceSearch({ //构造地点查询类
-//            pageSize: 5,
-//            pageIndex: 1,
-////            city: "010", //城市
-//            map: map,
-//            panel: "panel"
-//          });
-//          //关键字查询
-//          placeSearch.search('光谷');
-//        });
+      var map = new AMap.Map("container", {
+        zoom: 16,
+        scrollWheel: false,
+        resizeEnable: true
       });
+      map.plugin(['AMap.ToolBar', 'AMap.Geolocation', 'AMap.MapType', 'AMap.PlaceSearch','AMap.Autocomplete'], function () {
+        map.addControl(new AMap.ToolBar());
+        map.addControl(new AMap.Geolocation());
+        map.addControl(new AMap.PlaceSearch());
+        map.addControl(new AMap.MapType());
+        map.addControl(new AMap.Autocomplete());
+      })
+      //输入提示
+      var auto = new AMap.Autocomplete({
+        input: "tipinput"
+      });
+      //POI搜索
+      var placeSearch = new AMap.PlaceSearch({
+        map: map
+      });
+      var select = function(e) {
+        placeSearch.setCity(e.poi.adcode);
+        placeSearch.search(e.poi.name);  //关键字查询查询
+      }
+      //方式一：
+      var listener = AMap.event.addListener(auto, "select", select);//注册监听，当选中某条记录时会触发
+      //AMap.event.removeListener(listener);//需要时这样移除
+      //======================
+      ////方式二：
+      ////用on和off方法
+      //auto.on('select',select)
+      ////auto.off('select',select)//移除的方法
+      //======================
+
     },
     computed: {},
     /*watch: {
