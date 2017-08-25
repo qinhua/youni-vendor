@@ -199,7 +199,7 @@
   let me
   let vm
   import Swiper from '../components/Swiper'
-  import Geo from './Geo'
+  import Geo from '../components/Geo'
   import {
     Group,
     GroupTitle,

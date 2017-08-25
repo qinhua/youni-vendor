@@ -23,11 +23,11 @@ Vue.use(AlertPlugin)
 Vue.use(ToastPlugin)
 Vue.use(LoadingPlugin)
 Vue.use(VueScroller)
- //Vue.use(AMap)
- //AMap.initAMapApiLoader({
- //  key: '5472f8bd49fabbd0fa3b9f13b74532c7',
- //  plugin: ['Autocomplete', 'PlaceSearch', 'Geolocation', 'Scale', 'ToolBar', 'MapType', 'PolyEditor', 'AMap.CircleEditor']
- //});
+//Vue.use(AMap)
+//AMap.initAMapApiLoader({
+//  key: '5472f8bd49fabbd0fa3b9f13b74532c7',
+//  plugin: ['Autocomplete', 'PlaceSearch', 'Geolocation', 'Scale', 'ToolBar', 'MapType', 'PolyEditor', 'AMap.CircleEditor']
+//});
 Vue.config.productionTip = false
 let me = window.me
 
@@ -84,30 +84,32 @@ Vue.prototype.loadData = function (url, params, type, sucCb, errCb) {
   setTimeout(function () {
     $.extend(params, window.youniMall.userAuth)
     // console.log('%c'+JSON.stringify(params, null, 2), 'color:#fff;background:purple')
-    $.post(url, {'requestapp': params ? JSON.stringify(params) : '{}'},
-      function (res) {
-        if (res.success) {
-          sucCb ? sucCb(res) : console.log(res, '接口的res')
-        } else {
-          errCb ? errCb(res) : console.error('请求失败！')
-        }
+    $.ajax({
+      url: url,
+      type: type || 'POST',
+      data: {'requestapp': JSON.stringify(params ? params : {})},
+      dataType: "JSON",
+      cache: false,
+      headers: {token: window.youniMall.userAuth.openid},
+      success: function (res) {
+        sucCb ? sucCb(res) : console.log(res, '接口的res')
+      },
+      error: function (res) {
+        errCb ? errCb(res) : console.error('请求失败！')
       }
-    )
-    /* Axios.post(url, {'requestapp': '{}'}).then(function (res) {
+    });
+    /*Axios({
+     method: type || 'POST',
+     url: url,
+     data: {requestapp: params ? params : {}},
+     responseType: 'JSON',
+     cache: false,
+     headers: {'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8', 'token': window.youniMall.userAuth.openid}
+     }).then(function (res) {
      sucCb ? sucCb(res) : console.log(res, '接口的res')
      }).catch(function (error) {
      errCb ? errCb(error) : console.error(error, '错误信息')
-     }) */
-   /* Axios({
-      method: type || 'POST',
-      url: url,
-      data: {'requestapp': params ? JSON.stringify(params) : '{}'},
-      responseType: 'JSON'
-    }).then(function (res) {
-      sucCb ? sucCb(res) : console.log(res, '接口的res')
-    }).catch(function (error) {
-      errCb ? errCb(error) : console.error(error, '错误信息')
-    })*/
+     })*/
   }, 0)
 }
 /* alert */
@@ -196,6 +198,13 @@ Vue.prototype.processing = function (content, isClose, cb, timeCb) {
       _this.$vux.loading.hide()
       timeCb ? timeCb() : null
     }, 2000)
+  }
+}
+Vue.prototype.jump = function (name, params) {
+  if (name.indexOf('/') > -1) {
+    this.$router.push({path: name, query: params || ''})
+  } else {
+    this.$router.push({name: name, query: params || ''})
   }
 }
 /* ----- 封装一些指令 -------- */

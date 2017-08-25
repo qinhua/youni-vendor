@@ -9,7 +9,6 @@
 
 <script>
   /* eslint-disable */
-  let me
   let vm
   export default {
     name: 'geo',
@@ -18,31 +17,21 @@
     },
     props: {
       events: {
-        type: Object,
+        type: Object
       },
       visible: {
         type: Boolean,
         default: false
-      },
+      }
     },
-    beforeMount() {
-      me = window.me
-    },
+    beforeMount() {},
     mounted() {
       vm = this
-      console.log(vm.events)
-      // me.attachClick()
-      // vm.showMap()
-      /*vm.$nextTick(function () {
-      })*/
       vm.geoLocation()
+      /*vm.$nextTick(function () {})*/
     },
-    computed: {},
-    /*watch: {
-      '$route'(to, from) {
-        vm.showMap()
-      }
-    },*/
+    /*computed: {},*/
+    /*watch: {},*/
     methods: {
       /*浏览器定位*/
       geoLocation() {

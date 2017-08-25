@@ -20,24 +20,7 @@
           </checker-item>
         </checker>
       </div>
-      <div class="upload-group">
-        <div class="weui-cells weui-cells_form" id="uploader">
-          <div class="weui-cell">
-            <div class="weui-cell__bd">
-              <div class="weui-uploader">
-                <div class="weui-uploader__hd"><p class="weui-uploader__title">图片上传</p>
-                  <div class="weui-uploader__info"><span id="uploadCount">1</span>/5</div>
-                </div>
-                <div class="weui-uploader__bd">
-                  <ul class="weui-uploader__files" id="uploaderFiles"></ul>
-                  <div class="weui-uploader__input-box"><input id="uploaderInput" class="weui-uploader__input"
-                                                               type="file" accept="image/*" multiple=""></div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      <img-uploader title="商品头图" :api="fileApi" :limit="1" @on-uploaded="getImgUrl"></img-uploader>
       <x-input title="折扣价：" placeholder="折扣价" text-align="right" v-model="params.discountPrice"></x-input>
       <x-textarea title="折扣说明：" :max="20" placeholder="折扣说明" @on-blur="" v-model="params.discountNote"
                   show-clear></x-textarea>
@@ -87,8 +70,9 @@
     XAddress,
     ChinaAddressV3Data
   } from 'vux'
+  import imgUploader from '../../components/ImgUploader.vue'
   import {VueEditor} from 'vue2-editor'
-  import {goodsApi, fileApi} from '../../service/main.js'
+  import {goodsApi, commonApi} from '../../service/main.js'
 
   export default {
     name: 'goods-edit',
@@ -97,6 +81,7 @@
         onFetching: false,
         isPosting: false,
         goodsId: null,
+        fileApi: commonApi.uploadImg,
         addressData: ChinaAddressV3Data,
         types: [{key: 1, value: '饮料', name: '饮料'}, {key: 2, value: '食品', name: '食品'}],
         categories: [{key: 1, value: '水', name: '水'}, {key: 2, value: '奶制品', name: '奶制品'}],
@@ -140,6 +125,7 @@
       XAddress,
       ChinaAddressV3Data,
       VueEditor,
+      imgUploader,
       'tags-input': require('vue-tagsinput/src/input.vue')
     },
     beforeMount() {
@@ -155,12 +141,20 @@
     },
     computed: {},
     methods: {
+      getImgUrl(data){
+        if (me.isArray(data)) {
+          vm.params.imgurl = data.join(',')
+        } else {
+          vm.params.imgurl = ''
+        }
+        console.log(vm.params.imgurl, 888888)
+      },
       initImgPicker() {
         /* 图片自动上传 */
         var uploadCount = 0, uploadList = []
         var uploadCountDom = document.getElementById("uploadCount")
         vm.weui.uploader('#uploader', {
-          url: fileApi.uploadImg,
+          url: commonApi.uploadImg,
           auto: true,
           type: 'file',
           fileVal: 'image',
@@ -345,7 +339,8 @@
       },
       changeArea(ids, names) {
         console.log(ids, names)
-        // vm.area = names.join('')
+        vm.params.province = ids[0]
+        vm.params.city = ids[1]
       },
       changeType(val) {
         console.log(val, vm.params.goodsType)
@@ -382,7 +377,7 @@
         // formData.append('file', file)
         var formData = new FormData();
         formData.append('image', file)
-        vm.loadData(fileApi.uploadImg, formData, 'POST', function (res) {
+        vm.loadData(commonApi.uploadImg, formData, 'POST', function (res) {
           let url = res.data.url // Get url from response
           console.log(res)
           Editor.insertEmbed(cursorLocation, 'image', url);

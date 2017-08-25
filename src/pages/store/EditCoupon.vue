@@ -31,7 +31,7 @@
     PopupPicker,
     XTextarea
   } from 'vux'
-  import {userApi, fileApi} from '../../service/main.js'
+  import {userApi, commonApi} from '../../service/main.js'
 
   export default {
     name: 'coupon-edit',

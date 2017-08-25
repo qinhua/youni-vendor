@@ -48,9 +48,11 @@ const userApi = {
 const statisticApi = {
   list: host + '/seller/statistic',
 }
-const fileApi = {
-  uploadImg: host + '/file/uploadImage'
+const commonApi = {
+  uploadImg: host + '/file/uploadImage',
+  sendSms: host + '/common/sendSms',
+  checkCode: host + '/common/checkSmsCode'
 }
 console.log('当前域名：%c' + host, 'color:red;font-size:14px;font-weight:bold')
 // console.log('当前API：%c' + JSON.stringify(homeApi, null, 2), 'color:orange;font-size:14px')
-export {homeApi, nearbyApi, ticketApi, orderApi, clientApi, userApi, goodsApi,statisticApi, fileApi}
+export {homeApi, nearbyApi, ticketApi, orderApi, clientApi, userApi, goodsApi,statisticApi, commonApi}

@@ -57,9 +57,9 @@
         }
         vm.isPosting = true
         vm.processing()
-        vm.loadData(userApi.login, {userId: vm.userId, nickName: vm.nickName}, 'POST', function (res) {
+        vm.loadData(userApi.login, vm.params, 'POST', function (res) {
           console.log(res, '修改用户信息')
-          this.$store.commit('updateNickName', vm.nickName)
+//          this.$store.commit('updateNickName', vm.nickName)
           vm.$router.back()
           vm.isPosting = false
           vm.processing(0, 1)
