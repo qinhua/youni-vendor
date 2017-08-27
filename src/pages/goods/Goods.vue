@@ -20,12 +20,12 @@
               <img :src="item.imgurl">
             </div>
             <div class="info-con">
-              <h3>{{item.productName}}</h3>
+              <h3>{{item.name}}</h3>
               <section class="middle">
-                <span class="unit-price">售价：￥{{item.unitPrice}}</span>
+                <span class="unit-price">售价：￥{{item.price}}</span>
                 <!--<span class="order-info">库存：{{item.info}}</span>-->
               </section>
-              <label>库存：{{item.info}}</label>
+              <label>库存：{{item.stock}}</label>
             </div>
             <!--<div class="price-con">-->
             <!--<p class="price">￥{{item.price}}</p>-->
@@ -38,7 +38,7 @@
             <!--</div>-->
             <!--<div class="total-price">共{{item.buyCount}}件商品&nbsp;合计：<span>￥{{item.total}}</span>.00（含上楼费）</div>-->
             <div class="btns">
-              <a class="btn btn-del" @click="editGoods(item.id||2)">编辑</a>
+              <a class="btn btn-del" @click="editGoods(item)">编辑</a>
               <a class="btn btn-del" @click="setState(item.id||2)" v-if="item.status===1">上架</a>
               <a class="btn btn-del" @click="setState(item.id||2)" else>下架</a>
               <a class="btn btn-del" @click="delGoods(item.id||2)">删除</a>
@@ -56,7 +56,7 @@
   let me
   let vm
   import {Tab, TabItem} from 'vux'
-  import {orderApi,goodsApi} from '../../service/main.js'
+  import {goodsApi} from '../../service/main.js'
 
   export default {
     name: 'goods',
@@ -113,9 +113,9 @@
         vm.onFetching = true
         vm.loadData(goodsApi.list, vm.params, 'POST', function (res) {
           if (!isLoadMore) {
-            vm.goods = res.data.itemList
+            vm.goods = res.data.pager.itemList
           } else {
-            vm.goods.push(res.data.itemList, '商品数据')
+            vm.goods.push(res.data.pager.itemList, '商品数据')
           }
           console.log(vm.goods)
           vm.onFetching = false
@@ -169,14 +169,14 @@
       }, function () {
 //        })
       },
-      editGoods(id) {
-        vm.$router.push({name: 'edit_goods', query: {id: id}})
+      editGoods(data) {
+        vm.$router.push({name: 'edit_goods', query: {linedata:encodeURIComponent(JSON.stringify(data))}})
       },
       pushOrder(id) {
         if (vm.isPosting) return false
         vm.confirm('确认催单？', '请不要频繁催单！', function () {
           vm.isPosting = true
-          vm.loadData(orderApi.cancelOrder + '?id=' + id, vm.params, 'POST', function (res) {
+          vm.loadData(goodsApi.cancelOrder + '?id=' + id, vm.params, 'POST', function (res) {
             vm.isPosting = false
           }, function () {
             vm.isPosting = false

@@ -38,6 +38,8 @@
     mounted() {
       vm = this
       me.attachClick()
+      vm.params.phone = vm.$route.query.phone || null
+      vm.params.passwd = vm.$route.query.psw || null
       // vm.userId = vm.$route.query.userId
     },
     methods: {
@@ -59,10 +61,11 @@
         vm.processing()
         vm.loadData(userApi.login, vm.params, 'POST', function (res) {
           console.log(res, '修改用户信息')
-//          this.$store.commit('updateNickName', vm.nickName)
-          vm.$router.back()
-          vm.isPosting = false
           vm.processing(0, 1)
+          vm.toast('登录成功 ！')
+//          this.$store.commit('updateNickName', vm.nickName)
+          vm.jump('home')
+          vm.isPosting = false
         }, function () {
           vm.isPosting = false
           vm.processing(0, 1)

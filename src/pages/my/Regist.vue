@@ -9,7 +9,7 @@
       <x-input title="公司名称：" placeholder="公司名称" required text-align="right" v-model="params.companyName"></x-input>
     </group>
     <group class="bottom">
-      <popup-picker ref="typ" title="认证级别" :data="levels" :columns="1" v-model="tmpLevel" @on-show=""
+      <popup-picker title="认证级别" :data="levels" :columns="1" v-model="tmpLevel" @on-show=""
                     @on-hide="" @on-change="changeLevel"></popup-picker>
       <popup-picker title="平台分类" :data="types" :columns="1" v-model="tmpType" @on-show=""
                     @on-hide="" @on-change="changeType"></popup-picker>
@@ -42,7 +42,7 @@
   let vm
   import {Group, Cell, XInput, XButton, PopupPicker, XTextarea, XAddress, ChinaAddressV3Data} from 'vux'
   import imgUploader from '../../components/ImgUploader.vue'
-  import {userApi,commonApi} from '../../service/main.js'
+  import {userApi, commonApi} from '../../service/main.js'
 
   export default {
     name: 'regist-con',
@@ -56,17 +56,17 @@
         hasImg: '',
         sellerId: null,
 //        levels: null,
-        types: [{key: 0, value: '直营店', name: '直营店'}, {key: 1, value: '非直营店', name: '非直营店'}],
+        types: [{key: 1, value: '直营店', name: '直营店'}, {key: 2, value: '非直营店', name: '非直营店'}],
         serTypes: [{key: 'seller_service_type.1', value: '水', name: '水'}, {
           key: 'seller_service_type.2',
           value: '奶',
           name: '奶'
         }, {key: 'seller_service_type.3', value: '全部', name: '全部'}],
-        levels: [{key: 1, value: '普通店', name: '普通店'}, {key: 2, value: '官方店', name: '官方店'}, {
-         key: 3,
-         value: '金牌店',
-         name: '金牌店'
-         }],
+        levels: [{key: 'seller_level.1', value: '普通店', name: '普通店'}, {
+          key: 'seller_level.2',
+          value: '官方店',
+          name: '官方店'
+        }, {key: 'seller_level.3', value: '金牌店', name: '金牌店'}],
         tmpType: [],
         tmpSerType: [],
         tmpLevel: [],
@@ -97,13 +97,13 @@
     mounted() {
       vm = this
       // me.attachClick()
-        vm.levels = vm.$store.commit('getFromDict', 'seller_level')
+//        vm.levels = vm.$store.commit('getFromDict', 'seller_level')
     },
     methods: {
-      onHide(){
-        console.log(vm.$refs.typ)
+      onHide() {
+//        console.log(vm.$refs.typ)
       },
-      getImgUrl(data){
+      getImgUrl(data) {
         if (me.isArray(data)) {
           vm.params.businessLicense = data.join(',')
         } else {
@@ -154,20 +154,24 @@
           vm.isPosting = false
         })
       },
-      checkCode(code) {
+      checkCode() {
         vm.loadData(commonApi.checkCode, {
           phone: vm.params.phone,
           useType: 1,
-          code: code
+          code: vm.params.smsCode
         }, 'POST', function (res) {
           if (res.success) {
-            vm.toast('已发送，请注意查收！')
+            return true
+          } else {
+            vm.toast(res.message, 'warn')
             vm.btnText = '发送验证码'
             vm.btnStatus = false
             vm.isPosting = false
+            return false
           }
         }, function () {
           vm.isPosting = false
+          return false
         })
       },
       validate() {
@@ -203,15 +207,15 @@
           vm.toast('请选择认证级别！', 'warn')
           return false
         }
-        if (!vm.params.type) {
+        if (vm.params.type === '') {
           vm.toast('请选择平台分类！', 'warn')
           return false
         }
-        if (!vm.params.serviceType) {
+        if (vm.params.serviceType === '') {
           vm.toast('请选择业务分类！', 'warn')
           return false
         }
-        if (!vm.params.authLevel) {
+        if (vm.params.authLevel === '') {
           vm.toast('请选择认证级别！', 'warn')
           return false
         }
@@ -221,10 +225,6 @@
         }
         if (!vm.params.smsCode) {
           vm.toast('请填写验证码！', 'warn')
-          return false
-        }
-        if (!vm.checkCode(vm.params.smsCode)) {
-          vm.toast('验证码不正确！', 'warn')
           return false
         }
         return true
@@ -239,34 +239,34 @@
           vm.loadData(userApi.regist, vm.params, 'POST', function (res) {
             vm.processing(0, 1)
             if (res.success) {
-              vm.isPosting = false
               vm.toast('入驻成功！')
-              vm.jump('login')
+              vm.jump('login',{phone:vm.params.phone,psw:vm.params.phone.substr(-6)})
             } else {
               vm.toast(res.message, 'warn')
             }
+            vm.isPosting = false
           }, function () {
             vm.isPosting = false
             vm.processing(0, 1)
           })
         }
       },
-      changeArea(ids, names){
+      changeArea(ids, names) {
         console.log(ids, names)
         vm.params.province = ids[0]
         vm.params.city = ids[1]
         vm.tmpAddress.province = names[0]
         vm.tmpAddress.city = names[1].indexOf('市辖区') === -1 ? names[1] : ''
       },
-      changeType(val){
+      changeType(val) {
         vm.switchData(vm.types, vm.tmpType, 'type')
         console.log(val, vm.params.type)
       },
-      changeSerType(val){
+      changeSerType(val) {
         vm.switchData(vm.serTypes, vm.tmpSerType, 'serviceType')
         console.log(val, vm.params.serviceType)
       },
-      changeLevel(val){
+      changeLevel(val) {
         vm.switchData(vm.levels, vm.tmpLevel, 'authLevel')
         console.log(val)
       }
