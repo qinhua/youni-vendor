@@ -538,7 +538,7 @@
           vm.$refs.orderScroller.finishInfinite(true)
         }, 1000)
       },
-      getOrders(isLoadMore) {
+      getOrders(isLoadMore,status) {
         if (vm.onFetching) return false
         var params = {
           type: 0,
@@ -551,8 +551,8 @@
         }
         vm.processing()
         vm.onFetching = true
-        vm.loadData(orderApi.orders, params, 'POST', function (res) {
-          var resD = res.data.itemList
+        vm.loadData(orderApi.list, params, 'POST', function (res) {
+          var resD = res.data.pager.itemList
           for (var i = 0; i < resD.length; i++) {
             switch (resD[i].status) {
               case -1:

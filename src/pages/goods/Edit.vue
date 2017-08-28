@@ -88,7 +88,35 @@
           key: '028283447c4311e7aa18d8cb8a971933',
           value: '一方人',
           name: '一方人'
-        }, {key: '038283447c4311e7aa18d8cb8a971935', value: '娃哈哈', name: '娃哈哈'}],
+        }, {
+          key: '038283447c4311e7aa18d8cb8a971936',
+          value: '娃哈哈',
+          name: '娃哈哈'
+        }, {
+          key: '018283447c4311e7aa18d8cb8a941930',
+          value: '蒙牛',
+          name: '蒙牛'
+        }, {
+          key: '038283447c4311e7aa18d8cb8a941939',
+          value: '康师傅',
+          name: '康师傅'
+        }, {
+          key: '058283447c4311e7aa18d8cb8a971935',
+          value: '花果山',
+          name: '花果山'
+        }, {
+          key: '028283447c4311e7ab18d8cb8a971932',
+          value: '怡宝',
+          name: '怡宝'
+        }, {
+          key: '018283447c4311e7aa18d8cb8a971932',
+          value: '百岁山',
+          name: '百岁山'
+        }, {
+          key: '068283447c4311e7aa18d8cb8a971943',
+          value: '昆仑山',
+          name: '昆仑山'
+        }],
         types: [{key: 'goods_type.1', value: '水', name: '水'}, {
           key: 'goods_type.2',
           value: '奶',
@@ -111,7 +139,7 @@
           saleStatus: 1,
           label: '',
           /*discountPrice: null,
-          discountNote: '',*/
+           discountNote: '',*/
           note: ''
         },
         tags: ['标签一'],
@@ -149,14 +177,14 @@
       vm = this
       // me.attachClick()
       // vm.params.sellerId = vm.$store.state.global.sellerId
-      vm.lineData = vm.$route.query.linedata ? JSON.parse(decodeURIComponent(vm.$route.query.linedata)) : ''
-      console.log(vm.lineData)
-      if (vm.lineData.id) {
-        // vm.getGoods()
-        vm.fillForm()
-      }
+      vm.getGoods()
     },
     computed: {},
+    watch: {
+      '$route'(to, from) {
+        vm.getGoods()
+      }
+    },
     methods: {
       getImgUrl(data) {
         if (me.isArray(data)) {
@@ -187,12 +215,35 @@
         }
       },
       getGoods() {
-        if (vm.onFetching) return false
+        vm.lineData = vm.$route.query.linedata ? JSON.parse(decodeURIComponent(vm.$route.query.linedata)) : ''
+        console.log(vm.lineData)
+        if (vm.lineData.id) {
+          vm.params = {
+            id: vm.lineData.id,
+            brandId: vm.lineData.brandId,
+            name: vm.lineData.name,
+            type: vm.lineData.type,
+            category: vm.lineData.category,
+            stock: vm.lineData.stock,
+            price: vm.lineData.price,
+            imgurl: vm.lineData.imgurl,
+            saleStatus: vm.lineData.saleStatus,
+            label: null,
+            /*discountPrice: null,
+             discountNote: '',*/
+            note: vm.lineData.note
+          }
+          vm.switchData(vm.brands, vm.lineData.brandId, 'tmpBrand', 1)
+          vm.switchData(vm.types, vm.lineData.type, 'tmpType', 1)
+          vm.switchData(vm.categories, vm.lineData.category, 'tmpCat', 1)
+          vm.renderTags(vm.lineData.label)
+        }
+        /*if (vm.onFetching) return false
         vm.onFetching = true
-        vm.loadData(goodsApi.list, {id: vm.goodsId}, 'POST', function (res) {
+        vm.loadData(goodsApi.list, {id: vm.params.id}, 'POST', function (res) {
           if (res) {
             let resD = res.data.itemList
-            /*此处转换一些字段类型*/
+            /!*此处转换一些字段类型*!/
             // a.比如把type和goodsCategory转换成数组
             vm.switchData(vm.types, vm.params.type, 'tmpType')
             vm.switchData(vm.categories, vm.params.category, 'tmpCat')
@@ -203,56 +254,35 @@
           vm.onFetching = false
         }, function () {
           vm.onFetching = false
-        })
-      },
-      fillForm() {
-        vm.params = {
-          id: vm.lineData.id,
-          brandId: vm.lineData['brand_id'],
-          name: vm.lineData.name,
-          type: vm.lineData['type'],
-          category: vm.lineData['category'],
-          stock: vm.lineData.stock,
-          price: vm.lineData.price,
-          imgurl: vm.lineData.imgurl,
-          saleStatus: vm.lineData['sale_status'],
-          label: vm.lineData.label,
-          /*discountPrice: null,
-          discountNote: '',*/
-          note: vm.lineData.note
-        }
-        vm.switchData(vm.brands, vm.lineData['brand_id'], 'tmpBrand', 1)
-        vm.switchData(vm.types, vm.lineData['type'], 'tmpType', 1)
-        vm.switchData(vm.categories, vm.lineData['category'], 'tmpCat', 1)
-        vm.renderTags(vm.lineData.label)
+        })*/
       },
       validate() {
         if (vm.params.brandId === '') {
-          vm.toast('请选择品牌！')
+          vm.toast('请选择品牌！','warn')
           return false
         }
         if (!vm.params.name) {
-          vm.toast('请填写商品名！')
+          vm.toast('请填写商品名！','warn')
           return false
         }
         if (!vm.params.type) {
-          vm.toast('请选择商品分类！')
+          vm.toast('请选择商品分类！','warn')
           return false
         }
         if (!vm.params.category) {
-          vm.toast('请选择商品类目！')
+          vm.toast('请选择商品类目！','warn')
           return false
         }
         if (!vm.params.stock) {
-          vm.toast('请输入库存！')
+          vm.toast('请输入库存！','warn')
           return false
         }
         if (!vm.params.price) {
-          vm.toast('请指定价格！')
+          vm.toast('请指定价格！','warn')
           return false
         }
         if (!vm.params.note) {
-          vm.toast('请填写商品详情！')
+          vm.toast('请填写商品详情！','warn')
           return false
         }
         return true
@@ -271,9 +301,10 @@
         vm.isPosting = true
         vm.processing()
         vm.loadData(curApi, vm.params, 'POST', function (res) {
-          // vm.$router.back()
-          vm.isPosting = false
           vm.processing(0, 1)
+          vm.toast(' ')
+          vm.$router.back()
+          vm.isPosting = false
         }, function () {
           vm.isPosting = false
           vm.processing(0, 1)

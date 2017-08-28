@@ -1,5 +1,5 @@
 <template>
-  <div :class="['geo-container',!visible ? 'hide' :'']">
+  <div :class="['geo-container',!visible ? 'hidden' :'']">
     <div id="geo-map"></div>
     <div id="tip">
       <div id="info">初始化加载地图时，center及level属性缺省，地图默认显示用户所在城市范围</div>
@@ -16,25 +16,25 @@
       return {}
     },
     props: {
-      events: {
-        type: Object
-      },
       visible: {
         type: Boolean,
         default: false
+      },
+      events: {
+        type: Object
       }
     },
     beforeMount() {},
     mounted() {
       vm = this
-      vm.geoLocation()
+      vm.initGeo()
       /*vm.$nextTick(function () {})*/
     },
     /*computed: {},*/
     /*watch: {},*/
     methods: {
       /*浏览器定位*/
-      geoLocation() {
+      initGeo() {
         /***** 由于Chrome、IOS10等已不再支持非安全域的浏览器定位请求，为保证定位成功率和精度，请尽快升级您的站点到HTTPS。******/
         var map, geolocation
         //01.加载地图，调用浏览器定位服务
@@ -85,7 +85,7 @@
   .geo-container {
     width: 100%;
     height: 100%;
-    &.hide {
+    &.hidden {
       position: absolute;
       left: 0;
       bottom: 0;

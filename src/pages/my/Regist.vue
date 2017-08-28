@@ -1,38 +1,42 @@
 <template>
   <div class="regist-con">
-    <group>
-      <x-input title="商家名称：" placeholder="商家名称" text-align="right" required v-model="params.name"></x-input>
-      <x-input title="商家电话：" placeholder="您的手机号" text-align="right" type="tel" required
-               v-model="params.phone"></x-input>
-      <!--<x-input title="登录密码：" placeholder="登录密码" type="password" text-align="right" required
-               v-model="params.passwd"></x-input>-->
-      <x-input title="公司名称：" placeholder="公司名称" required text-align="right" v-model="params.companyName"></x-input>
-    </group>
-    <group class="bottom">
-      <popup-picker title="认证级别" :data="levels" :columns="1" v-model="tmpLevel" @on-show=""
-                    @on-hide="" @on-change="changeLevel"></popup-picker>
-      <popup-picker title="平台分类" :data="types" :columns="1" v-model="tmpType" @on-show=""
-                    @on-hide="" @on-change="changeType"></popup-picker>
-      <popup-picker title="业务分类" :data="serTypes" :columns="1" v-model="tmpSerType" @on-show=""
-                    @on-hide="" @on-change="changeSerType"></popup-picker>
-      <!--<x-textarea title="店铺公告：" :max="20" placeholder="店铺公告" @on-blur="" v-model="topic" show-clear></x-textarea>-->
-      <x-address class="address-area" title="所在地区" @on-hide="onHide" @on-shadow-change="changeArea"
-                 :list="addressData"
-                 placeholder="请选择地区">
-        <template slot="title" scope="props">
+    <div :class="['f-wrap',showMap?'none':'']">
+      <group>
+        <x-input title="商家名称：" placeholder="商家名称" text-align="right" required v-model="params.name"></x-input>
+        <x-input title="商家电话：" placeholder="您的手机号" text-align="right" type="tel" required
+                 v-model="params.phone"></x-input>
+        <!--<x-input title="登录密码：" placeholder="登录密码" type="password" text-align="right" required
+                 v-model="params.passwd"></x-input>-->
+        <x-input title="公司名称：" placeholder="公司名称" required text-align="right" v-model="params.companyName"></x-input>
+      </group>
+      <group class="bottom">
+        <popup-picker title="认证级别" :data="levels" :columns="1" v-model="tmpLevel" @on-show=""
+                      @on-hide="" @on-change="changeLevel"></popup-picker>
+        <popup-picker title="平台分类" :data="types" :columns="1" v-model="tmpType" @on-show=""
+                      @on-hide="" @on-change="changeType"></popup-picker>
+        <popup-picker title="业务分类" :data="serTypes" :columns="1" v-model="tmpSerType" @on-show=""
+                      @on-hide="" @on-change="changeSerType"></popup-picker>
+        <!--<x-textarea title="店铺公告：" :max="20" placeholder="店铺公告" @on-blur="" v-model="topic" show-clear></x-textarea>-->
+        <x-address class="address-area" title="所在地区" @on-hide="onHide" @on-shadow-change="changeArea"
+                   :list="addressData"
+                   placeholder="请选择地区">
+          <template slot="title" scope="props">
         <span :class="props.labelClass" :style="props.labelStyle" style="height:24px;">
           <span style="vertical-align:middle;">所在地区：</span>
         </span>
-        </template>
-      </x-address>
-      <x-input title="详细地址：" placeholder="输入详细地址" required text-align="right" v-model="tmpAddress.detail"></x-input>
-      <img-uploader title="营业执照" :api="fileApi" :limit="1" @on-uploaded="getImgUrl"></img-uploader>
-      <x-input title="验证码：" class="weui-vcode" v-model="params.smsCode">
-        <x-button slot="right" type="primary" mini :disabled="btnStatus" @click.native="getCode">{{btnText}}
-        </x-button>
-      </x-input>
-    </group>
-    <div class="btn btn-save" @click="register"><i class="fa fa-save"></i>&nbsp;提交申请</div>
+          </template>
+        </x-address>
+        <x-input title="详细地址：" placeholder="输入详细地址" required readonly text-align="right" v-model="tmpAddress.detail"
+                 @click.native="choosePoint"></x-input>
+        <img-uploader title="营业执照" :api="fileApi" :limit="1" @on-uploaded="getImgUrl"></img-uploader>
+        <x-input title="验证码：" class="weui-vcode" v-model="params.smsCode">
+          <x-button slot="right" type="primary" mini :disabled="btnStatus" @click.native="getCode">{{btnText}}
+          </x-button>
+        </x-input>
+      </group>
+      <div class="btn btn-save" @click="register"><i class="fa fa-save"></i>&nbsp;提交申请</div>
+    </div>
+    <amap :visible="showMap" tools="" @on-receive-data="getMap"></amap>
   </div>
 </template>
 
@@ -42,6 +46,7 @@
   let vm
   import {Group, Cell, XInput, XButton, PopupPicker, XTextarea, XAddress, ChinaAddressV3Data} from 'vux'
   import imgUploader from '../../components/ImgUploader.vue'
+  import Amap from '../../components/Amap.vue'
   import {userApi, commonApi} from '../../service/main.js'
 
   export default {
@@ -53,6 +58,7 @@
         fileApi: commonApi.uploadImg,
         addressData: ChinaAddressV3Data,
         detailAddress: '',
+        showMap: false,
         hasImg: '',
         sellerId: null,
 //        levels: null,
@@ -79,8 +85,8 @@
           // passwd: '',
           companyName: '',
           address: '',
-          lat: '30.576734',
-          lon: '114.172691',
+          lat: '',
+          lon: '',
           province: '',
           city: '',
           serviceType: '',
@@ -90,7 +96,7 @@
         }
       }
     },
-    components: {Group, Cell, XInput, XButton, PopupPicker, XTextarea, XAddress, ChinaAddressV3Data, imgUploader},
+    components: {Group, Cell, XInput, XButton, PopupPicker, XTextarea, XAddress, ChinaAddressV3Data, imgUploader, Amap},
     beforeMount() {
       me = window.me
     },
@@ -100,6 +106,37 @@
 //        vm.levels = vm.$store.commit('getFromDict', 'seller_level')
     },
     methods: {
+      getMap(data) {
+        vm.showMap = false;
+        console.log(data, 'home amap info')
+        vm.params.lon = data.lng
+        vm.params.lat = data.lat
+        vm.tmpAddress.detail = data.name
+        // alert(JSON.stringify(vm.params, null, 2))
+        /*vm.geo = {}
+         if (data.type === 'complete') {
+         vm.geo = {
+         success: true,
+         responseText: '定位成功',
+         province: data.addressComponent ? data.addressComponent.province : '',
+         city: data.addressComponent ? data.addressComponent.city : '',
+         cityCode: data.addressComponent ? data.addressComponent.adcode : '',
+         provinceCode: data.addressComponent ? data.addressComponent.citycode : '',
+         lat: data.position.lat,
+         lng: data.position.lng,
+         address: data.formattedAddress || ''
+         }
+         vm.$store.commit('storeGeo', vm.geo)
+         } else {
+         vm.geo = {
+         success: false,
+         responseText: '定位失败'
+         }
+         }*/
+      },
+      choosePoint() {
+        vm.showMap = true;
+      },
       onHide() {
 //        console.log(vm.$refs.typ)
       },
@@ -240,7 +277,7 @@
             vm.processing(0, 1)
             if (res.success) {
               vm.toast('入驻成功！')
-              vm.jump('login',{phone:vm.params.phone,psw:vm.params.phone.substr(-6)})
+              vm.jump('login', {phone: vm.params.phone, psw: vm.params.phone.substr(-6)})
             } else {
               vm.toast(res.message, 'warn')
             }
@@ -279,7 +316,14 @@
   @import '../../../static/css/tools.less';
 
   .regist-con {
-    padding-bottom: 50px;
+    height: 100%;
+    overflow-x: hidden;
+    .f-wrap {
+      .rel;
+      z-index: 1000;
+      height: 100%;
+      padding-bottom: 50px;
+    }
     .bottom {
       margin-top: 10/@rem;
     }
@@ -287,6 +331,9 @@
       margin-top: 0;
       .vux-x-input {
         padding: 24/@rem 30/@rem;
+        input{
+          .ellipsis;
+        }
       }
       .vux-x-input, .address-area, .vux-cell-box, .vux-x-textarea {
         .fz(26);

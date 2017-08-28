@@ -21,7 +21,8 @@ const homeApi = {
 const goodsApi = {
   list: host + '/goods/list',
   add: host + '/goods/add',
-  update: host + '/goods/update'
+  update: host + '/goods/update',
+  setSaleStatus: host + '/goods/setSaleStatus'
 }
 const nearbyApi = {
   shopsList: host + '/home/shopsList'
@@ -30,7 +31,7 @@ const ticketApi = {
   tickets: host + '/home/tickets'
 }
 const orderApi = {
-  orders: host + '/home/order',
+  list: host + '/order/list',
   updateOrder: host + '/home/updateOrder'
 }
 const clientApi = {

@@ -1,9 +1,12 @@
 <template>
   <div class="goods-con">
     <tab class="goods-tab" bar-active-color="#f34c18">
-      <tab-item :selected="!params.type?true:false" @on-item-click="chooseType"><i class="fa fa-podcast"></i>&nbsp;出售中
+      <tab-item :selected="!params.saleStatus?true:false" @on-item-click="filterStatus"><i class="fa fa-th-large"></i>&nbsp;全部
       </tab-item>
-      <tab-item :selected="params.type?true:false" @on-item-click="chooseType(1)"><i class="fa fa-plug"></i>&nbsp;售罄
+      <tab-item :selected="params.saleStatus===1?true:false" @on-item-click="filterStatus(1)"><i
+        class="fa fa-podcast"></i>&nbsp;出售
+      </tab-item>
+      <tab-item :selected="params.saleStatus===2?true:false" @on-item-click="filterStatus(2)"><i class="fa fa-plug"></i>&nbsp;停售
       </tab-item>
     </tab>
     <div class="goods-list">
@@ -23,7 +26,7 @@
               <h3>{{item.name}}</h3>
               <section class="middle">
                 <span class="unit-price">售价：￥{{item.price}}</span>
-                <!--<span class="order-info">库存：{{item.info}}</span>-->
+                <span class="order-info">已售：{{item.saleCount}}</span>
               </section>
               <label>库存：{{item.stock}}</label>
             </div>
@@ -39,9 +42,9 @@
             <!--<div class="total-price">共{{item.buyCount}}件商品&nbsp;合计：<span>￥{{item.total}}</span>.00（含上楼费）</div>-->
             <div class="btns">
               <a class="btn btn-del" @click="editGoods(item)">编辑</a>
-              <a class="btn btn-del" @click="setState(item.id||2)" v-if="item.status===1">上架</a>
-              <a class="btn btn-del" @click="setState(item.id||2)" else>下架</a>
-              <a class="btn btn-del" @click="delGoods(item.id||2)">删除</a>
+              <a class="btn btn-del" @click="setState(item.id,2)" v-if="item.saleStatus===1">下架</a>
+              <a class="btn btn-del" @click="setState(item.id,1)" v-else>上架</a>
+              <!--<a class="btn btn-del" @click="delGoods(item.id||2)">删除</a>-->
             </div>
           </section>
         </section>
@@ -68,10 +71,8 @@
           type: 0,
           pagerSize: 10,
           pageNo: 1,
-          goodsType: 'XXX',
-          goodsCategory: '',
-          brandId: '',
-          filter: ''
+          saleStatus: 0,
+          category: ''
         },
         onFetching: false,
         isPosting: false
@@ -107,7 +108,7 @@
       buy(id) {
         vm.$router.push({path: '/detail/' + id})
       },
-      getGoods(isLoadMore) {
+      getGoods(isLoadMore, status) {
         vm.params.type = this.$route.params.type || 0
         if (vm.onFetching) return false
         vm.onFetching = true
@@ -115,9 +116,9 @@
           if (!isLoadMore) {
             vm.goods = res.data.pager.itemList
           } else {
-            vm.goods.push(res.data.pager.itemList, '商品数据')
+            vm.goods.push(res.data.pager.itemList)
           }
-          console.log(vm.goods)
+          console.log(vm.goods, '商品数据')
           vm.onFetching = false
         }, function () {
           vm.onFetching = false
@@ -137,13 +138,9 @@
           vm.$refs.goodsScroller.finishInfinite(true)
         }, 1000)
       },
-      chooseType(type) {
-        if (type) {
-          vm.params.type = 2
-        } else {
-          vm.params.type = 0
-        }
-        vm.getGoods()
+      filterStatus(status) {
+        vm.params.saleStatus = status || 0
+        vm.getGoods(false, vm.filterStatus)
       },
       delGoods(id) {
         if (vm.isPosting) return false
@@ -159,18 +156,18 @@
       },
       setState(id, status) {
         if (vm.isPosting) return false
-//        vm.confirm('确认删除？', '商品删除后不可恢复！', function () {
         vm.isPosting = true
-        vm.loadData(goodsApi.setState, {id: id, status: status}, 'POST', function (res) {
+        vm.loadData(goodsApi.setSaleStatus, {id: id, saleStatus: status}, 'POST', function (res) {
+          vm.toast(status === 1 ? '上架成功' : '已下架')
+          vm.getGoods()
           vm.isPosting = false
         }, function () {
           vm.isPosting = false
         })
       }, function () {
-//        })
       },
       editGoods(data) {
-        vm.$router.push({name: 'edit_goods', query: {linedata:encodeURIComponent(JSON.stringify(data))}})
+        vm.$router.push({name: 'edit_goods', query: {linedata: encodeURIComponent(JSON.stringify(data))}})
       },
       pushOrder(id) {
         if (vm.isPosting) return false
