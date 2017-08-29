@@ -1,5 +1,5 @@
 <template>
-  <div class="goods-con">
+  <div class="goods-con" v-cloak>
     <tab class="goods-tab" bar-active-color="#f34c18">
       <tab-item :selected="!params.saleStatus?true:false" @on-item-click="filterStatus"><i class="fa fa-th-large"></i>&nbsp;全部
       </tab-item>

@@ -53,7 +53,7 @@
   // import myMixin from 'myMixin'
   let vm
   import Home from './pages/Home'
-  import {homeApi} from './service/main.js'
+  import {commonApi} from './service/main.js'
   import {Tabbar, TabbarItem} from 'vux'
   import {mapState, mapActions} from 'vuex'
 
@@ -93,7 +93,7 @@
         vm.curSelected = data
       },
       getDict() {
-        vm.loadData(homeApi.dict, {}, 'POST', function (res) {
+        vm.loadData(commonApi.dict, {}, 'POST', function (res) {
           vm.$store.commit('storeData', {key: 'dict', data: res.data.itemList})
         }, function () {
         })

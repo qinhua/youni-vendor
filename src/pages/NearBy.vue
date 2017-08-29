@@ -1,5 +1,5 @@
 <template>
-  <div class="nearby">
+  <div class="nearby" v-cloak>
     <!--定位组件-->
     <div class="location-chooser">
       <p><span><i class="fa fa-map-marker"></i>&nbsp;您的位置：</span>{{location}}</p>

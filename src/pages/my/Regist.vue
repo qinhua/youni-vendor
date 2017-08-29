@@ -1,5 +1,5 @@
 <template>
-  <div class="regist-con">
+  <div class="regist-con" v-cloak>
     <div :class="['f-wrap',showMap?'none':'']">
       <group>
         <x-input title="商家名称：" placeholder="商家名称" text-align="right" required v-model="params.name"></x-input>
@@ -61,7 +61,6 @@
         showMap: false,
         hasImg: '',
         sellerId: null,
-//        levels: null,
         types: [{key: 1, value: '直营店', name: '直营店'}, {key: 2, value: '非直营店', name: '非直营店'}],
         serTypes: [{key: 'seller_service_type.1', value: '水', name: '水'}, {
           key: 'seller_service_type.2',

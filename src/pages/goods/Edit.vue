@@ -1,5 +1,5 @@
 <template>
-  <div class="goods-edit-con">
+  <div class="goods-edit-con" v-cloak>
     <group>
       <popup-picker title="品牌" :data="brands" :columns="1" v-model="tmpBrand" ref="picker1" @on-show=""
                     @on-hide="" @on-change="changeBrand"></popup-picker>

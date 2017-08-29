@@ -15,8 +15,7 @@ window.youniMall = {
 const homeApi = {
   banner: host + '/home/banner',
   topNotice: host + '/home/topNotice',
-  goodsList: host + '/home/goodsList',
-  dict: host + '/common/dictList'
+  goodsList: host + '/home/goodsList'
 }
 const goodsApi = {
   list: host + '/goods/list',
@@ -50,10 +49,11 @@ const statisticApi = {
   list: host + '/seller/statistic',
 }
 const commonApi = {
+  dict: host + '/common/dictList',
   uploadImg: host + '/file/uploadImage',
   sendSms: host + '/common/sendSms',
   checkCode: host + '/common/checkSmsCode'
 }
 console.log('当前域名：%c' + host, 'color:red;font-size:14px;font-weight:bold')
 // console.log('当前API：%c' + JSON.stringify(homeApi, null, 2), 'color:orange;font-size:14px')
-export {homeApi, nearbyApi, ticketApi, orderApi, clientApi, userApi, goodsApi,statisticApi, commonApi}
+export {commonApi, homeApi, nearbyApi, ticketApi, orderApi, clientApi, userApi, goodsApi,statisticApi}

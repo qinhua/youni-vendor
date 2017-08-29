@@ -1,5 +1,5 @@
 <template>
-  <div class="goods-detail">
+  <div class="goods-detail" v-cloak>
     <div class="top">
       <div class="swiper-detail">
         <div class="swiper-container" v-show="imgs.length">

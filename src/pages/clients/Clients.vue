@@ -1,5 +1,5 @@
 <template>
-  <div class="clients-con">
+  <div class="clients-con" v-cloak>
     <div class="search-con">
       <search
         @result-click="resultClick"
