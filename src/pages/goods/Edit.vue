@@ -31,7 +31,7 @@
       <div class="tags-group">
         <label>商品标签</label>
         <div class="tags-cons">
-          <tags-input :tags="tags" placeholder="商品标签" @focus="handleFocus" @blur="handleBlur"
+          <tags-input :tags="tags" placeholder="商品标签（3~5字最佳）" @focus="handleFocus" @blur="handleBlur"
                       @tags-change="changeTags"></tags-input>
         </div>
       </div>
@@ -335,6 +335,10 @@
       },
       changeTags(index, text) {
         console.log(index, text)
+        if(index===3){
+          vm.toast('最多3个标签！','warn')
+          return
+        }
         if (text) {
           this.tags.splice(index, 0, text)
         } else {
