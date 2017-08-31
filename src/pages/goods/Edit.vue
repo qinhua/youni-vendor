@@ -192,7 +192,6 @@
         } else {
           vm.params.imgurl = ''
         }
-        console.log(vm.params.imgurl, 888888)
       },
       switchData(data, value, target, isUpdate) {
         let tmp

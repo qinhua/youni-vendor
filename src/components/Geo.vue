@@ -208,6 +208,9 @@
       bottom: 0;
       width: 0;
       height: 0;
+      #tip{
+        display: none;
+      }
     }
     .amap-logo, .amap-copyright {
       display: none !important;
