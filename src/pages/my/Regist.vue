@@ -293,6 +293,7 @@
         vm.params.city = ids[1]
         vm.tmpAddress.province = names[0]
         vm.tmpAddress.city = names[1].indexOf('市辖区') === -1 ? names[1] : ''
+        // vm.params.area = names[0] + (names[1].indexOf('市辖区') === -1 ? names[1] : '') + names[2]
       },
       changeType(val) {
         vm.switchData(vm.types, vm.tmpType, 'type')
