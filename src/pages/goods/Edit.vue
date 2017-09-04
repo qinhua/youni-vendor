@@ -216,7 +216,7 @@
       getGoods() {
         vm.lineData = vm.$route.query.linedata ? JSON.parse(decodeURIComponent(vm.$route.query.linedata)) : ''
         console.log(vm.lineData)
-        if (vm.lineData.id) {
+        if (vm.lineData&&vm.lineData.id) {
           vm.params = {
             id: vm.lineData.id,
             brandId: vm.lineData.brandId,
@@ -236,6 +236,23 @@
           vm.switchData(vm.types, vm.lineData.type, 'tmpType', 1)
           vm.switchData(vm.categories, vm.lineData.category, 'tmpCat', 1)
           vm.renderTags(vm.lineData.label)
+        }else{
+          vm.params={
+              brandId: null,
+              name: '',
+              type: 1,
+              category: 2,
+              stock: '',
+              price: null,
+              imgurl: '',
+              saleStatus: 1,
+              label: '',
+              note: ''
+          }
+          vm.tags= ['标签一']
+          vm.tmpBrand=[]
+          vm.tmpType= []
+          vm.tmpCat= []
         }
         /*if (vm.onFetching) return false
         vm.onFetching = true

@@ -1,6 +1,6 @@
 <template>
   <div class="regist-con" v-cloak>
-    <div :class="['f-wrap',showMap?'none':'']">
+    <div class="f-wrap" v-if="!showMap">
       <group>
         <x-input title="商家名称：" placeholder="商家名称" text-align="right" required v-model="params.name"></x-input>
         <x-input title="商家电话：" placeholder="您的手机号" text-align="right" type="tel" required
@@ -36,7 +36,7 @@
       </group>
       <div class="btn btn-save" @click="register"><i class="fa fa-save"></i>&nbsp;提交申请</div>
     </div>
-    <amap :visible="showMap" tools="" @on-receive-data="getMap"></amap>
+    <amap @on-receive-data="getMap" v-if="showMap"></amap>
   </div>
 </template>
 
@@ -108,30 +108,11 @@
       getMap(data) {
         vm.showMap = false;
         console.log(data, 'home amap info')
-        vm.params.lon = data.lng
-        vm.params.lat = data.lat
-        vm.tmpAddress.detail = data.name
-        // alert(JSON.stringify(vm.params, null, 2))
-        /*vm.geo = {}
-         if (data.type === 'complete') {
-         vm.geo = {
-         success: true,
-         responseText: '定位成功',
-         province: data.addressComponent ? data.addressComponent.province : '',
-         city: data.addressComponent ? data.addressComponent.city : '',
-         cityCode: data.addressComponent ? data.addressComponent.adcode : '',
-         provinceCode: data.addressComponent ? data.addressComponent.citycode : '',
-         lat: data.position.lat,
-         lng: data.position.lng,
-         address: data.formattedAddress || ''
-         }
-         vm.$store.commit('storeGeo', vm.geo)
-         } else {
-         vm.geo = {
-         success: false,
-         responseText: '定位失败'
-         }
-         }*/
+        if(data) {
+          vm.params.lon = data.lng
+          vm.params.lat = data.lat
+          vm.tmpAddress.detail = data.name
+        }
       },
       choosePoint() {
         vm.showMap = true;
@@ -319,8 +300,6 @@
     height: 100%;
     overflow-x: hidden;
     .f-wrap {
-      .rel;
-      z-index: 1000;
       height: 100%;
       padding-bottom: 50px;
     }

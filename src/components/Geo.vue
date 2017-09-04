@@ -20,7 +20,7 @@
     props: {
       cache: {
         type: Boolean,
-        default: true
+        default: false
       },
       visible: {
         type: Boolean,
@@ -49,12 +49,12 @@
         /***** 由于Chrome、IOS10等已不再支持非安全域的浏览器定位请求，为保证定位成功率和精度，请尽快升级您的站点到HTTPS。******/
         // 是否启用缓存
         if (vm.cache) {
-          if (me.sessions.get('cur5656Position')) {
-            vm.$emit('on-geo-end', JSON.stringify(me.sessions.get('cur5656Position')))
+          if (me.sessions.get('cur5656Geo')) {
+            vm.$emit('on-geo-end', JSON.parse(me.sessions.get('cur5656Geo')))
             return
           }
         } else {
-          me.sessions.remove('cur5656Position')
+          me.sessions.remove('cur5656Geo')
         }
 
         // 01.加载地图
@@ -86,7 +86,7 @@
                   lng: data.position.lng,
                   lat: data.position.lat
                 }
-                vm.cache ? me.sessions.set('cur5656Position', JSON.stringify(tmp)) : null
+                vm.cache ? me.sessions.set('cur5656Geo', JSON.stringify(tmp)) : null
                 vm.$emit('on-geo-end', tmp)
                 vm.geoData = data
                 var str = ['定位成功']
@@ -143,7 +143,7 @@
                   lng: tmpLnglat[0],
                   lat: tmpLnglat[1]
                 }
-                vm.cache ? me.sessions.set('cur5656Position', JSON.stringify(tmp)) : null
+                vm.cache ? me.sessions.set('cur5656Geo', JSON.stringify(tmp)) : null
                 vm.$emit('on-geo-end', tmp)
                 vm.geoData = data
                 var str = ['定位成功']
@@ -173,12 +173,9 @@
                     if (result && result.city && result.bounds) {
                       var cityinfo = result.city
                       var citybounds = result.bounds
-                      vm.location = cityinfo
                       // 地图显示当前城市
                       map.setBounds(citybounds)
                     }
-                  } else {
-                    vm.location = result.info
                   }
                 })
                 AMap.event.addListener(citysearch, 'complete', onComplete) // 返回定位信息
@@ -202,6 +199,7 @@
   .geo-container {
     width: 100%;
     height: 100%;
+    overflow: hidden;
     &.hidden {
       position: absolute;
       left: 0;

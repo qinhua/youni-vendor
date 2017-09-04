@@ -38,13 +38,16 @@
     name: 'amap',
     data() {
       return {
-        currentPoint: null
+        isPageMode: false,
+        lastPage: '',
+        currentPoint: null,
+        geoData: null
       }
     },
     props: {
       visible: {
         type: Boolean,
-        default: false
+        default: true
       },
       /*tools: {
        type: Array,
@@ -63,14 +66,34 @@
     },
     // computed: {},
     watch: {
-      /*'$route'(to, from) {
-       }*/
+      '$route'(to, from) {
+        vm.initMap()
+      },
       visible(){
         vm.initMap()
       }
     },
     methods: {
       initMap () {
+        /* 判断当前是页面模式还是组件模式 */
+        if (vm.$route.query.path) {
+          vm.isPageMode = true
+          vm.lastPage = vm.$route.query.path
+        } else {
+          vm.isPageMode = false
+          vm.lastPage = ''
+        }
+
+        /* 结束后的操作 */
+        var finished=function(data){
+          if (vm.isPageMode) {
+            me.locals.set('cur5656Position', JSON.stringify(data));
+            vm.lastPage ? vm.$router.push({path: vm.lastPage}) : vm.$router.back()
+          } else {
+            vm.$emit('on-receive-data', data)
+          }
+        }
+
         var inputer = document.getElementById("tipinput")
         var btnClear = document.getElementById("clearSearchBtn")
         var btnSure = document.getElementById("sureBtn")
@@ -92,12 +115,29 @@
             }
           }, false)
           btnSure.addEventListener('click', function () {
-            var lastObj = {
-              lat: vm.currentPoint.lat,
-              lng: vm.currentPoint.lng,
-              name: inputer.value
+            var lastObj
+            if (vm.currentPoint) {
+              lastObj = {
+                lat: vm.currentPoint.lat,
+                lng: vm.currentPoint.lng,
+                name: inputer.value
+              }
             }
-            vm.$emit('on-receive-data', lastObj);
+            console.log('%c当前地图中心点数据:'+JSON.stringify(lastObj),'color:green,font-size:18px')
+            finished(lastObj)
+          }, false)
+          btnClear.addEventListener('click', function () {
+            // 清除搜索框内容
+            inputer.value = ''
+            btnClear.classList.remove('show')
+            try {
+              // 清除结果列表
+              placeSearch.clear()
+              $panel.addClass('hidden')
+              checkPoiList()
+            } catch (e) {
+              console.log(e)
+            }
           }, false)
 
           /*逆向地理编码*/
@@ -144,9 +184,6 @@
              }
              })*/
           })
-          /*map.on('complete', function() {
-           document.getElementById('tip').innerHTML = "地图图块加载完毕！当前地图中心点为：" + map.getCenter()
-           })*/
 
           /*加载插件*/
           map.plugin(['AMap.ToolBar', 'AMap.Geolocation', 'AMap.MapType', 'AMap.PlaceSearch', 'AMap.Autocomplete', 'AMap.CitySearch', 'AMap.Geocoder'], function () {
@@ -158,130 +195,225 @@
             map.addControl(new AMap.CitySearch())
           })
 
-          /*01.定位*/
-          var geolocation = new AMap.Geolocation({
-            enableHighAccuracy: true, // 是否使用高精度定位，默认:true
-            timeout: 6500, // 超过10秒后停止定位，默认：无穷大
-            buttonOffset: new AMap.Pixel(10, 20), // 定位按钮与设置的停靠位置的偏移量，默认：Pixel(10, 20)
-            zoomToAccuracy: true, // 定位成功后调整地图视野范围使定位位置及精度范围视野内可见，默认：false
-            buttonPosition: 'RB',
-            useNative: true
-          })
-          map.addControl(geolocation)
-          inputer.value = '定位中…'
-          geolocation.getCurrentPosition()
-          AMap.event.addListener(geolocation, 'complete', onComplete) // 返回定位信息
-          AMap.event.addListener(geolocation, 'error', onError) // 返回定位出错信息
-          //a.解析定位结果
-          function onComplete(data) {
-            var str = ['定位成功']
-            str.push('经度：' + data.position.getLng())
-            str.push('纬度：' + data.position.getLat())
-            if (data.accuracy) {
-              str.push('精度：' + data.accuracy + ' 米')
-            }//如为IP精确定位结果则没有精度信息
-            str.push('是否经过偏移：' + (data.isConverted ? '是' : '否'))
-            // alert(JSON.stringify(data))
-            inputer.value = data.formattedAddress
-            btnClear.classList.add('show')
-            // document.getElementById('tip').innerHTML = str.join('<br>')
-            // marker.setPosition([data.position.getLng(), data.position.getLat()])
-            // vm.$emit('on-geo-end', data)
-          }
 
-          //b.解析定位错误信息
-          function onError(data) {
-            console.log(data)
-            inputer.value = '定位失败'
-            btnClear.classList.add('show')
-          }
+          setTimeout(function () {
 
-          /*02.搜索功能*/
-          // 输入提示
-          var auto = new AMap.Autocomplete({
-            input: "tipinput"
-          })
-          // POI搜索
-          var placeSearch = new AMap.PlaceSearch({
-            map: map,
-            pageSize: 5,
-            pageIndex: 1,
-            city: '', //城市
-            panel: 'poiList'
-          })
-          var checkPoiList = function () {
-            $panel.toggleClass('empty', !($.trim($('#poiList').html())))
-          }
-          var select = function (e) {
-            // 设置搜索的城市
-            placeSearch.setCity(e.poi.adcode)
-            // 检查结果列表是否为空， 为空时显示必要的提示，即#emptyTip
-            checkPoiList()
-            // 监听搜索列表的渲染完成事件
-            AMap.event.addListener(placeSearch, 'renderComplete', function () {
-              checkPoiList()
-            })
-            // 监听marker/列表的选中事件
-            AMap.event.addListener(placeSearch, 'selectChanged', function (results) {
-              // 获取当前选中的结果数据
-              console.log(results.selected.data)
-              // me.locals.set('cur5656Position', JSON.stringify(results.selected.data))
-              // vm.lastPage ? vm.$router.push({path: vm.lastPage}) : vm.$router.back()
-              var lastObj = {
-                lat: results.selected.data.location.lat,
-                lng: results.selected.data.location.lng,
-                name: results.selected.data.name
+            /*01.定位*/
+            try {
+              var geolocation, citysearch
+              inputer.value = '定位中…'
+              /* 浏览器定位 */
+              function geoByBrowser() {
+                // 解析定位结果
+                var onComplete = function (data) {
+                  if (!data.formattedAddress) {
+                    geoByIp()
+                    return
+                  }
+                  console.log(data, '来自浏览器定位')
+                  var tmp = {
+                    source: 'browser',
+                    address: data.formattedAddress,
+                    province: data.addressComponent.province,
+                    city: data.addressComponent.city,
+                    provinceCode: data.addressComponent.citycode,
+                    cityCode: data.addressComponent.adcode,
+                    lng: data.position.lng,
+                    lat: data.position.lat
+                  }
+                  // vm.cache ? me.sessions.set('cur5656Position', JSON.stringify(tmp)) : null
+                  inputer.value = tmp.address
+                  vm.geoData = tmp
+                  vm.currentPoint = {
+                    lat: tmp.lat,
+                    lng: tmp.lng,
+                    name: tmp.address
+                  }
+                  btnClear.classList.add('show')
+                }
+
+                // 解析定位错误信息
+                var onError = function (data) {
+                  inputer.value = '定位失败'
+                  btnClear.classList.add('show')
+                }
+
+                map.plugin('AMap.Geolocation', function () {
+                  geolocation = new AMap.Geolocation({
+                    enableHighAccuracy: true, // 是否使用高精度定位，默认:true
+                    timeout: vm.timeout, // 超过指定时间后停止定位，默认：8s/无穷大
+                    buttonOffset: new AMap.Pixel(10, 20),// 定位按钮与设置的停靠位置的偏移量，默认：Pixel(10, 20)
+                    zoomToAccuracy: true, // 定位成功后调整地图视野范围使定位位置及精度范围视野内可见，默认：false
+                    buttonPosition: 'RB'
+                  })
+                  map.addControl(geolocation)
+                  geolocation.getCurrentPosition()
+                  AMap.event.addListener(geolocation, 'complete', onComplete)//返回定位信息
+                  AMap.event.addListener(geolocation, 'error', onError)      //返回定位出错信息
+                })
               }
-              $panel.toggleClass('hidden')
-              vm.$emit('on-receive-data', lastObj);
-            })
-            // 开始搜索对应的poi名称
-            placeSearch.search(e.poi.name, function (status, results) {
-              if (results.pois && results.pois.length > 0) {
-                $panel.toggleClass('empty')
-              }
-              // 显示结果列表
-              $panel.removeClass('hidden')
-              // 隐藏loading状态
-              $(document.body).removeClass('searching')
-            })
-            // 显示loading状态
-            $(document.body).addClass('searching')
-          }
-          $('#showHideBtn').click(function () {
-            $panel.toggleClass('hidden')
-          })
-          $('#clearSearchBtn').click(function () {
-            // 清除搜索框内容
-            inputer.value = ''
-            btnClear.classList.remove('show')
-            // 清除结果列表
-            placeSearch.clear()
-            $panel.addClass('hidden')
-            checkPoiList()
-          })
-          // 自定义搜索
-          /*placeSearch.search('武汉', function(status, result){
-           console.log(status,result)
-           })*/
-          // 事件：
-          var listenSearch = AMap.event.addListener(auto, "select", select) // 注册监听，当选中某条记录时会触发
-          // AMap.event.removeListener(listenSearch) // 需要时这样移除
 
-          /*/!*03.点标记*!/
-           var marker = new AMap.Marker({
-           icon: "http://webapi.amap.com/theme/v1.3/markers/n/mark_r.png",
-           // icon: "http://101.132.35.4/upload/images/29uogvj1qsgnbo86ttn7tna8b8.png",
-           position: map.getCenter(),
-           draggable: true,
-           cursor: 'move',
-           raiseOnDrag: true,
-           // offset: new AMap.Pixel(-26, -13),
-           })
-           marker.setAnimation('AMAP_ANIMATION_NONE')
-           marker.setMap(map)
-           // var listenMarker = AMap.event.addListener(auto, "dragEnd", dragMarker) // 注册监听，当选中某条记录时会触发
-           // AMap.event.removeListener(listenSearch) // 需要时这样移除*/
+              /* ip定位 */
+              function geoByIp() {
+                // 解析定位结果
+                var onComplete = function (data) {
+                  // console.log(data, '来自ip定位')
+                  // 取出经纬度
+                  var tmpLnglat = []
+                  for (var i in data.bounds) {
+                    if (data.bounds.hasOwnProperty(i)) {
+                      tmpLnglat = [data.bounds[i].lng, data.bounds[i].lat]
+                    }
+                  }
+                  var tmp = {
+                    source: 'ip',
+                    address: data.province + data.city,
+                    province: data.province,
+                    city: data.city,
+                    provinceCode: null,
+                    cityCode: data.adcode,
+                    lng: tmpLnglat[0],
+                    lat: tmpLnglat[1]
+                  }
+                  // vm.cache ? me.sessions.set('cur5656Position', JSON.stringify(tmp)) : null
+                  inputer.value = tmp.address
+                  vm.geoData = tmp
+                  vm.currentPoint = {
+                    lat: tmp.lat,
+                    lng: tmp.lng,
+                    name: tmp.address
+                  }
+                  btnClear.classList.add('show')
+                }
+
+                // 解析定位错误信息
+                var onError = function (data) {
+                  inputer.value = '定位失败'
+                  btnClear.classList.add('show')
+                }
+
+                map.plugin('AMap.CitySearch', function () {
+                  citysearch = new AMap.CitySearch({
+                    enableHighAccuracy: true, // 是否使用高精度定位，默认:true
+                    timeout: vm.timeout, // 超过指定时间后停止定位，默认：8s/无穷大
+                    buttonOffset: new AMap.Pixel(10, 20), // 定位按钮与设置的停靠位置的偏移量，默认：Pixel(10, 20)
+                    zoomToAccuracy: true, // 定位成功后调整地图视野范围使定位位置及精度范围视野内可见，默认：false
+                    buttonPosition: 'RB'
+                  })
+                  map.addControl(citysearch)
+                  // 自动获取用户IP，返回当前城市
+                  citysearch.getLocalCity(function (status, result) {
+                    if (status === 'complete' && result.info === 'OK') {
+                      if (result && result.city && result.bounds) {
+                        var cityinfo = result.city
+                        var citybounds = result.bounds
+                        // 地图显示当前城市
+                        map.setBounds(citybounds)
+                      }
+                    }
+                  })
+                  AMap.event.addListener(citysearch, 'complete', onComplete) // 返回定位信息
+                  AMap.event.addListener(citysearch, 'error', onError) //返回定位出错信息
+                })
+              }
+
+              geoByBrowser()
+            } catch (e) {
+              console.log(e)
+            }
+
+            /*02.搜索功能*/
+            try {
+              // 输入提示
+              var auto = new AMap.Autocomplete({
+                input: "tipinput"
+              })
+              // POI搜索
+              var placeSearch = new AMap.PlaceSearch({
+                map: map,
+                pageSize: 5,
+                pageIndex: 1,
+                city: '', //城市
+                panel: 'poiList'
+              })
+              var checkPoiList = function () {
+                $panel.toggleClass('empty', !($.trim($('#poiList').html())))
+              }
+              var select = function (e) {
+                // 设置搜索的城市
+                placeSearch.setCity(e.poi.adcode)
+                // 检查结果列表是否为空， 为空时显示必要的提示，即#emptyTip
+                checkPoiList()
+                // 监听搜索列表的渲染完成事件
+                AMap.event.addListener(placeSearch, 'renderComplete', function () {
+                  checkPoiList()
+                })
+                // 监听marker/列表的选中事件
+                AMap.event.addListener(placeSearch, 'selectChanged', function (results) {
+                  // 获取当前选中的结果数据
+                  console.log(results.selected.data)
+                  // me.locals.set('cur5656Position', JSON.stringify(results.selected.data))
+                  // vm.lastPage ? vm.$router.push({path: vm.lastPage}) : vm.$router.back()
+                  var lastObj = {
+                    lat: results.selected.data.location.lat,
+                    lng: results.selected.data.location.lng,
+                    name: results.selected.data.name
+                  }
+                  $panel.toggleClass('hidden')
+                  finished(lastObj)
+                })
+                // 开始搜索对应的poi名称
+                placeSearch.search(e.poi.name, function (status, results) {
+                  if (results.pois && results.pois.length > 0) {
+                    $panel.toggleClass('empty')
+                  }
+                  // 显示结果列表
+                  $panel.removeClass('hidden')
+                  // 隐藏loading状态
+                  $(document.body).removeClass('searching')
+                })
+                // 显示loading状态
+                $(document.body).addClass('searching')
+              }
+              $('#showHideBtn').click(function () {
+                $panel.toggleClass('hidden')
+              })
+              /*$('#clearSearchBtn').click(function () {
+               // 清除搜索框内容
+               inputer.value = ''
+               btnClear.classList.remove('show')
+               // 清除结果列表
+               placeSearch.clear()
+               $panel.addClass('hidden')
+               checkPoiList()
+               })*/
+              // 自定义搜索
+              /*placeSearch.search('武汉', function(status, result){
+               console.log(status,result)
+               })*/
+              // 事件：
+              var listenSearch = AMap.event.addListener(auto, "select", select) // 注册监听，当选中某条记录时会触发
+              // AMap.event.removeListener(listenSearch) // 需要时这样移除
+
+              /*/!*03.点标记*!/
+               var marker = new AMap.Marker({
+               icon: "http://webapi.amap.com/theme/v1.3/markers/n/mark_r.png",
+               // icon: "http://101.132.35.4/upload/images/29uogvj1qsgnbo86ttn7tna8b8.png",
+               position: map.getCenter(),
+               draggable: true,
+               cursor: 'move',
+               raiseOnDrag: true,
+               // offset: new AMap.Pixel(-26, -13),
+               })
+               marker.setAnimation('AMAP_ANIMATION_NONE')
+               marker.setMap(map)
+               // var listenMarker = AMap.event.addListener(auto, "dragEnd", dragMarker) // 注册监听，当选中某条记录时会触发
+               // AMap.event.removeListener(listenSearch) // 需要时这样移除*/
+            } catch (e) {
+              console.log(e)
+            }
+
+          }, 0)
         })
       }
     }
