@@ -30,7 +30,7 @@
                  @click.native="choosePoint"></x-input>
         <img-uploader title="营业执照" :api="fileApi" :limit="1" @on-uploaded="getImgUrl"></img-uploader>
         <x-input title="验证码：" class="weui-vcode" v-model="params.smsCode">
-          <x-button slot="right" type="primary" mini :disabled="btnStatus" @click.native="getCode">{{btnText}}
+          <x-button class="btn-vercode" slot="right" type="primary" mini :disabled="btnStatus" @click.native="getCode">{{btnText}}
           </x-button>
         </x-input>
       </group>
@@ -159,13 +159,15 @@
         }
         vm.isPosting = true
         vm.loadData(commonApi.sendSms, {phone: vm.params.phone, useType: 1}, 'POST', function (res) {
-          vm.toast('已发送，请注意查收！')
+          /*vm.toast('已发送，请注意查收！')
           vm.btnText = '60s后再次获取'
           vm.btnStatus = true
           setTimeout(function () {
             vm.btnText = '发送验证码'
             vm.btnStatus = false
-          }, 60000)
+          }, 60000)*/
+          vm.btnStatus = true
+          me.verCodeBtn(60,'.btn-vercode',function(){vm.btnStatus = false})
           vm.isPosting = false
         }, function () {
           vm.isPosting = false
@@ -248,8 +250,12 @@
       },
       register() {
         if (vm.isPosting) return
-        vm.params.address = vm.tmpAddress.province + vm.tmpAddress.city + vm.tmpAddress.detail
         if (vm.validate()) {
+          if (vm.tmpAddress.detail.indexOf('省') === -1 && vm.tmpAddress.detail.indexOf('市') === -1) {
+            vm.params.address = vm.tmpAddress.province + vm.tmpAddress.city + vm.tmpAddress.detail
+          } else {
+            vm.params.address = vm.tmpAddress.detail
+          }
           console.log(vm.params)
           vm.isPosting = true
           vm.processing()
@@ -274,6 +280,7 @@
         vm.params.city = ids[1]
         vm.tmpAddress.province = names[0]
         vm.tmpAddress.city = names[1].indexOf('市辖区') === -1 ? names[1] : ''
+        vm.area = names[0] + (names[1].indexOf('市辖区') === -1 ? names[1] : '') + names[2]
         // vm.params.area = names[0] + (names[1].indexOf('市辖区') === -1 ? names[1] : '') + names[2]
       },
       changeType(val) {

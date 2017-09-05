@@ -84,12 +84,13 @@ Vue.prototype.loadData = function (url, params, type, sucCb, errCb) {
   params = params || {}
   setTimeout(function () {
     $.extend(params, window.youniMall.userAuth)
-    var localGeo = me.sessions.get('cur5656Position') ? JSON.parse(me.sessions.get('cur5656Position')) : {}
+    var localGeo = me.sessions.get('cur5656Geo') ? JSON.parse(me.sessions.get('cur5656Geo')) : {}
+    var localIps = me.sessions.get('cur5656Ips') ? JSON.parse(me.sessions.get('cur5656Ips')) : {}
     var localParams = {
-      ip: me.sessions.get('cur5656Ips'),
-      cityCode: localGeo.cityCode,
+      ip: localIps.cip,
+      cityCode: localGeo.cityCode||localIps.cid,
       lon: localGeo.lng,
-      lat: localGeo.lat,
+      lat: localGeo.lat
     }
     // console.log('%c'+JSON.stringify(params, null, 2), 'color:#fff;background:purple')
     $.ajax({
@@ -135,12 +136,14 @@ Vue.prototype.alert = function (title, content, showCb, hideCb) {
   })
 }
 /* confirm */
-Vue.prototype.confirm = function (title, content, confirmCb, cancelCb) {
+Vue.prototype.confirm = function (title, content, confirmCb, cancelCb, confirmtext, canelText) {
   const _this = this
   _this.$vux.confirm.show({
     theme: 'ios',
     title: title || '',
     content: content || '',
+    confirmText: confirmtext || '确定',
+    cancelText: canelText || '取消',
     onCancel() {
       cancelCb ? cancelCb() : null
     },
@@ -296,6 +299,11 @@ Vue.filter('couponType', function (type) {
     case 4:
       return '其它'
   }
+})
+/* 保留小数位 */
+Vue.filter('toFixed', function (data,num) {
+  // return data ? data.toFixed(num ||2 ) : ''
+  return data.toFixed(num ||2 )
 })
 // main.js
 new Vue({

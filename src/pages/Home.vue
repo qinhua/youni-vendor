@@ -84,32 +84,32 @@
                   refreshText="下拉刷新" noDataText="没有更多数据" snapping v-if="!isMilk">
           <!-- content goes here -->
           <section class="v-items" v-for="(item, index) in orders" :data-id="item.id"
-                   :data-orderNumber="item.orderNumber">
+                   :data-orderNumber="item.appOrderNumber"  :data-itemId="item.orderItemId">
             <!--<h4 class="item-top"><i class="ico-store"></i>&nbsp;{{item.sellerName}}&nbsp;&nbsp;<i
               class="fa fa-angle-right cc"></i><span>{{item.statusName}}</span></h4>-->
             <section class="item-middle">
               <div class="img-con">
-                <img :src="item.imgurl">
+                <img :src="item.goodsImage">
               </div>
               <div class="info-con">
-                <h3>{{item.productName}}</h3>
+                <h3>{{item.goodsName}}</h3>
                 <section class="middle">
-                  <span class="unit-price">￥{{item.unitPrice}}</span>
+                  <span class="unit-price">￥{{item.goodsPrice}}</span>
                   <span class="order-info">{{item.info}}</span>
                 </section>
                 <label>{{item.label}}</label>
               </div>
               <div class="price-con">
-                <p class="price">￥{{item.price}}</p>
-                <p class="buy-count">x{{item.buyCount}}</p>
+                <p class="price">￥{{(item.goodsPrice * item.goodsAmount) | toFixed}}</p>
+                <p class="buy-count">x{{item.goodsAmount}}</p>
               </div>
             </section>
             <section class="item-bottom">
-              <div class="extra-info">
+              <!--<div class="extra-info">
                 <p v-for="(ext, idx) in item.extras">{{ext.name}}<span>￥{{ext.type ? '-' : ''}}{{ext.value}}.00</span>
                 </p>
-              </div>
-              <div class="total-price">共{{item.buyCount}}件商品&nbsp;合计：<span>￥{{item.total}}</span>.00（含上楼费）</div>
+              </div>-->
+              <div class="total-price">共{{item.buyCount}}件商品&nbsp;合计：<span>￥{{(item.goodsPrice * item.goodsAmount) | toFixed}}</span>（含上楼费）</div>
               <div class="btns" v-if="item.status===-1">
                 <a class="btn btn-del" @click="delOrder(item.orderId||2)">删除订单</a>
               </div>
@@ -143,10 +143,10 @@
               class="fa fa-angle-right cc"></i><span>{{item.statusName}}</span></h4>
             <section class="item-middle">
               <div class="img-con">
-                <img :src="item.imgurl">
+                <img :src="item.goodsImage">
               </div>
               <div class="info-con">
-                <h3>{{item.productName}}</h3>
+                <h3>{{item.goodsName}}</h3>
                 <section class="middle">
                   <span class="unit-price">￥{{item.unitPrice}}</span>
                   <span class="order-info">{{item.info}}</span>
@@ -154,16 +154,16 @@
                 <label class="progress"><span>已送：5次</span>&nbsp;&nbsp;<span>待送：13次</span></label>
               </div>
               <div class="price-con">
-                <p class="price">￥{{item.price}}</p>
-                <p class="buy-count">x{{item.buyCount}}</p>
+                <p class="price">￥{{(item.goodsPrice * item.goodsAmount) | toFixed}}</p>
+                <p class="buy-count">x{{item.goodsAmount}}</p>
               </div>
             </section>
             <section class="item-bottom">
-              <div class="extra-info">
+              <!--<div class="extra-info">
                 <p v-for="(ext, idx) in item.extras">{{ext.name}}<span>￥{{ext.type ? '-' : ''}}{{ext.value}}.00</span>
                 </p>
-              </div>
-              <div class="total-price">共{{item.buyCount}}件商品&nbsp;合计：<span>￥{{item.total}}</span>.00（含上楼费）</div>
+              </div>-->
+              <div class="total-price">共{{item.goodsAmount}}件商品&nbsp;合计：<span>￥{{(item.goodsPrice * item.goodsAmount) | toFixed}}</span>（含上楼费）</div>
               <div class="btns" v-if="item.status===-1">
                 <a class="btn btn-del" @click="delOrder(item.orderId||2)">删除订单</a>
               </div>

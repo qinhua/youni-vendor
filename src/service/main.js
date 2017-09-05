@@ -40,6 +40,7 @@ const clientApi = {
 const userApi = {
   login: host + '/seller/login',
   regist: host + '/seller/applySeller',
+  view: host + '/seller/view',
   code: host + '/seller/code',
   userInfo: host + '/seller/userInfo',
   updateSeller: host + '/seller/updateSeller',

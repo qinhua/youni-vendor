@@ -20,7 +20,7 @@
     props: {
       cache: {
         type: Boolean,
-        default: false
+        default: true
       },
       visible: {
         type: Boolean,
@@ -102,8 +102,9 @@
 
               // 解析定位错误信息
               var onError = function (data) {
-                tips.innerHTML = '定位失败'
-                vm.$emit('on-geo-end', data)
+                geoByIp()
+                // tips.innerHTML = '定位失败'
+                // vm.$emit('on-geo-end', data)
               }
 
               map.plugin('AMap.Geolocation', function () {
@@ -199,7 +200,6 @@
   .geo-container {
     width: 100%;
     height: 100%;
-    overflow: hidden;
     &.hidden {
       position: absolute;
       left: 0;

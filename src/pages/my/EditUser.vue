@@ -44,6 +44,7 @@
         onFetching: false,
         isPosting: false,
         addressData: ChinaAddressV3Data,
+        seller:{},
         sellerId: null,
         storeName: '',
         authInfo: '',
@@ -68,6 +69,7 @@
       // me.attachClick()
       vm.sellerId = vm.$route.params.id
       console.log(vm.sellerId)
+      vm.getSeller()
     },
     methods: {
       getMap(data) {
@@ -83,7 +85,7 @@
         vm.showMap = true;
       },
       onHide() {
-//        console.log(vm.$refs.typ)
+//        console.log(vm.$refs.type)
       },
       getImgUrl(data) {
         if (me.isArray(data)) {
@@ -133,6 +135,18 @@
           vm.processing(0, 1)
         }, function () {
           vm.isPosting = false
+          vm.processing(0, 1)
+        })
+      },
+      getSeller() {
+        vm.onFetching = true
+        vm.processing()
+        vm.loadData(userApi.view, {}, 'POST', function (res) {
+          vm.seller=res.data
+          vm.onFetching = false
+          vm.processing(0, 1)
+        }, function () {
+          vm.onFetching = false
           vm.processing(0, 1)
         })
       },
