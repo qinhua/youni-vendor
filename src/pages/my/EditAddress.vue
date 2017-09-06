@@ -1,5 +1,5 @@
 <template>
-  <div class="address-edit">
+  <div class="address-edit" v-cloak>
     <group>
       <x-input title="收货人：" placeholder="输入姓名" required v-model="param.name"></x-input>
       <x-input title="联系电话：" placeholder="输入电话号码" required v-model="param.phone"></x-input>
@@ -79,11 +79,11 @@
         // 更新还是新增
         if (vm.userId) {
           vm.loadData(userApi.updateAddress, vm.param, 'POST', function (res) {
+            vm.isPosting = false
+            vm.processing(0, 1)
             console.log(res, '编辑地址')
 //            this.$store.commit('updateNickName', vm.nickName)
             vm.$router.back()
-            vm.isPosting = false
-            vm.processing(0, 1)
           }, function () {
             vm.isPosting = false
             vm.processing(0, 1)
@@ -91,10 +91,10 @@
         } else {
           delete vm.param.id
           vm.loadData(userApi.addAddress, vm.param, 'POST', function (res) {
-            console.log(res, '新增地址')
-            vm.$router.back()
             vm.isPosting = false
             vm.processing(0, 1)
+            console.log(res, '新增地址')
+            vm.$router.back()
           }, function () {
             vm.isPosting = false
             vm.processing(0, 1)

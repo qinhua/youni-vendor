@@ -1,5 +1,5 @@
 <template>
-  <div class="s-topic">
+  <div class="s-topic" v-cloak>
     <group class="bottom">
       <x-textarea title="店铺公告：" :max="20" placeholder="店铺公告" @on-blur="" v-model="topic" show-clear></x-textarea>
     </group>

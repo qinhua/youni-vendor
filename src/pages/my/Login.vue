@@ -1,5 +1,5 @@
 <template>
-  <div class="login-con">
+  <div class="login-con" v-cloak>
     <group>
       <x-input title="手机号：" placeholder="您的手机号" required type="tel" text-align="right" v-model="params.phone">
         <!--<img slot="label" style="padding-right:10px;display:block;" src="http://dn-placeholder.qbox.me/110x110/FF2D55/000" width="24" height="24">-->

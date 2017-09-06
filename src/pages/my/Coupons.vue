@@ -1,5 +1,5 @@
 <template>
-  <div class="my-coupons">
+  <div class="my-coupons" v-cloak>
     <tab class="order-tab" active-color="#f34c18">
         <tab-item :selected="params.type==0?true:false" @on-item-click="onItemClick">全部</tab-item>
         <tab-item :selected="params.type==1?true:false" @on-item-click="onItemClick(1)">优惠券</tab-item>

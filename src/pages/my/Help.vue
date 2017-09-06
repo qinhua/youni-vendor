@@ -1,5 +1,5 @@
 <template>
-  <div class="help-me">
+  <div class="help-me" v-cloak>
     <ul class="ques-list">
       <li>
         <div class="title"><i>Q：</i>

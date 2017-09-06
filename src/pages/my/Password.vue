@@ -1,5 +1,5 @@
 <template>
-  <div class="login-con">
+  <div class="login-con" v-cloak>
     <group>
       <x-input title="手机号：" placeholder="您的手机号" required type="tel" text-align="right" v-model="phone"></x-input>
       <x-input title="发送验证码：" class="weui-vcode">

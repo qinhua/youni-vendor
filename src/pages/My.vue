@@ -65,8 +65,10 @@
         this.$emit('listenPage', data)
       },
       logout() {
-        this.$store.commit('logout')
-        this.$router.push({name: 'login'})
+        vm.confirm('退出登录？', '', function () {
+          vm.$store.commit('logout')
+          vm.$router.push({name: 'login'})
+        })
       },
       modPassword() {
         this.$router.push({name: 'password', query: {id: vm.sellerId}})

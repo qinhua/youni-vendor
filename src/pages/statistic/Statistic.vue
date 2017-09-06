@@ -1,5 +1,5 @@
 <template>
-  <div class="statistic-con">
+  <div class="statistic-con" v-cloak>
     <tab class="statistic-tab" active-color="#f34c18">
       <tab-item selected @on-item-click="onItemClick(0)">近7天</tab-item>
       <tab-item @on-item-click="onItemClick(1)">30天</tab-item>

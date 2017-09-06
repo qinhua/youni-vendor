@@ -1,5 +1,5 @@
 <template>
-  <div class="my-favorite">
+  <div class="my-favorite" v-cloak>
     <!--<group title="switch the type">-->
       <!--<radio title="type" v-model="type" :options="['1', '2', '3', '4', '5']"></radio>-->
     <!--</group>-->

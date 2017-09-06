@@ -1,5 +1,5 @@
 <template>
-  <div class="aboutus">
+  <div class="aboutus" v-cloak>
     <div class="top">
       <img src="../../../static/img/logo.png" alt="友你生活">
       <h2>- 友你生活 -</h2>

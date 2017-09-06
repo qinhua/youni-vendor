@@ -31,6 +31,11 @@ const ticketApi = {
 }
 const orderApi = {
   list: host + '/order/list',
+  del: host + '/order/del',
+  push: host + '/order/push',
+  cancel: host + '/order/cancel',
+  dispatchList: host + '/orderDispatchProgess/list',
+  dispatch: host + '/orderDispatchProgess/add',
   updateOrder: host + '/home/updateOrder'
 }
 const clientApi = {
@@ -41,10 +46,16 @@ const userApi = {
   login: host + '/seller/login',
   regist: host + '/seller/applySeller',
   view: host + '/seller/view',
+  set: host + '/seller/set',
   code: host + '/seller/code',
   userInfo: host + '/seller/userInfo',
   updateSeller: host + '/seller/updateSeller',
-  coupons: host + '/user/coupons'
+  couponsList: host + '/sellerCoupon/get',
+  addCoupon: host + '/sellerCoupon/add',
+  updateCoupon: host + '/sellerCoupon/update',
+  delCoupon: host + '/sellerCoupon/del',
+  getFloor: host + '/floorCost/get',
+  addFloor: host + '/floorCost/add',
 }
 const statisticApi = {
   list: host + '/seller/statistic',

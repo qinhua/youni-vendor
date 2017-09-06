@@ -1,5 +1,5 @@
 <template>
-  <div class="seller-edit">
+  <div class="seller-edit" v-cloak>
     <div class="f-wrap" v-if="!showMap">
       <group>
         <x-input title="店铺名称：" placeholder="店铺名称" required text-align="right" v-model="storeName"></x-input>
@@ -41,7 +41,6 @@
       return {
         fileApi: commonApi.uploadImg,
         showMap: false,
-        onFetching: false,
         isPosting: false,
         addressData: ChinaAddressV3Data,
         seller:{},
@@ -121,7 +120,7 @@
         if (vm.isPosting || !vm.validate()) return false
         vm.isPosting = true
         vm.processing()
-        vm.loadData(userApi.updateSeller, {
+        vm.loadData(userApi.set, {
           id: vm.sellerId,
           name: vm.storeName,
           avtar: vm.storeImg,
@@ -130,23 +129,23 @@
           area: vm.area,
           detailAddress: vm.detailAddress
         }, 'POST', function (res) {
-          vm.$router.back()
           vm.isPosting = false
           vm.processing(0, 1)
+          vm.$router.back()
         }, function () {
           vm.isPosting = false
           vm.processing(0, 1)
         })
       },
       getSeller() {
-        vm.onFetching = true
+        vm.isPosting = true
         vm.processing()
         vm.loadData(userApi.view, {}, 'POST', function (res) {
-          vm.seller=res.data
-          vm.onFetching = false
+          vm.isPosting = false
           vm.processing(0, 1)
+          vm.seller=res.data
         }, function () {
-          vm.onFetching = false
+          vm.isPosting = false
           vm.processing(0, 1)
         })
       },

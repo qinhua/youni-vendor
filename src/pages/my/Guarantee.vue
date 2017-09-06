@@ -1,5 +1,5 @@
 <template>
-  <div class="my-guarantee">
+  <div class="my-guarantee" v-cloak>
     <h2><i class="fa fa-smile-o"></i>&nbsp;这里列出了您的所有押金，您可以进行相应操作</h2>
     <x-table class="inner-table" :cell-bordered="true">
       <thead>

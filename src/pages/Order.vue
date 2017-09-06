@@ -36,25 +36,25 @@
             </div>
             <div class="total-price">共{{item.buyCount}}件商品&nbsp;合计：<span>￥{{item.total}}</span>.00（含上楼费）</div>
             <div class="btns" v-if="item.status===-1">
-              <a class="btn btn-del" @click="delOrder(item.orderId||2)">删除订单</a>
+              <a class="btn btn-del" @click="delOrder(item.orderId)">删除订单</a>
             </div>
             <div class="btns" v-if="item.status===0">
-              <a class="btn btn-pay" @click="payOrder(item.orderId||2)">支付</a>
-              <a class="btn btn-cancel" @click="cancelOrder(item.orderId||2)">取消订单</a>
+              <a class="btn btn-pay" @click="payOrder(item.orderId)">支付</a>
+              <a class="btn btn-cancel" @click="cancelOrder(item.orderId)">取消订单</a>
             </div>
             <div class="btns" v-if="item.status===1">
-              <a class="btn btn-push" @click="pushOrder(item.orderId||2)">催单</a>
-              <a class="btn btn-cancel" @click="cancelOrder(item.orderId||2)">取消订单</a>
+              <a class="btn btn-push" @click="pushOrder(item.orderId)">催单</a>
+              <a class="btn btn-cancel" @click="cancelOrder(item.orderId)">取消订单</a>
             </div>
             <div class="btns" v-if="item.status===2">
-              <a class="btn btn-cancel" @click="cancelOrder(item.orderId||2)">取消订单</a>
+              <a class="btn btn-cancel" @click="cancelOrder(item.orderId)">取消订单</a>
             </div>
             <div class="btns" v-if="item.status===3">
-              <a class="btn btn-appraise" @click="toAppraise(item.orderId||2)">评价</a>
-              <a class="btn btn-del" @click="delOrder(item.orderId||2)">删除订单</a>
+              <a class="btn btn-appraise" @click="toAppraise(item.orderId)">评价</a>
+              <a class="btn btn-del" @click="delOrder(item.orderId)">删除订单</a>
             </div>
             <div class="btns" v-if="item.status===4">
-              <a class="btn btn-del" @click="delOrder(item.orderId||2)">删除订单</a>
+              <a class="btn btn-del" @click="delOrder(item.orderId)">删除订单</a>
             </div>
           </section>
         </section>

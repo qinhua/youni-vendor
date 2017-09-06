@@ -1,5 +1,5 @@
 <template>
-  <div class="my-address">
+  <div class="my-address" v-cloak>
     <ul class="address-list">
       <li :class="item.isCurrent?'current':''" v-for="(item, index) in list" :key="index">
         <div class="top">

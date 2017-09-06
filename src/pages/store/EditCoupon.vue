@@ -40,24 +40,20 @@
         formatValueFunction(val) {
           return val.replace(/-/g, '$')
         },
-        onFetching: false,
         isPosting: false,
+        couponId: null,
         coupons: null,
         types: [{key: 1, value: '优惠券', name: '优惠券'}, {key: 2, value: '满减', name: '满减'}],
-        categories: [{key: 1, value: '水', name: '水'}, {key: 2, value: '奶制品', name: '奶制品'}],
         params: {
           id: null,
-          sellerId: null,
           name: '',
           type: 1,
-          category: 2,
           discount: null,
           beginTime: '',
           endTime: '',
           discountNote: ''
         },
-        tmpType: [],
-        tmpCat: []
+        tmpType: []
       }
     },
     components: {
@@ -77,7 +73,6 @@
       vm.params.id = vm.$route.query.id
       vm.params.id ? vm.getData() : null
     },
-    computed: {},
     methods: {
       setToday() {
         let now = new Date()
@@ -86,7 +81,6 @@
         if (cmonth < 10) cmonth = '0' + cmonth
         if (day < 10) day = '0' + day
         vm.params.beginTime = now.getFullYear() + '-' + cmonth + '-' + day
-        console.log('set today ok', vm.params.beginTime)
       },
       switchData(data, value, target,) {
         let tmp
@@ -109,25 +103,23 @@
         }
       },
       getData() {
-        if (vm.onFetching) return false
-        vm.onFetching = true
-        vm.loadData(goodsApi.get, {sellerId: vm.params.sellerId}, 'POST', function (res) {
+        if (vm.isPosting) return false
+        vm.isPosting = true
+        vm.loadData(userApi.get, {couponId: id}, 'POST', function (res) {
+          vm.isPosting = false
           if (res) {
             let resD = res.data.itemList
             /*此处转换一些字段类型*/
-            // a.比如把goodsType和goodsCategory转换成数组
             vm.switchData(vm.types, vm.params.type, 'tmpType')
-            vm.switchData(vm.categories, vm.params.category, 'tmpCat')
             vm.coupons = resD
             console.log(vm.coupons)
           }
-          vm.onFetching = false
         }, function () {
-          vm.onFetching = false
+          vm.isPosting = false
         })
       },
       validate() {
-        if (!vm.params.type) {
+        if (!vm.tmpType.length) {
           vm.toast('请选择优惠分类！')
           return false
         }
@@ -152,28 +144,22 @@
       update() {
         if (vm.isPosting || !vm.validate()) return false
         /*此处转换一些字段类型*/
-        // a.比如把goodsType和goodsCategory转换成对应的数值
         let curApi
         vm.switchData(vm.types, vm.tmpType, 'type')
-        vm.switchData(vm.categories, vm.tmpCat, 'category')
-        if (vm.goodsId) {
-          curApi = goodsApi.update
-          vm.params.id = vm.goodsId
+        if (vm.couponId) {
+          curApi = userApi.updateCoupon
+          vm.params.id = vm.couponId
         } else {
-          curApi = goodsApi.add
+          delete vm.params.id
+          curApi = userApi.addCoupon
         }
         console.log('最后选择的数据：', vm.params)
         vm.isPosting = true
         vm.processing()
-        if (vm.params.id) {
-          curApi = userApi.updateCoupon
-        } else {
-          curApi = userApi.AddCoupon
-        }
         vm.loadData(curApi, vm.params, 'POST', function (res) {
-          vm.$router.back()
           vm.isPosting = false
           vm.processing(0, 1)
+          vm.$router.back()
         }, function () {
           vm.isPosting = false
           vm.processing(0, 1)
@@ -183,13 +169,8 @@
         console.log('change', val)
       },
       changeType(val) {
+        vm.switchData(vm.types, vm.tmpType, 'type')
         console.log(val, vm.params.type)
-      },
-      changeStatus(value, disabled) {
-        // console.log(value, disabled)
-      },
-      changeCategory(val) {
-        console.log(val)
       }
     }
   }

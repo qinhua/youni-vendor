@@ -30,7 +30,7 @@ Vue.use(VueScroller)
 //});
 Vue.config.productionTip = false
 let me = window.me
-
+let vm
 // 在路由路由跳转前判断一些东西
 router.beforeEach((to, from, next) => {
   /* 判断页面的方向 */
@@ -101,7 +101,18 @@ Vue.prototype.loadData = function (url, params, type, sucCb, errCb) {
       cache: false,
       headers: {token: window.youniMall.userAuth.openid},
       success: function (res) {
-        sucCb ? sucCb(res) : console.log(res, '接口的res')
+        // 检测是否登录
+        if(res.message === '要求登录'){
+          vm.processing(0, 1)
+          vm.confirm('温馨提示','请先登录！',function(){
+            vm.$router.push({path:'/login'})
+          })
+        }
+        try{
+          sucCb ? sucCb(res) : console.log(res, '接口的res')
+        }catch(e){
+           // console.log(e)
+        }
       },
       error: function (res) {
         errCb ? errCb(res) : console.error('请求失败！')
@@ -313,6 +324,7 @@ new Vue({
   template: '<App/>',
   components: {App},
   mounted() {
+    vm=this
     // console.log(XXX)
     // GET
     /* this.$axios.get('/user', {

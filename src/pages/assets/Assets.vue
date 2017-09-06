@@ -1,5 +1,5 @@
 <template>
-  <div class="assets-con">
+  <div class="assets-con" v-cloak>
     <group class="list-modal">
       <div class="withdraw-modal">
         <div class="left">

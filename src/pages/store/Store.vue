@@ -1,5 +1,5 @@
 <template>
-  <div class="store-con">
+  <div class="store-con" v-cloak>
     <group class="list-modal">
       <cell title="店铺公告" link="/store_topic">
         <i slot="icon" width="20" style="margin-right:5px;" class="fa fa-credit-card"></i>

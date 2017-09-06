@@ -1,9 +1,9 @@
 <template>
-  <div class="my-coupons">
+  <div class="my-coupons" v-cloak>
     <tab class="order-tab" active-color="#f34c18">
-      <tab-item :selected="params.type==0?true:false" @on-item-click="onItemClick">全部</tab-item>
+      <tab-item :selected="!params.type?true:false" @on-item-click="onItemClick">全部</tab-item>
       <tab-item :selected="params.type==1?true:false" @on-item-click="onItemClick(1)">优惠券</tab-item>
-      <tab-item :selected="params.type==1?true:false" @on-item-click="onItemClick(1)">满减</tab-item>
+      <tab-item :selected="params.type==1?true:false" @on-item-click="onItemClick(2)">满减</tab-item>
     </tab>
     <div class="coupon-list">
       <scroller class="inner-scroller" ref="couponScroller" :on-refresh="refresh" :on-infinite="infinite"
@@ -63,13 +63,13 @@
           type: 0,
           pagerSize: 10,
           pageNo: 1,
-          goodsType: 'XXX',
-          goodsCategory: '',
-          brandId: '',
-          filter: ''
+          couponNote: '',
+          discountAmount: '',
+          maxDiscountAmount: '',
+          up_amount: ''
         },
-        onFetching: false,
-        isPosting: false,
+        noMore: false,
+        isPosting: false
       }
     },
     components: {Tab, TabItem, Swipeout, SwipeoutItem, SwipeoutButton},
@@ -110,63 +110,61 @@
         }, 1000)
       },
       onItemClick(type) {
-        if (type === 'undefined') {
-          vm.params.type = ''
-        } else {
-          vm.params.type = type
-        }
-        vm.getCoupons()
-      },
-      filterTicket(type, isMine) {
-        vm.curTicketFilter = type
+        type ? vm.params.type = type : delete vm.params.type
         vm.getCoupons()
       },
       getCoupons(isLoadMore) {
-        vm.params.type = vm.$route.params.type
-        if (vm.onFetching) return false
+        if (vm.isPosting) return false
         vm.processing()
-        vm.onFetching = true
-        vm.loadData(userApi.coupons, vm.params, 'POST', function (res) {
-          var resD = res.data.itemList
-          /* for (var i = 0; i < resD.length; i++) {
-            switch (resD[i].status) {
-              case -1:
-                resD[i].statusName = '已取消'
-                break
-              case 0:
-                resD[i].statusName = '待支付'
-                break
-              case 1:
-                resD[i].statusName = '待派送'
-                break
-              case 2:
-                resD[i].statusName = '派送中'
-                break
-              case 3:
-                resD[i].statusName = '待评价'
-                break
-              case 4:
-                resD[i].statusName = '已完成'
-                break
+        vm.isPosting = true
+        vm.loadData(userApi.couponsList, vm.params, 'POST', function (res) {
+          vm.isPosting = false
+          vm.processing(0, 1)
+          var resD = res.data.pager
+          /*if(resD.itemList.length){
+            for (var i = 0; i < resD.itemList.length; i++) {
+              var cur=resD.itemList[i]
+              switch (cur.status) {
+                case -1:
+                  cur.statusName = '已取消'
+                  break
+                case 1:
+                  cur.statusName = '待支付'
+                  break
+                case 2:
+                  cur.statusName = '待派送'
+                  break
+                case 3:
+                  cur.statusName = '派送中'
+                  break
+                /!*case 3:
+                  cur.statusName = '待评价'
+                  break*!/
+                case 4:
+                  cur.statusName = '已完成'
+                  break
+              }
             }
-          } */
+          }*/
           if (!isLoadMore) {
-            vm.coupons = resD
+            if (resD.totalCount < vm.params.pageSize) {
+              vm.noMore = true
+            }else{
+              vm.noMore = false
+            }
+            vm.coupons = resD.itemList
           } else {
-            vm.coupons.push(resD)
+            resD.itemList.length ? vm.coupons.concat(resD.itemList) : vm.noMore = true
           }
           console.log(vm.coupons, '优惠券数据')
-          vm.onFetching = false
-          vm.processing(0, 1)
         }, function () {
-          vm.onFetching = false
+          vm.isPosting = false
           vm.processing(0, 1)
         })
       },
       del(id) {
         vm.confirm('确认删除？', '删除后不可恢复！', function () {
-          vm.loadData(orderApi.delOrder + '?id=' + id, vm.params, 'POST', function (res) {
-            vm.isPosting = true
+          vm.loadData(userApi.delCoupon, {id:id}, 'POST', function (res) {
             vm.isPosting = false
           }, function () {
             vm.isPosting = false
