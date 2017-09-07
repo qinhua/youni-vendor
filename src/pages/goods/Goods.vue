@@ -74,7 +74,6 @@
           saleStatus: 0,
           category: ''
         },
-        onFetching: false,
         isPosting: false
       }
     },
@@ -110,18 +109,18 @@
       },
       getGoods(isLoadMore, status) {
         vm.params.type = this.$route.params.type || 0
-        if (vm.onFetching) return false
-        vm.onFetching = true
+        if (vm.isPosting) return false
+        vm.isPosting = true
         vm.loadData(goodsApi.list, vm.params, 'POST', function (res) {
+          vm.isPosting = false
           if (!isLoadMore) {
             vm.goods = res.data.pager.itemList
           } else {
             vm.goods.push(res.data.pager.itemList)
           }
           console.log(vm.goods, '商品数据')
-          vm.onFetching = false
         }, function () {
-          vm.onFetching = false
+          vm.isPosting = false
         })
       },
       refresh(done) {
