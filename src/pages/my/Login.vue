@@ -8,6 +8,7 @@
                v-model="params.passwd"></x-input>
     </group>
     <div class="btn btn-login" @click="login">登录</div>
+    <div class="btn btn-regist" v-jump="['regist']">注册</div>
     <a class="forgetPsw" href="#/reset_psw">忘记密码&nbsp;<i class="fa fa-question-circle"></i></a>
     <p class="b-txt">连你生活 | 开启崭新生活</p>
   </div>
@@ -18,13 +19,14 @@
   let me
   let vm
   import {Group, Cell, XInput} from 'vux'
-  import {userApi} from '../../service/main.js'
+  import {commonApi} from '../../service/main.js'
 
   export default {
     name: 'login-con',
     data() {
       return {
         isPosting: false,
+        lastPage: null,
         params: {
           phone: null,
           passwd: null
@@ -41,6 +43,11 @@
       vm.params.phone = vm.$route.query.phone || null
       vm.params.passwd = vm.$route.query.psw || null
       // vm.userId = vm.$route.query.userId
+    },
+    watch: {
+      '$route'(to, from) {
+        vm.lastPage = from.name
+      }
     },
     methods: {
       login() {
@@ -59,13 +66,22 @@
         }
         vm.isPosting = true
         vm.processing()
-        vm.loadData(userApi.login, vm.params, 'POST', function (res) {
-          console.log(res, '修改用户信息')
-          vm.processing(0, 1)
-          vm.toast('登录成功 ！')
-//          this.$store.commit('updateNickName', vm.nickName)
-          vm.jump('home')
+        vm.loadData(commonApi.login, vm.params, 'POST', function (res) {
           vm.isPosting = false
+          vm.processing(0, 1)
+          if (res.data.success) {
+            vm.isPosting = false
+            vm.toast('登录成功 ！')
+            vm.$store.commit('storeData', {key: 'isLogin', data: true})
+            if (vm.lastPage === 'regist' || vm.lastPage === 'login') {
+              vm.jump('home')
+            } else {
+              vm.$router.back()
+            }
+          } else {
+            vm.$store.commit('storeData', {key: 'isLogin', data: false})
+            vm.toast('账户不存在或密码错误 ！')
+          }
         }, function () {
           vm.isPosting = false
           vm.processing(0, 1)
@@ -100,6 +116,20 @@
       .cf;
       .fz(28);
       .bdiy(#16a542);
+      .borR(4px);
+    }
+    .btn-regist {
+      width: 96%;
+      margin: 20/@rem auto;
+      .ma-w(640);
+      .borBox;
+      letter-spacing: 2px;
+      padding: 24/@rem 0;
+      .center;
+      .c3;
+      .fz(28);
+      .bf;
+      .bor;
       .borR(4px);
     }
     .forgetPsw {

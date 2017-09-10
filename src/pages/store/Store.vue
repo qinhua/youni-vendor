@@ -7,10 +7,8 @@
       <cell title="优惠管理" link="/coupons">
         <i slot="icon" width="20" style="margin-right:5px;" class="fa fa-money"></i>
       </cell>
-      <!--<cell title="使用帮助" link="/help"><i slot="icon" width="20" style="margin-right:5px;"
-                                         class="fa fa-question-circle"></i></cell>
-      <cell title="关于友你" link="/aboutus"><i slot="icon" width="20" style="margin-right:5px;"
-                                            class="fa fa-info-circle"></i></cell>-->
+      <cell title="上楼费" link="/floor_fee"><i slot="icon" width="20" style="margin-right:5px;"
+                                         class="fa fa-building-o"></i></cell>
     </group>
   </div>
 </template>
@@ -35,13 +33,11 @@
     },
     mounted () {
       // me.attachClick()
-      this.count = this.$store.state.cart.count
     },
-    watch: {
+    /*watch: {
       '$route' (to, from) {
-        this.count = this.$store.state.cart.count
       }
-    },
+    },*/
     computed: {},
     methods: {
       // 向父组件传值

@@ -1,7 +1,7 @@
 <template>
   <div class="s-topic" v-cloak>
     <group class="bottom">
-      <x-textarea title="店铺公告：" :max="20" placeholder="店铺公告" @on-blur="" v-model="topic" show-clear></x-textarea>
+      <x-textarea title="店铺公告：" :max="20" placeholder="一段展示在店铺首页的文字…" @on-blur="" v-model="topic" show-clear></x-textarea>
     </group>
     <div class="btn btn-save" @click="update"><i class="fa fa-save"></i>&nbsp;保存</div>
   </div>
@@ -56,7 +56,6 @@
           area: vm.area,
           detailAddress: vm.detailAddress
         }, 'POST', function (res) {
-          this.$store.commit('updateStore', res.data)
           vm.$router.back()
           vm.isPosting = false
           vm.processing(0, 1)

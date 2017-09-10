@@ -1,19 +1,19 @@
 <template>
   <div class="coupon-edit-con" v-cloak>
     <group>
-      <popup-picker title="优惠分类" :data="types" :columns="1" v-model="tmpType" ref="picker3" @on-show=""
+      <popup-picker title="优惠分类：" :data="types" :columns="1" v-model="tmpType" ref="picker3" @on-show=""
                     @on-hide="" @on-change="changeType"></popup-picker>
-      <x-input title="优惠名称：" placeholder="优惠名称" required text-align="right" v-model="params.name"></x-input>
-      <!--<selector placeholder="商品分类" v-model="params.goodsType" title="商品分类" name="goodsType" :options="types"-->
-      <!--@on-change="changeType"></selector>-->
-      <!--<popup-picker title="商品类目" :data="categories" :columns="1" v-model="tmpCat" ref="picker3" @on-show=""
-                    @on-hide="" @on-change="changeCategory"></popup-picker>-->
-      <x-input title="抵扣金额：" placeholder="抵扣金额" required text-align="right" v-model="params.discount"></x-input>
-      <datetime title="开始时间" required v-model="params.beginTime" @on-change="onChange"></datetime>
-      <datetime title="过期时间" required v-model="params.endTime" @on-change="onChange"></datetime>
+      <!--<x-input title="优惠名称：" placeholder="优惠名称" required text-align="right" v-model="params.name"></x-input>-->
+      <x-input title="优惠条件：" placeholder="满多少元减免" required text-align="right" v-model="params.upAmount"></x-input>
+      <x-input title="优惠金额：" placeholder="抵扣的金额" required text-align="right" v-model="params.discountAmount"></x-input>
+      <x-input title="最大优惠：" placeholder="最高优惠金额" required text-align="right"
+               v-model="params.maxDiscountAmount"></x-input>
+      <!--<datetime title="开始时间" required v-model="params.beginTime" @on-change="onChange"></datetime>-->
+      <x-switch title="是否过期" v-model="needExpire"></x-switch>
+      <datetime title="过期时间：" required v-model="params.expireTime" @on-change="onChange" v-show="needExpire"></datetime>
     </group>
     <group class="bottom">
-      <x-textarea title="优惠说明：" :max="20" placeholder="优惠说明" @on-blur="" v-model="params.discountNote"
+      <x-textarea title="优惠说明：" :max="20" placeholder="如水票买20送1" @on-blur="" v-model="params.discountNote"
                   show-clear></x-textarea>
     </group>
     <div class="btn btn-save" @click="update"><i class="fa fa-save"></i>&nbsp;保存</div>
@@ -29,7 +29,8 @@
     XInput,
     Datetime,
     PopupPicker,
-    XTextarea
+    XTextarea,
+    XSwitch
   } from 'vux'
   import {userApi, commonApi} from '../../service/main.js'
 
@@ -41,19 +42,34 @@
           return val.replace(/-/g, '$')
         },
         isPosting: false,
-        couponId: null,
         coupons: null,
-        types: [{key: 1, value: '优惠券', name: '优惠券'}, {key: 2, value: '满减', name: '满减'}],
+        needExpire: true,
+        types: [
+          {
+            key: 'goods_type.1',
+            value: '水',
+            label: '水'
+          },
+          {
+            key: 'goods_type.2',
+            value: '奶',
+            label: '奶'
+          },
+          {
+            key: 'goods_type.3',
+            value: '水票',
+            label: '水票'
+          }
+        ],
+        tmpType: ['水'],
         params: {
-          id: null,
-          name: '',
-          type: 1,
-          discount: null,
-          beginTime: '',
-          endTime: '',
-          discountNote: ''
+          expireTime: '',
+          couponNote: '',
+          upAmount: '',
+          discountAmount: '',
+          maxDiscountAmount: '',
+          goodsType: ''
         },
-        tmpType: []
       }
     },
     components: {
@@ -61,7 +77,8 @@
       XInput,
       Datetime,
       PopupPicker,
-      XTextarea
+      XTextarea,
+      XSwitch
     },
     beforeMount() {
       me = window.me
@@ -69,9 +86,12 @@
     mounted() {
       vm = this
       // me.attachClick()
-      vm.params.sellerId = vm.$store.state.global.sellerId
-      vm.params.id = vm.$route.query.id
-      vm.params.id ? vm.getData() : null
+//      vm.params.id ? vm.getData() : null
+    },
+    watch: {
+      needExpire() {
+        !vm.needExpire ? vm.params.expireTime = '' : null
+      }
     },
     methods: {
       setToday() {
@@ -110,7 +130,7 @@
           if (res) {
             let resD = res.data.itemList
             /*此处转换一些字段类型*/
-            vm.switchData(vm.types, vm.params.type, 'tmpType')
+            vm.switchData(vm.types, vm.params.goodsType, 'tmpType')
             vm.coupons = resD
             console.log(vm.coupons)
           }
@@ -123,19 +143,23 @@
           vm.toast('请选择优惠分类！')
           return false
         }
-        if (!vm.params.name) {
-          vm.toast('请填写优惠名称！')
+        if (!vm.params.upAmount) {
+          vm.toast('请填写优惠条件！')
           return false
         }
-        if (!vm.params.discount) {
-          vm.toast('请填写抵扣金额！')
+        if (!vm.params.discountAmount) {
+          vm.toast('请填写优惠金额！')
           return false
         }
-        if (!vm.params.beginTime) {
+        /*if (!vm.params.maxDiscountAmount) {
+          vm.toast('请填写最大优惠金额！')
+          return false
+        }*/
+        /*if (!vm.params.beginTime) {
           vm.toast('请选择开始时间！')
           return false
-        }
-        if (!vm.params.endTime) {
+        }*/
+        if (vm.needExpire && !vm.params.expireTime) {
           vm.toast('请选择过期时间！')
           return false
         }
@@ -145,12 +169,11 @@
         if (vm.isPosting || !vm.validate()) return false
         /*此处转换一些字段类型*/
         let curApi
-        vm.switchData(vm.types, vm.tmpType, 'type')
         if (vm.couponId) {
           curApi = userApi.updateCoupon
           vm.params.id = vm.couponId
         } else {
-          delete vm.params.id
+//          delete vm.params.id
           curApi = userApi.addCoupon
         }
         console.log('最后选择的数据：', vm.params)
@@ -159,7 +182,7 @@
         vm.loadData(curApi, vm.params, 'POST', function (res) {
           vm.isPosting = false
           vm.processing(0, 1)
-          vm.$router.back()
+//          vm.$router.back()
         }, function () {
           vm.isPosting = false
           vm.processing(0, 1)
@@ -169,8 +192,8 @@
         console.log('change', val)
       },
       changeType(val) {
-        vm.switchData(vm.types, vm.tmpType, 'type')
-        console.log(val, vm.params.type)
+        vm.switchData(vm.types, vm.tmpType, 'goodsType')
+        console.log(val, vm.params.goodsType)
       }
     }
   }
@@ -220,54 +243,11 @@
           }
         }
       }
-      .tags-group {
-        .rel;
-        padding: 24/@rem 10/@rem;
-        .fz(26);
-        label {
-          .block;
-          width: 100%;
-          padding-bottom: 18/@rem;
-        }
-        .tags-cons {
-          .borBox;
-        }
-        .tags-input {
-          .bf5;
-          .tag {
-            .cf;
-            .bdiy(#ef834f)
-          }
-        }
-      }
-      .upload-group {
-        .rel;
-        .flex;
-        padding: 24/@rem 30/@rem;
-        .fz(26);
-        label {
-          .block;
-          width: 180/@rem;
-          /* padding-bottom: 18/@rem;*/
-        }
-      }
-      .editor-group {
-        .rel;
-        padding: 24/@rem 10/@rem;
-        .fz(26);
-        .bor-t;
-        label {
-          .block;
-          width: 100%;
-          padding-bottom: 18/@rem;
-        }
-        .ql-toolbar {
-          padding: 8px 0;
-        }
-        .ql-editor {
-          /*-webkit-user-select:text;*/
-          /*user-select:text;*/
-
+      .vux-x-switch {
+        .fz(24) !important;
+        .weui-switch:checked {
+          border-color: #f34c18;
+          background-color: #f34c18;
         }
       }
       .vux-x-input, .address-area, .vux-selector, .vux-cell-box, .vux-x-textarea {

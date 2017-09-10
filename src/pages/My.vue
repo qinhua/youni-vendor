@@ -3,7 +3,7 @@
     <!--<router-view></router-view>-->
     <div class="user-modal">
       <div class="user-inner">
-        <img src="../../static/img/av.jpg">
+        <img :src="avatar">
         <p class="user-name">{{sellerName}}</p>
       </div>
     </div>
@@ -40,8 +40,7 @@
     data() {
       return {
         sellerName: '水一波旗舰店',
-        sellerId: null,
-        count: 0
+        avatar: ''
       }
     },
     components: {Grid, GridItem, Group, Cell},
@@ -51,19 +50,20 @@
     mounted() {
       // me.attachClick()
       vm = this
-      vm.sellerId = vm.$store.state.global.sellerId
+      vm.avatar=vm.$store.state.global.wxInfo.headimgurl
+      vm.getSeller()
     },
     /* watch: {
        '$route'(to, from) {
-         this.count = this.$store.state.cart.count
        }
-     },*/
-    computed: {},
+     },
+    computed: {},*/
     methods: {
       // 向父组件传值
       setPageStatus(data) {
         this.$emit('listenPage', data)
       },
+      getSeller(){},
       logout() {
         vm.confirm('退出登录？', '', function () {
           vm.$store.commit('logout')

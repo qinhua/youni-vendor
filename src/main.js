@@ -14,7 +14,6 @@ import '../static/js/fastclick.js'
 import 'myMixin'
 import store from './store'
 import VueScroller from 'vue-scroller'
-// import AMap from 'vue-amap';
 import {AlertPlugin, ConfirmPlugin, ToastPlugin, LoadingPlugin} from 'vux'
 
 Vue.use(require('vue-wechat-title'))
@@ -23,16 +22,14 @@ Vue.use(AlertPlugin)
 Vue.use(ToastPlugin)
 Vue.use(LoadingPlugin)
 Vue.use(VueScroller)
-//Vue.use(AMap)
-//AMap.initAMapApiLoader({
-//  key: '5472f8bd49fabbd0fa3b9f13b74532c7',
-//  plugin: ['Autocomplete', 'PlaceSearch', 'Geolocation', 'Scale', 'ToolBar', 'MapType', 'PolyEditor', 'AMap.CircleEditor']
-//});
+import {commonApi} from './service/main.js'
+
 Vue.config.productionTip = false
 let me = window.me
 let vm
 // 在路由路由跳转前判断一些东西
 router.beforeEach((to, from, next) => {
+  console.log(store.state, '当前vuex中的data')
   /* 判断页面的方向 */
   /* const history = window.sessionStorage
    history.clear()
@@ -52,27 +49,52 @@ router.beforeEach((to, from, next) => {
    to.path !== '/' && history.setItem(to.path, historyCount)
    store.commit('UPDATE_DIRECTION', {direction: 'forward'})
    } */
-  /* 判断是否已经授权过 */
-  console.log(store.state, '当前vuex中的data')
-  if (to.path === '/author') {
-    console.profile('in auth page')
-    if (!store.state.global.userInfo.id && !me.locals.get('ynWxUser')) {
-      console.profile('in auth page and (no id)')
-      next()
+
+  /* 判断授权是否存在或过期(页面刷新就会触发过期检查，不包含切换账号后的检查) */
+  if (store.state.global.expired) {
+    var localAuth = me.locals.get('ynWxUser') ? JSON.parse(me.locals.get('ynWxUser')) : null
+    if (to.path === '/author') {
+      if (localAuth) {
+        /* 检查本地token是否过期(7天保质期) */
+        if (me.getDiffDay(localAuth.timeStamp) > 7) {
+          store.commit('storeData', {key: 'expired', data: true})
+          console.profile('in auth page and (no id)')
+          next()
+        } else {
+          window.youniMall.userAuth = localAuth.data
+          store.commit('storeData', {key: 'wxInfo', data: localAuth.data})
+          store.commit('storeData', {key: 'expired', data: false})
+          console.profile('in auth page and (id)')
+          return next('/home')
+        }
+      } else {
+        console.profile('in auth page and (no id)')
+        next()
+      }
     } else {
-      console.profile('in auth page and (id)')
-      return next('/home')
+      if (localAuth) {
+        /* 检查本地token是否过期(7天保质期) */
+        if (me.getDiffDay(localAuth.timeStamp) > 7) {
+          store.commit('storeData', {key: 'expired', data: true})
+          console.profile('not in auth page and (no id)')
+          me.locals.set('beforeLoginUrl', to.fullPath) // 保存用户进入的url
+          return next('/author')
+        } else {
+          window.youniMall.userAuth = localAuth.data
+          store.commit('storeData', {key: 'wxInfo', data: localAuth.data})
+          store.commit('storeData', {key: 'expired', data: false})
+          console.profile('not in auth page and (id)')
+          next()
+        }
+      } else {
+        console.profile('not in auth page and (no id)')
+        me.locals.set('beforeLoginUrl', to.fullPath) // 保存用户进入的url
+        return next('/author')
+      }
     }
   } else {
-    console.profile('not in auth page')
-    if (!store.state.global.userInfo.id && !me.locals.get('ynWxUser')) {
-      console.profile('not in auth page and (no id)')
-      me.locals.set('beforeLoginUrl', to.fullPath) // 保存用户进入的url
-      return next('/author')
-    } else {
-      console.profile('not in auth page and (id)')
-      next()
-    }
+    window.youniMall.userAuth = store.state.global.wxInfo
+    next()
   }
 })
 
@@ -83,15 +105,16 @@ Vue.prototype.$axios = Axios
 Vue.prototype.loadData = function (url, params, type, sucCb, errCb) {
   params = params || {}
   setTimeout(function () {
-    $.extend(params, window.youniMall.userAuth)
+    var winAuth = window.youniMall.userAuth
     var localGeo = me.sessions.get('cur5656Geo') ? JSON.parse(me.sessions.get('cur5656Geo')) : {}
     var localIps = me.sessions.get('cur5656Ips') ? JSON.parse(me.sessions.get('cur5656Ips')) : {}
     var localParams = {
       ip: localIps.cip,
-      cityCode: localGeo.cityCode||localIps.cid,
+      cityCode: localGeo.cityCode || localIps.cid,
       lon: localGeo.lng,
       lat: localGeo.lat
     }
+    $.extend(params, winAuth)
     // console.log('%c'+JSON.stringify(params, null, 2), 'color:#fff;background:purple')
     $.ajax({
       url: url + me.param(localParams, '?'),
@@ -99,25 +122,26 @@ Vue.prototype.loadData = function (url, params, type, sucCb, errCb) {
       data: {'requestapp': JSON.stringify(params ? params : {})},
       dataType: "JSON",
       cache: false,
-      headers: {token: window.youniMall.userAuth.openid},
+      headers: {token: winAuth ? winAuth.openid : ''},
       success: function (res) {
         // 检测是否登录
-        if(res.message === '要求登录'){
+        if (res.message.indexOf('登录') > -1) {
+          if(vm.$route.name === 'regist') return
           vm.processing(0, 1)
-          vm.confirm('温馨提示','请先登录！',function(){
-            vm.$router.push({path:'/login'})
-          })
+          // vm.confirm('温馨提示','请先登录！',function(){
+          vm.$router.push({path: '/login'})
+          // })
         }
-        try{
+        try {
           sucCb ? sucCb(res) : console.log(res, '接口的res')
-        }catch(e){
-           // console.log(e)
+        } catch (e) {
+          // console.log(e)
         }
       },
       error: function (res) {
         errCb ? errCb(res) : console.error('请求失败！')
       }
-    });
+    })
     /*Axios({
      method: type || 'POST',
      url: url,
@@ -222,11 +246,21 @@ Vue.prototype.processing = function (content, isClose, cb, timeCb) {
     }, 2000)
   }
 }
-Vue.prototype.jump = function (name, params) {
+Vue.prototype.jump = function (name, params, isParams) {
+  // 默认按query方式传值,否则为params方式
+  var type = !isParams ? 'query' : 'params'
   if (name.indexOf('/') > -1) {
-    this.$router.push({path: name, query: params || ''})
+    if (type === 'params') {
+      this.$router.push({path: name, params: params || ''})
+    } else {
+      this.$router.push({path: name, query: params || ''})
+    }
   } else {
-    this.$router.push({name: name, query: params || ''})
+    if (type === 'params') {
+      this.$router.push({name: name, params: params || ''})
+    } else {
+      this.$router.push({name: name, query: params || ''})
+    }
   }
 }
 /* ----- 封装一些指令 -------- */
@@ -312,9 +346,9 @@ Vue.filter('couponType', function (type) {
   }
 })
 /* 保留小数位 */
-Vue.filter('toFixed', function (data,num) {
+Vue.filter('toFixed', function (data, num) {
   // return data ? data.toFixed(num ||2 ) : ''
-  return data.toFixed(num ||2 )
+  return data.toFixed(num || 2)
 })
 // main.js
 new Vue({
@@ -323,8 +357,25 @@ new Vue({
   store,
   template: '<App/>',
   components: {App},
+  created() {
+    vm = this
+    // 缓存授权信息
+    window.youniMall.userAuth = vm.$store.state.global.wxInfo || (me.sessions.get('ynWxUser') ? JSON.parse(me.sessions.get('ynWxUser')) : null)
+    !vm.$store.state.global.dict ? vm.getDict() : null
+    /* 特定条件下才检查是否登录 */
+    if(!vm.$store.state.global.isLogin){
+      this.isLogin()
+    }
+  },
+  watch: {
+    '$route'(to, from) {
+      if (this.$route.name === 'login' || this.$route.name === 'regist') {
+        this.isLogin()
+      }
+    }
+  },
   mounted() {
-    vm=this
+    // vm = this
     // console.log(XXX)
     // GET
     /* this.$axios.get('/user', {
@@ -357,5 +408,28 @@ new Vue({
      // Both requests are now complete
      }))
      */
+  },
+  methods: {
+    isLogin() {
+      if(vm.$route.name === 'regist') return
+      // 检测是否登录
+      vm.loadData(commonApi.login, null, 'POST', function (res) {
+        if (res.data.success) {
+          vm.$store.commit('storeData', {key: 'isLogin', data: true})
+          if (vm.$route.name === 'login' || vm.$route.name === 'regist') {
+            vm.$router.push({path: '/home'})
+          }
+        } else {
+            vm.$router.push({path: '/login'})
+        }
+      }, function () {
+      })
+    },
+    getDict() {
+      vm.loadData(commonApi.dict, {}, 'POST', function (res) {
+        vm.$store.commit('storeData', {key: 'dict', data: res.data.itemList})
+      }, function () {
+      })
+    }
   }
 })

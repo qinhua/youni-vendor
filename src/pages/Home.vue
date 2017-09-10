@@ -12,7 +12,7 @@
         <h2>
           <countup :start-val="0" :end-val="120500" :decimals="2" :duration="2"></countup>
         </h2>
-        <p class="yesterday">昨日：10.00</p>
+        <p class="yesterday">昨日：{{1000|toFixed}}</p>
       </div>
       <div class="bottom">
         <div class="col left-col">
@@ -231,7 +231,7 @@
         scrollTop: 0,
         isPosting: false,
         params: {
-          userType: 1,
+          userType: 2,
           goodsType: 'water',
           pagerSize: 10,
           pageNo: 1
@@ -289,7 +289,9 @@
     computed: {},
     watch: {
       '$route'(to, from) {
-        vm.getOrders()
+        if(to.name==='home') {
+          vm.getOrders()
+        }
       },
       isMilk() {
         vm.params.goodsType = vm.isMilk ? 'milk' : 'water'
@@ -381,6 +383,7 @@
       },
       getOrders(isLoadMore) {
         if (vm.isPosting) return false
+        !isLoadMore ? vm.params.pageNo = 1 : vm.params.pageNo++
         vm.processing()
         vm.isPosting = true
         vm.loadData(orderApi.list, vm.params, 'POST', function (res) {
@@ -618,7 +621,8 @@
           margin-bottom: 20/@rem;
           /*padding: 0 20/@rem 20/@rem;*/
           .bf;
-          .bsd(0, 2px, 10px, 0, #ccc);
+          /*.bsd(0, 2px, 10px, 0, #ccc);*/
+          .bor-t(1px,solid,#ddd);
           .item-top {
             padding: 14/@rem 20/@rem;
             .txt-normal;
@@ -647,9 +651,10 @@
             .img-con {
               .rel;
               .size(130, 130);
+              overflow: hidden;
               img {
-                width: 100%;
                 .abs-center-vh;
+                width: 100%;
               }
             }
             .info-con {

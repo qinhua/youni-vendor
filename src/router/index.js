@@ -24,6 +24,7 @@ import Store from '@/pages/store/Store'
 import Topic from '@/pages/store/Topic'
 import Coupons from '@/pages/store/Coupons'
 import EditCoupon from '@/pages/store/EditCoupon'
+import FloorFee from '@/pages/store/FloorFee'
 import Goods from '@/pages/goods/Goods'
 import EditGoods from '@/pages/goods/Edit'
 import Clients from '@/pages/clients/Clients'
@@ -193,6 +194,15 @@ export default new Router({
       component: EditCoupon,
       meta: {
         title: '优惠编辑',
+        keepAlive: false
+      }
+    },
+    {
+      path: '/floor_fee',
+      name: 'floor_fee',
+      component: FloorFee,
+      meta: {
+        title: '上楼费',
         keepAlive: false
       }
     },

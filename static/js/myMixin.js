@@ -1741,6 +1741,16 @@ import $ from 'jquery'
 
       timer();
     },
+    /*获取相隔多少天*/
+    getDiffDay: function (timeStamp) {
+      var curTime = new Date().getTime(), endTime;
+      if (typeof timeStamp === 'string') {
+        endTime = new Date(timeStamp).getTime();
+      } else {
+        endTime = timeStamp;
+      }
+      return Math.floor(Math.abs((endTime - curTime)) / 86400000);
+    },
     // 活动是否过期
     isActEnd: function () {
       var now = new Date().getTime(); //取今天的日期

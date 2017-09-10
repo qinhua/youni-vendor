@@ -187,7 +187,10 @@
     },
     methods: {
       getImgUrl(data) {
-        if (me.isArray(data)) {
+        if (!vm.lineData) {
+          data = null
+        }
+        if (me.isArray(data) && data.length) {
           vm.params.imgurl = data.join(',')
         } else {
           vm.params.imgurl = ''
@@ -216,7 +219,7 @@
       getGoods() {
         vm.lineData = vm.$route.query.linedata ? JSON.parse(decodeURIComponent(vm.$route.query.linedata)) : ''
         console.log(vm.lineData)
-        if (vm.lineData&&vm.lineData.id) {
+        if (vm.lineData && vm.lineData.id) {
           vm.params = {
             id: vm.lineData.id,
             brandId: vm.lineData.brandId,
@@ -236,23 +239,23 @@
           vm.switchData(vm.types, vm.lineData.type, 'tmpType', 1)
           vm.switchData(vm.categories, vm.lineData.category, 'tmpCat', 1)
           vm.renderTags(vm.lineData.label)
-        }else{
-          vm.params={
-              brandId: null,
-              name: '',
-              type: 1,
-              category: 2,
-              stock: '',
-              price: null,
-              imgurl: '',
-              saleStatus: 1,
-              label: '',
-              note: ''
+        } else {
+          vm.params = {
+            brandId: null,
+            name: '',
+            type: 1,
+            category: 2,
+            stock: '',
+            price: null,
+            imgurl: '',
+            saleStatus: 1,
+            label: '',
+            note: ''
           }
-          vm.tags= ['标签一']
-          vm.tmpBrand=[]
-          vm.tmpType= []
-          vm.tmpCat= []
+          vm.tags = ['标签一']
+          vm.tmpBrand = []
+          vm.tmpType = []
+          vm.tmpCat = []
         }
         /*if (vm.onFetching) return false
         vm.onFetching = true
@@ -274,31 +277,31 @@
       },
       validate() {
         if (vm.params.brandId === '') {
-          vm.toast('请选择品牌！','warn')
+          vm.toast('请选择品牌！', 'warn')
           return false
         }
         if (!vm.params.name) {
-          vm.toast('请填写商品名！','warn')
+          vm.toast('请填写商品名！', 'warn')
           return false
         }
         if (!vm.params.type) {
-          vm.toast('请选择商品分类！','warn')
+          vm.toast('请选择商品分类！', 'warn')
           return false
         }
         if (!vm.params.category) {
-          vm.toast('请选择商品类目！','warn')
+          vm.toast('请选择商品类目！', 'warn')
           return false
         }
         if (!vm.params.stock) {
-          vm.toast('请输入库存！','warn')
+          vm.toast('请输入库存！', 'warn')
           return false
         }
         if (!vm.params.price) {
-          vm.toast('请指定价格！','warn')
+          vm.toast('请指定价格！', 'warn')
           return false
         }
         if (!vm.params.note) {
-          vm.toast('请填写商品详情！','warn')
+          vm.toast('请填写商品详情！', 'warn')
           return false
         }
         return true
@@ -351,8 +354,8 @@
       },
       changeTags(index, text) {
         console.log(index, text)
-        if(index===3){
-          vm.toast('最多3个标签！','warn')
+        if (index === 3) {
+          vm.toast('最多3个标签！', 'warn')
           return
         }
         if (text) {

@@ -75,8 +75,6 @@
     mounted() {
       // me.attachClick()
       vm = this
-      window.youniMall.userAuth = vm.$store.state.global.wxInfo
-      !vm.$store.state.global.wxInfo.dict ? vm.getDict() : null
     },
     computed: {
       'showTabbar'() {
@@ -91,18 +89,9 @@
       // 从子组件获取数据
       getPageStatus(data) {
         vm.curSelected = data
-      },
-      getDict() {
-        vm.loadData(commonApi.dict, {}, 'POST', function (res) {
-          vm.$store.commit('storeData', {key: 'dict', data: res.data.itemList})
-        }, function () {
-        })
       }
     },
     watch: {
-      'curCount'() {
-        return vm.$store.state.cart.count
-      },
       '$route'(to, from) {
         /* let isBack = this.$router.isBack //  监听路由变化时的状态为前进还是后退
         console.log(isBack)

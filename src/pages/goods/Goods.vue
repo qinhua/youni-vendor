@@ -65,15 +65,14 @@
     name: 'goods',
     data() {
       return {
-        curTicketFilter: '',
         goods: [],
         params: {
           type: 0,
           pagerSize: 10,
           pageNo: 1,
-          saleStatus: 0,
-          category: ''
+          saleStatus: 0
         },
+        noMore:false,
         isPosting: false
       }
     },
@@ -110,13 +109,23 @@
       getGoods(isLoadMore, status) {
         vm.params.type = this.$route.params.type || 0
         if (vm.isPosting) return false
+        !isLoadMore ? vm.params.pageNo = 1 : vm.params.pageNo++
         vm.isPosting = true
+        vm.processing()
         vm.loadData(goodsApi.list, vm.params, 'POST', function (res) {
           vm.isPosting = false
+          vm.processing(0,1)
+          var resD = res.data.pager
           if (!isLoadMore) {
-            vm.goods = res.data.pager.itemList
+            vm.goods = res.data.itemList
+            if (resD.totalCount < vm.params.pageSize) {
+              vm.noMore = true
+            } else {
+              vm.noMore = false
+            }
+            vm.goods = resD.itemList
           } else {
-            vm.goods.push(res.data.pager.itemList)
+            resD.itemList.length ? vm.goods.concat(resD.itemList) : vm.noMore = true
           }
           console.log(vm.goods, '商品数据')
         }, function () {
@@ -139,13 +148,13 @@
       },
       filterStatus(status) {
         vm.params.saleStatus = status || 0
-        vm.getGoods(false, vm.filterStatus)
+        vm.getGoods()
       },
       delGoods(id) {
         if (vm.isPosting) return false
         vm.confirm('确认删除？', '商品删除后不可恢复！', function () {
           vm.isPosting = true
-          vm.loadData(goodsApi.delOrder + '?id=' + id, vm.params, 'POST', function (res) {
+          vm.loadData(goodsApi.delOrder, {id:id}, 'POST', function (res) {
             vm.isPosting = false
           }, function () {
             vm.isPosting = false
@@ -157,9 +166,9 @@
         if (vm.isPosting) return false
         vm.isPosting = true
         vm.loadData(goodsApi.setSaleStatus, {id: id, saleStatus: status}, 'POST', function (res) {
+          vm.isPosting = false
           vm.toast(status === 1 ? '上架成功' : '已下架')
           vm.getGoods()
-          vm.isPosting = false
         }, function () {
           vm.isPosting = false
         })

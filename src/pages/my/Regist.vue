@@ -259,7 +259,7 @@
           console.log(vm.params)
           vm.isPosting = true
           vm.processing()
-          vm.loadData(userApi.regist, vm.params, 'POST', function (res) {
+          vm.loadData(commonApi.regist, vm.params, 'POST', function (res) {
             vm.processing(0, 1)
             if (res.success) {
               vm.toast('入驻成功！')

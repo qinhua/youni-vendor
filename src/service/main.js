@@ -43,8 +43,6 @@ const clientApi = {
   updateOrder: host + '/home/updateOrder'
 }
 const userApi = {
-  login: host + '/seller/login',
-  regist: host + '/seller/applySeller',
   view: host + '/seller/view',
   set: host + '/seller/set',
   code: host + '/seller/code',
@@ -61,6 +59,9 @@ const statisticApi = {
   list: host + '/seller/statistic',
 }
 const commonApi = {
+  wxAuth: host + '/weixin/auth',
+  login: host + '/seller/login',
+  regist: host + '/seller/applySeller',
   dict: host + '/common/dictList',
   uploadImg: host + '/file/uploadImage',
   sendSms: host + '/common/sendSms',
