@@ -48,17 +48,17 @@
           {
             key: 'goods_type.1',
             value: '水',
-            label: '水'
+            name: '水'
           },
           {
             key: 'goods_type.2',
             value: '奶',
-            label: '奶'
+            name: '奶'
           },
           {
             key: 'goods_type.3',
             value: '水票',
-            label: '水票'
+            name: '水票'
           }
         ],
         tmpType: ['水'],

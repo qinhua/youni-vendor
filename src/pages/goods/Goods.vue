@@ -245,6 +245,7 @@
           .img-con {
             .rel;
             .size(130, 130);
+            overflow: hidden;
             img {
               width: 100%;
               .abs-center-vh;

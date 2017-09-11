@@ -6,23 +6,6 @@ export default {
     geoData: null,
     expired: true,
     wxInfo: null,
-    // expired: false,
-    // wxInfo: {
-    //   'city': '武汉',
-    //   'country': '中国',
-    //   'errorCode': 0,
-    //   'errorMessage': null,
-    //   'headimgurl': 'http://wx.qlogo.cn/mmopen/QAm7hEbaujS41jY5T0icQd9ySS9FaRJibTiclJGyysBmLoFmswkhLemAHAibYOQml4hibx3BqD2u8NRIwrAhTyeLgjavI70oxia8uk/0',
-    //   'nickname': '覃华',
-    //   // 'openid': 'oEo51t1PTVGj7H6Ahdqr_kac-1vs',
-    //   'openid': 'oGnE80ixTvBXjQ_Dql0BcTlx',
-    //   'privilege': [],
-    //   'province': '湖北',
-    //   'sex': '1',
-    //   'subscribe': 0,
-    //   'subscribeTime': null,
-    //   'unionid': null
-    // },
     dict: [
       {
         "dictType": "business_status",

@@ -10,7 +10,7 @@
     <div class="btn btn-login" @click="login">登录</div>
     <div class="btn btn-regist" v-jump="['regist']">注册</div>
     <a class="forgetPsw" href="#/reset_psw">忘记密码&nbsp;<i class="fa fa-question-circle"></i></a>
-    <p class="b-txt">连你生活 | 开启崭新生活</p>
+    <p class="b-txt">友你生活 | 开启崭新生活</p>
   </div>
 </template>
 
