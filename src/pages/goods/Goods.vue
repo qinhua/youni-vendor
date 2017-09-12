@@ -83,7 +83,7 @@
     mounted() {
       vm = this
       vm.getGoods()
-      vm.$nextTick(() => {
+      vm.$nextTick(function() {
         vm.$refs.goodsScroller.finishInfinite(true)
         vm.$refs.goodsScroller.resize()
       })

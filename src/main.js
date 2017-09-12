@@ -126,7 +126,7 @@ Vue.prototype.loadData = function (url, params, type, sucCb, errCb) {
       success: function (res) {
         // 检测是否登录
         if (res.message.indexOf('登录') > -1) {
-          if(vm.$route.name === 'regist') return
+          if (vm.$route.name === 'regist') return
           vm.processing(0, 1)
           // vm.confirm('温馨提示','请先登录！',function(){
           vm.$router.push({path: '/login'})
@@ -363,7 +363,7 @@ new Vue({
     window.youniMall.userAuth = vm.$store.state.global.wxInfo || (me.sessions.get('ynWxUser') ? JSON.parse(me.sessions.get('ynWxUser')) : null)
     !vm.$store.state.global.dict ? vm.getDict() : null
     /* 特定条件下才检查是否登录 */
-    if(!vm.$store.state.global.isLogin){
+    if (!vm.$store.state.global.isLogin) {
       this.isLogin()
     }
   },
@@ -411,19 +411,24 @@ new Vue({
   },
   methods: {
     isLogin() {
-      if(vm.$route.name === 'regist') return
-      // 检测是否登录
-      vm.loadData(commonApi.login, null, 'POST', function (res) {
-        if (res.data.success) {
-          vm.$store.commit('storeData', {key: 'isLogin', data: true})
-          if (vm.$route.name === 'login' || vm.$route.name === 'regist') {
-            vm.$router.push({path: '/home'})
-          }
-        } else {
+      var isLogin = me.locals.get('ynVendorLogin') ? parseInt(me.locals.get('ynVendorLogin')) : null
+      /* 检查登录session是否过期(7天保质期) */
+      alert(me.getDiffDay(isLogin))
+      if (me.getDiffDay(isLogin) > 5) {
+        if (vm.$route.name === 'regist') return
+        // 检测是否登录
+        vm.loadData(commonApi.login, null, 'POST', function (res) {
+          if (res.data.success) {
+            vm.$store.commit('storeData', {key: 'isLogin', data: true})
+            if (vm.$route.name === 'login' || vm.$route.name === 'regist') {
+              vm.$router.push({path: '/home'})
+            }
+          } else {
             vm.$router.push({path: '/login'})
-        }
-      }, function () {
-      })
+          }
+        }, function () {
+        })
+      }
     },
     getDict() {
       vm.loadData(commonApi.dict, {}, 'POST', function (res) {

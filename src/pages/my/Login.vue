@@ -72,7 +72,8 @@
           if (res.data.success) {
             vm.isPosting = false
             vm.toast('登录成功 ！')
-            vm.$store.commit('storeData', {key: 'isLogin', data: true})
+            /* 保存用户信息 */
+            me.locals.set('ynVendorLogin', new Date().getTime())
             if (vm.lastPage === 'regist' || vm.lastPage === 'login') {
               vm.jump('home')
             } else {
