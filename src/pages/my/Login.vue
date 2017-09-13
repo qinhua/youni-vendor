@@ -73,14 +73,14 @@
             vm.isPosting = false
             vm.toast('登录成功 ！')
             /* 保存用户信息 */
-            me.locals.set('ynVendorLogin', new Date().getTime())
+            me.locals.set('ynVendorLogin', me.formatDate(new Date(), null, 1))
+            vm.$store.commit('storeData', {key: 'isLogin', data: true})
             if (vm.lastPage === 'regist' || vm.lastPage === 'login') {
               vm.jump('home')
             } else {
               vm.$router.back()
             }
           } else {
-            vm.$store.commit('storeData', {key: 'isLogin', data: false})
             vm.toast('账户不存在或密码错误 ！')
           }
         }, function () {

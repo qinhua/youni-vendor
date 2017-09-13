@@ -52,11 +52,14 @@
       vm = this
       vm.initImgPicker()
       /*vm.$nextTick(function () {})*/
-      vm.initImgPicker()
     },
+    /*watch: {},*/
     /*computed: {},*/
     /*watch: {},*/
     methods: {
+      reset(){
+        vm.initImgPicker()
+      },
       initImgPicker() {
         /* 图片自动上传 */
         var uploadCount = 0, limit = vm.limit, uploadList = []

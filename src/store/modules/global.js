@@ -2,7 +2,7 @@ export default {
 
   state: {
     name: '全局',
-    isLogin:false,
+    isLogin: false,
     geoData: null,
     expired: true,
     wxInfo: null,

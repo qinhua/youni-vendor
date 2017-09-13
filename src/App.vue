@@ -1,5 +1,6 @@
 <template>
   <div class="container">
+    <div class="btn flush-button" onclick="javascript:me.locals.clear();me.sessions.clear();me.lightPop('ok,已清理');">清理缓存</div>
     <!--地图容器-->
     <!--<div id="mapContainer"></div>-->
     <!--标签栏-->
@@ -31,6 +32,9 @@
       </tabbar-item>
     </tabbar>-->
 
+    <!--定位组件-->
+    <geo :visible="false" :cache="true" @on-geo-end="getMap"></geo>
+
     <!--这里是被缓存的视图组件，比如 Home！-->
     <!--<transition :name="'vux-pop-' + (direction === 'forward' ? 'in' : 'out')">-->
     <transition>
@@ -53,6 +57,7 @@
   // import myMixin from 'myMixin'
   let vm
   import Home from './pages/Home'
+  import Geo from './components/Geo'
   import {commonApi} from './service/main.js'
   import {Tabbar, TabbarItem} from 'vux'
   import {mapState, mapActions} from 'vuex'
@@ -61,14 +66,14 @@
     name: 'app',
     data() {
       return {
+        geo: null,
         transitionName: 'fade', // 默认动态路由过渡
         // showTabbar: false, // 是否显示标签栏
         curSelected: 1, // 当前选中的tab
         direction: '', // 路由方向
-        curCount: 0 // 当前购物车中商品数
       }
     },
-    components: {Tabbar, TabbarItem},
+    components: {Geo,Tabbar, TabbarItem},
     beforeMount() {
       // console.log(window.me)
     },
@@ -89,7 +94,12 @@
       // 从子组件获取数据
       getPageStatus(data) {
         vm.curSelected = data
-      }
+      },
+      // 全局定位
+      getMap(data) {
+        console.log(data, 'home geo info')
+        this.geo = data
+      },
     },
     watch: {
       '$route'(to, from) {

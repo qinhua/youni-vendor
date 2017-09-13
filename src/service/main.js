@@ -27,7 +27,10 @@ const nearbyApi = {
   shopsList: host + '/home/shopsList'
 }
 const ticketApi = {
-  tickets: host + '/home/tickets'
+  list: host + '/waterTicket/list',
+  add: host + '/waterTicket/add',
+  update: host + '/waterTicket/sellerUpdate',
+  setSaleStatus: host + '/waterTicket/setSaleStatus'
 }
 const orderApi = {
   list: host + '/order/list',
@@ -48,20 +51,24 @@ const userApi = {
   code: host + '/seller/code',
   userInfo: host + '/seller/userInfo',
   updateSeller: host + '/seller/updateSeller',
-  couponsList: host + '/sellerCoupon/get',
-  addCoupon: host + '/sellerCoupon/add',
-  updateCoupon: host + '/sellerCoupon/update',
-  delCoupon: host + '/sellerCoupon/del',
   getFloor: host + '/floorCost/get',
   addFloor: host + '/floorCost/add',
 }
+const couponApi={
+  get: host + '/sellerCoupon/get',
+  add: host + '/sellerCoupon/add',
+  update: host + '/sellerCoupon/update',
+  del: host + '/sellerCoupon/del'
+}
 const statisticApi = {
   list: host + '/seller/statistic',
+  top10: host + '/common/top10',
 }
 const commonApi = {
   wxAuth: host + '/weixin/auth',
   login: host + '/seller/login',
   regist: host + '/seller/applySeller',
+  caclu: host + '/order/calcuPrice',
   dict: host + '/common/dictList',
   uploadImg: host + '/file/uploadImage',
   sendSms: host + '/common/sendSms',
@@ -69,4 +76,4 @@ const commonApi = {
 }
 console.log('当前域名：%c' + host, 'color:red;font-size:14px;font-weight:bold')
 // console.log('当前API：%c' + JSON.stringify(homeApi, null, 2), 'color:orange;font-size:14px')
-export {commonApi, homeApi, nearbyApi, ticketApi, orderApi, clientApi, userApi, goodsApi,statisticApi}
+export {commonApi, homeApi, nearbyApi, ticketApi, orderApi, clientApi,couponApi, userApi, goodsApi, statisticApi}

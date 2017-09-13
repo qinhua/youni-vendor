@@ -33,37 +33,37 @@
       vm = this
       // 检测用户是否登录
 //      if (vm.$store.state.global.wxInfo) {
-        if (me.isWeixin) {
-          // wx授权页面
-          vm.getWxInfo(function (info) {
-            /* 保存用户信息 */
-            me.locals.set('ynWxUser', JSON.stringify({data: info, timeStamp: new Date().getTime()}))
+      if (me.isWeixin) {
+        // wx授权页面
+        vm.getWxInfo(function (info) {
+          /* 保存用户信息 */
+          try{
+            alert(JSON.stringify(info))
+            me.locals.set('ynWxUser', JSON.stringify({data: info, timeStamp: me.formatDate(new Date(), null, 1)}))
             vm.$router.push({path: '/home'})
-            // vm.$router.back()
-          })
-        } else {
-          // 外部登录页面
+          }catch(e){
+              console.log(e)
+          }
+        })
+      } else {
+        // 外部登录页面
 //          location.href='https://open.weixin.qq.com/connect/oauth2/authorize?appid=123456&connect_redirect=1#wechat_redirect'
 
-          /*测试专用*/
-          var info={
-            'city': '武汉',
-            'country': '中国',
-            'errorCode': 0,
-            'errorMessage': null,
-            'headimgurl': 'http://wx.qlogo.cn/mmopen/QAm7hEbaujS41jY5T0icQd9ySS9FaRJibTiclJGyysBmLoFmswkhLemAHAibYOQml4hibx3BqD2u8NRIwrAhTyeLgjavI70oxia8uk/0',
-            'nickname': '覃华',
-            'openid': 'oGnE80ixTvBXjQ_Dql0BcTlx',
-            'privilege': [],
-            'province': '湖北',
-            'sex': '1',
-            'subscribe': 0,
-            'subscribeTime': null,
-            'unionid': null
-          }
-          me.locals.set('ynWxUser', JSON.stringify({data: info, timeStamp: new Date().getTime()}))
-          vm.$router.push({path: '/home'})
+        /*测试专用*/
+        var info = {
+          "openid": "oGnE80ixTvBXjQ_DqI0BcTlxqiu4",
+          "nickname": "覃华",
+          "sex": 1,
+          "language": "zh_CN",
+          "city": "武汉",
+          "province": "湖北",
+          "country": "中国",
+          "headimgurl": "http://wx.qlogo.cn/mmopen/vi_32/Q0j4TwGTfTIPsbt7BibERGzRjOLVtdWDp2W1chq8aoyMOz3sJYTqsHhmOjgugokeCiamkr0snBMNkUd6k2sHyELw/0",
+          "privilege": []
         }
+        me.locals.set('ynWxUser', JSON.stringify({data: info, timeStamp: me.formatDate(new Date(), null, 1)}))
+        vm.$router.push({path: '/home'})
+      }
       /*} else {
         vm.$router.push({path: '/home'})
       }*/
@@ -74,17 +74,25 @@
       getWxInfo(cb) {
         let urlParam = me.getURLParams()
         if (urlParam.code) {
-          vm.loadData(commonApi.wxAuth, {code: urlParam.code}, 'POST', function (res) {
-            if (res.success) {
-              cb ? cb(res.data || null) : null
-            } else {
+          alert(commonApi.wxAuth+'&&&'+urlParam.code)
+          try{
+            vm.loadData(commonApi.wxAuth, {code: urlParam.code}, 'POST', function (res) {
+              alert(JSON.stringify(res))
+              if (res.success) {
+                alert('wertwet')
+                cb ? cb(res.data || null) : null
+              } else {
+                me.lightPop('拉取用户信息失败！')
+                cb ? cb(null) : null
+              }
+            }, function (res) {
               me.lightPop('拉取用户信息失败！')
-              cb ? cb(null) : null
-            }
-          }, function (res) {
-            me.lightPop('拉取用户信息失败！')
-            // alert(JSON.stringify(res))
-          })
+              // alert(JSON.stringify(res))
+            })
+          }catch(e){
+              alert(JSON.stringify(e))
+          }
+
           // window.location.href = 'https://api.weixin.qq.com/sns/oauth2/access_token?appid=' + vm.appId + '&secret=' + vm.appSecret + '&code=' + urlParam.code + '&grant_type=authorization_code'
           // location.href = 'https://api.weixin.qq.com/sns/userinfo?access_token=' + resD.access_token + '&openid=' + resD.openid + '&lang=zh_CN'
         } else {

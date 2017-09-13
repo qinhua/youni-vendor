@@ -19,14 +19,20 @@ import MyFavorite from '@/pages/my/Favorite'
 import Help from '@/pages/my/Help'
 import About from '@/pages/my/About'
 import GoodsDetail from '@/pages/goods/Detail'
+import GoodsSearch from '@/components/GoodsSearch'
 
-import Store from '@/pages/store/Store'
-import Topic from '@/pages/store/Topic'
-import Coupons from '@/pages/store/Coupons'
-import EditCoupon from '@/pages/store/EditCoupon'
-import FloorFee from '@/pages/store/FloorFee'
-import Goods from '@/pages/goods/Goods'
-import EditGoods from '@/pages/goods/Edit'
+import StoreItems from '@/pages/store/Items'
+import Topic from '@/pages/store/topic/Topic'
+import Coupons from '@/pages/store/coupons/Coupons'
+import EditCoupon from '@/pages/store/coupons/Edit'
+import FloorFee from '@/pages/store/floor/FloorFee'
+
+import GoodsItems from '@/pages/goods/Items'
+import Goods from '@/pages/goods/goods/Goods'
+import EditGoods from '@/pages/goods/goods/Edit'
+import Tickets from '@/pages/goods/tickets/Tickets'
+import EditTicket from '@/pages/goods/tickets/Edit'
+
 import Clients from '@/pages/clients/Clients'
 import Assets from '@/pages/assets/Assets'
 import Statistic from '@/pages/statistic/Statistic'
@@ -162,9 +168,9 @@ export default new Router({
       }
     },
     {
-      path: '/store',
-      name: 'store',
-      component: Store,
+      path: '/store_items',
+      name: 'store_items',
+      component: StoreItems,
       meta: {
         title: '店铺管理',
         keepAlive: false
@@ -207,6 +213,15 @@ export default new Router({
       }
     },
     {
+      path: '/goods_items',
+      name: 'goods_items',
+      component: GoodsItems,
+      meta: {
+        title: '商品管理',
+        keepAlive: false
+      }
+    },
+    {
       path: '/goods',
       name: 'goods',
       component: Goods,
@@ -221,6 +236,24 @@ export default new Router({
       component: EditGoods,
       meta: {
         title: '编辑商品',
+        keepAlive: false
+      }
+    },
+    {
+      path: '/tickets',
+      name: 'tickets',
+      component: Tickets,
+      meta: {
+        title: '水票管理',
+        keepAlive: false
+      }
+    },
+    {
+      path: '/edit_ticket',
+      name: 'edit_ticket',
+      component: EditTicket,
+      meta: {
+        title: '编辑水票',
         keepAlive: false
       }
     },
@@ -329,6 +362,15 @@ export default new Router({
       component: Geo,
       meta: {
         title: '当前位置',
+        keepAlive: false
+      }
+    },
+    {
+      path: '/goods_search',
+      name: 'goods_search',
+      component: GoodsSearch,
+      meta: {
+        title: '商品列表',
         keepAlive: false
       }
     },

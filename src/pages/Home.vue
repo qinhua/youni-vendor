@@ -1,6 +1,5 @@
 <template>
   <div class="home-con" ref="home" v-cloak>
-    <geo :visible="false" :cache="true" @on-geo-end="getMap"></geo>
     <!--banner-->
     <!-- <div class="swiper-home">
        <swiper ref="slider01" skey="s01" :slides="banner" autoPlay="2500"></swiper>
@@ -12,7 +11,7 @@
         <h2>
           <countup :start-val="0" :end-val="120500" :decimals="2" :duration="2"></countup>
         </h2>
-        <p class="yesterday">昨日：{{1000|toFixed}}</p>
+        <p class="yesterday">昨日：{{1000 | toFixed}}</p>
       </div>
       <div class="bottom">
         <div class="col left-col">
@@ -21,7 +20,7 @@
           <p class="yesterday">昨日25</p>
         </div>
         <div class="col right-col">
-          <p class="today">浏览数</p>
+          <p class="today">订单数</p>
           <h2 class="total">2020</h2>
           <p class="yesterday">昨日1550</p>
         </div>
@@ -31,10 +30,10 @@
     <!--中间入口-->
     <div class="middle-entry">
       <grid :rows="5">
-        <grid-item label="商品管理" link="/goods">
+        <grid-item label="商品管理" link="/goods_items">
           <img slot="icon" src="../../static/img/item_goods.png">
         </grid-item>
-        <grid-item label="店铺管理" link="/store">
+        <grid-item label="店铺管理" link="/store_items">
           <img slot="icon" src="../../static/img/item_store.png">
         </grid-item>
         <grid-item label="客户管理" link="/clients">
@@ -202,7 +201,6 @@
   let me
   let vm
   import Swiper from '../components/Swiper'
-  import Geo from '../components/Geo'
   import {
     Group,
     GroupTitle,
@@ -224,8 +222,8 @@
     data() {
       return {
         geo: null,
-        isMilk: false,
         location: '',
+        isMilk: false,
         type: 0,
         orders: [],
         scrollTop: 0,
@@ -259,7 +257,6 @@
       }
     },
     components: {
-      Geo,
       Group,
       GroupTitle,
       Grid,
@@ -289,7 +286,7 @@
     computed: {},
     watch: {
       '$route'(to, from) {
-        if(to.name==='home') {
+        if (to.name === 'home') {
           vm.getOrders()
         }
       },
@@ -299,11 +296,6 @@
       }
     },
     methods: {
-      // 全局定位
-      getMap(data) {
-        console.log(data, 'home geo info')
-        this.geo = data
-      },
       // 向父组件传值
       setPageStatus(data) {
         this.$emit('listenPage', data)
@@ -460,20 +452,25 @@
       },
       pushPay(id) {
         if (vm.isPosting) return false
-          vm.isPosting = true
-          vm.loadData(orderApi.push, {id: id}, 'POST', function (res) {
-            vm.toast('提醒成功')
-            vm.isPosting = false
-          }, function () {
-            vm.isPosting = false
-          })
+        vm.isPosting = true
+        vm.loadData(orderApi.push, {id: id}, 'POST', function (res) {
+          vm.toast('提醒成功')
+          vm.isPosting = false
+        }, function () {
+          vm.isPosting = false
+        })
       },
       dispatchOrder(id) {
+        if (!vm.dispatcher) {
+          vm.toast('请输入派送员', 'warn')
+          return false
+        }
         if (vm.isPosting) return false
-        vm.confirm('确认派送？', '', function () {
+        vm.isPosting = true
+        vm.confirm('请填写派送员？', '<div class="despatchModal"><input type="text" placeholder="输入派送员姓名" required v-model="dispatcher"></div>', function () {
           vm.isPosting = true
-          vm.loadData(orderApi.push, {id: id}, 'POST', function (res) {
-            vm.toast('已确认')
+          vm.loadData(orderApi.dispatch, {orderId: id, dispatcher: vm.dispatcher}, 'POST', function (res) {
+            vm.toast('派送成功')
             vm.isPosting = false
           }, function () {
             vm.isPosting = false
@@ -622,7 +619,7 @@
           /*padding: 0 20/@rem 20/@rem;*/
           .bf;
           /*.bsd(0, 2px, 10px, 0, #ccc);*/
-          .bor-t(1px,solid,#ddd);
+          .bor-t(1px, solid, #ddd);
           .item-top {
             padding: 14/@rem 20/@rem;
             .txt-normal;
@@ -754,7 +751,6 @@
       }
     }
   }
-
 
 
 </style>

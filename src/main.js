@@ -106,8 +106,9 @@ Vue.prototype.loadData = function (url, params, type, sucCb, errCb) {
   params = params || {}
   setTimeout(function () {
     var winAuth = window.youniMall.userAuth
-    var localGeo = me.sessions.get('cur5656Geo') ? JSON.parse(me.sessions.get('cur5656Geo')) : {}
-    var localIps = me.sessions.get('cur5656Ips') ? JSON.parse(me.sessions.get('cur5656Ips')) : {}
+    var localGeo = me.sessions.get('cur5656Geo') ? JSON.parse(me.sessions.get('cur5656Geo')) : null
+    var localIps = me.sessions.get('cur5656Ips') ? JSON.parse(me.sessions.get('cur5656Ips')) : null
+    alert(JSON.stringify(localGeo))
     var localParams = {
       ip: localIps.cip,
       cityCode: localGeo.cityCode || localIps.cid,
@@ -411,10 +412,9 @@ new Vue({
   },
   methods: {
     isLogin() {
-      var isLogin = me.locals.get('ynVendorLogin') ? parseInt(me.locals.get('ynVendorLogin')) : null
+      var isLogin = me.locals.get('ynVendorLogin') ? me.locals.get('ynVendorLogin') : null
       /* 检查登录session是否过期(7天保质期) */
-      alert(me.getDiffDay(isLogin))
-      if (me.getDiffDay(isLogin) > 5) {
+      if (isLogin && me.getDiffDay(isLogin) > 6) {
         if (vm.$route.name === 'regist') return
         // 检测是否登录
         vm.loadData(commonApi.login, null, 'POST', function (res) {
@@ -431,7 +431,7 @@ new Vue({
       }
     },
     getDict() {
-      vm.loadData(commonApi.dict, {}, 'POST', function (res) {
+      vm.loadData(commonApi.dict, null, 'POST', function (res) {
         vm.$store.commit('storeData', {key: 'dict', data: res.data.itemList})
       }, function () {
       })
