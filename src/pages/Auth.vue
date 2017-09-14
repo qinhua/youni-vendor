@@ -36,6 +36,7 @@
         // wx授权页面
         vm.getWxInfo(function (info) {
           /* 保存用户信息 */
+          window.youniMall.userAuth = vm.$store.state.global.wxInfo = info
           me.locals.set('ynWxUser', JSON.stringify({data: info, timeStamp: me.formatDate(new Date(), null, 1)}))
           vm.$router.push({path: '/home'})
         })
@@ -55,12 +56,13 @@
           "headimgurl": "http://wx.qlogo.cn/mmopen/vi_32/Q0j4TwGTfTIPsbt7BibERGzRjOLVtdWDp2W1chq8aoyMOz3sJYTqsHhmOjgugokeCiamkr0snBMNkUd6k2sHyELw/0",
           "privilege": []
         }
+        window.youniMall.userAuth = vm.$store.state.global.wxInfo = info
         me.locals.set('ynWxUser', JSON.stringify({data: info, timeStamp: me.formatDate(new Date(), null, 1)}))
         vm.$router.push({path: '/home'})
       }
       /*} else {
-        vm.$router.push({path: '/home'})
-      }*/
+       vm.$router.push({path: '/home'})
+       }*/
     },
     computed: {},
     methods: {
@@ -99,8 +101,8 @@
       }
     },
     /*watch: {
-       '$route' (to, from) {}
-    }*/
+     '$route' (to, from) {}
+     }*/
   }
 </script>
 

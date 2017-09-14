@@ -1,6 +1,8 @@
 <template>
   <div class="container">
-    <div class="btn flush-button" onclick="javascript:me.locals.clear();me.sessions.clear();me.lightPop('ok,已清理');">清理缓存</div>
+    <!--<div class="btn flush-button s02" onclick="javascript:me.locals.clear();me.sessions.clear();me.lightPop('ok,已清理');">
+      清理缓存
+    </div>-->
     <!--地图容器-->
     <!--<div id="mapContainer"></div>-->
     <!--标签栏-->
@@ -73,7 +75,7 @@
         direction: '', // 路由方向
       }
     },
-    components: {Geo,Tabbar, TabbarItem},
+    components: {Geo, Tabbar, TabbarItem},
     beforeMount() {
       // console.log(window.me)
     },
@@ -104,16 +106,16 @@
     watch: {
       '$route'(to, from) {
         /* let isBack = this.$router.isBack //  监听路由变化时的状态为前进还是后退
-        console.log(isBack)
-        if (isBack) {
-          vm.direction = 'reverse'
-        } else {
-          vm.direction = 'forward'
-        }
-        this.$router.isBack = false
-        const toDepth = to.path.split('/').length
-        const fromDepth = from.path.split('/').length
-        vm.direction = toDepth < fromDepth ? 'forward' : 'reverse' */
+         console.log(isBack)
+         if (isBack) {
+         vm.direction = 'reverse'
+         } else {
+         vm.direction = 'forward'
+         }
+         this.$router.isBack = false
+         const toDepth = to.path.split('/').length
+         const fromDepth = from.path.split('/').length
+         vm.direction = toDepth < fromDepth ? 'forward' : 'reverse' */
 //        vm.showTabbar = true
         switch (to.name) {
           case 'home':

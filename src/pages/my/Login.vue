@@ -40,7 +40,6 @@
     mounted() {
       vm = this
       me.attachClick()
-      // vm.checkServer()
       vm.params.phone = vm.$route.query.phone || null
       vm.params.passwd = vm.$route.query.psw || null
     },

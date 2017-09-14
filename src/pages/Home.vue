@@ -61,6 +61,7 @@
     <group>
       <x-switch :title="'订单类别 ['+(isMilk?'奶':'水')+']'" v-model="isMilk" @on-click="changeType"></x-switch>
     </group>
+
     <!--订单列表-->
     <div class="orders-list-con">
       <sticky ref="sticky">
@@ -230,7 +231,7 @@
         isPosting: false,
         params: {
           userType: 2,
-          goodsType: 'water',
+          goodsType: 'goods_type.1',
           pagerSize: 10,
           pageNo: 1
         },
@@ -291,7 +292,7 @@
         }
       },
       isMilk() {
-        vm.params.goodsType = vm.isMilk ? 'milk' : 'water'
+        vm.params.goodsType = vm.isMilk ? 'goods_type.2' : 'goods_type.1'
         vm.getOrders()
       }
     },

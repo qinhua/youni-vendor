@@ -109,7 +109,7 @@ router.beforeEach((to, from, next) => {
       }
     }
   } else {
-    window.youniMall.userAuth = store.state.global.wxInfo
+    window.youniMall.userAuth = store.state.global.wxInfo || (me.locals.get('ynWxUser') ? JSON.parse(me.locals.get('ynWxUser')) : null)
     next()
   }
 
@@ -122,7 +122,7 @@ Vue.prototype.$axios = Axios
 Vue.prototype.loadData = function (url, params, type, sucCb, errCb) {
   params = params || {}
   setTimeout(function () {
-    var winAuth = me.locals.get('ynWxUser') ? JSON.parse(me.locals.get('ynWxUser')) : store.state.global.wxInfo
+    var winAuth = window.youniMall.userAuth || (me.locals.get('ynWxUser') ? JSON.parse(me.locals.get('ynWxUser')) : null)
     var localGeo = me.sessions.get('cur5656Geo') ? JSON.parse(me.sessions.get('cur5656Geo')) : {}
     var localIps = me.sessions.get('cur5656Ips') ? JSON.parse(me.sessions.get('cur5656Ips')) : {}
     var localParams = {
@@ -131,6 +131,7 @@ Vue.prototype.loadData = function (url, params, type, sucCb, errCb) {
       lon: localGeo.lng || '',
       lat: localGeo.lat || ''
     }
+    console.log(winAuth)
     $.extend(params, winAuth)
     // console.log('%c'+JSON.stringify(params, null, 2), 'color:#fff;background:purple')
     $.ajax({
@@ -146,7 +147,7 @@ Vue.prototype.loadData = function (url, params, type, sucCb, errCb) {
           if (vm.$route.name === 'regist') return
           vm.processing(0, 1)
           // vm.confirm('温馨提示','请先登录！',function(){
-          // vm.$router.push({path: '/login'})
+          vm.$router.push({path: '/login'})
           // })
         }
         try {
@@ -364,8 +365,7 @@ Vue.filter('couponType', function (type) {
 })
 /* 保留小数位 */
 Vue.filter('toFixed', function (data, num) {
-  // return data ? data.toFixed(num ||2 ) : ''
-  return data.toFixed(num || 2)
+  return (data > 0 && parseInt(data) === data) ? data.toFixed(num || 2) : data
 })
 // main.js
 new Vue({
@@ -377,77 +377,46 @@ new Vue({
   created() {
     vm = this
     // 缓存授权信息
-    window.youniMall.userAuth = vm.$store.state.global.wxInfo || (me.sessions.get('ynWxUser') ? JSON.parse(me.sessions.get('ynWxUser')) : null)
+    window.youniMall.userAuth = vm.$store.state.global.wxInfo || (me.locals.get('ynWxUser') ? JSON.parse(me.locals.get('ynWxUser')) : null)
     !vm.$store.state.global.dict ? vm.getDict() : null
-    /* 特定条件下才检查是否登录 */
-    vm.checkLogin()
   },
-  /*watch: {
+  watch: {
     '$route'(to, from) {
+      this.checkLogin()
     }
-  },*/
+  },
   mounted() {
-    // vm = this
-    // console.log(XXX)
-    // GET
-    /* this.$axios.get('/user', {
-     params: {
-     ID: 12345
-     }
-     }).then(function (response) {
-     console.log(response)
-     }).catch(function (error) {
-     console.log(error)
-     })
-     // POST
-     this.$axios.post('/user', {
-     firstName: 'Fred',
-     lastName: 'Flintstone'
-     }).then(function (response) {
-     console.log(response)
-     }).catch(function (error) {
-     console.log(error)
-     })
-     // 多个
-     function getUserAccount() {
-     return axios.get('/user/12345')
-     }
-     function getUserPermissions() {
-     return axios.get('/user/12345/permissions')
-     }
-     axios.all([getUserAccount(), getUserPermissions()])
-     .then(axios.spread(function (acct, perms) {
-     // Both requests are now complete
-     }))
-     */
+    /* 特定条件下才检查是否登录 */
+    this.checkLogin()
   },
   methods: {
     checkLogin() {
-      alert()
-      var isLogin = me.locals.get('ynVendorLogin') || false
-      var checkServer = function () {
+      //var isLogin = me.locals.get('ynVendorLogin') || false
+      if (!vm.$store.state.global.isLogin) {
         // 检测是否登录
         vm.loadData(commonApi.login, null, 'POST', function (res) {
+          // alert(JSON.stringify(res))
           if (res.data.success) {
             vm.$store.commit('storeData', {key: 'isLogin', data: true})
-            // if (vm.$route.name === 'login' || vm.$route.name === 'regist') {
-            vm.$router.push({path: '/home'})
-            // }
+            if (vm.$route.name === 'login' || vm.$route.name === 'regist') {
+              vm.$router.push({path: '/home'})
+            }
           } else {
             vm.$router.push({path: '/login'})
           }
         }, function () {
         })
       }
-      /* 检查登录session是否过期(7天保质期) */
-      if (isLogin) {
-        if (me.getDiffDay(isLogin) > 6) {
-          vm.$router.push({path: '/login'})
-        }
-      } else {
-        if (vm.$route.name === 'login' || vm.$route.name === 'regist') return
-        vm.$router.push({path: '/login'})
-      }
+
+      /*/!* 检查登录session是否过期(7天保质期) *!/
+       if (isLogin) {
+       if (me.getDiffDay(isLogin) > 6) {
+       vm.$router.push({path: '/login'})
+       }
+       } else {
+       if (vm.$route.name === 'login' || vm.$route.name === 'regist') return
+       vm.$router.push({path: '/login'})
+       }*/
     },
     getDict() {
       vm.loadData(commonApi.dict, null, 'POST', function (res) {
