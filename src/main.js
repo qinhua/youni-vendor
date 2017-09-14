@@ -50,6 +50,20 @@ router.beforeEach((to, from, next) => {
    store.commit('UPDATE_DIRECTION', {direction: 'forward'})
    } */
 
+  /* 判断是否登录 */
+  var checkLog = function (inAuthPage) {
+    var isLog = me.locals.get('ynVendorLogin')
+    if (!isLog) {
+      return next('/login')
+    } else {
+      if (inAuthPage) {
+        return next('/home')
+      } else {
+        next()
+      }
+    }
+  }
+
   /* 判断授权是否存在或过期(页面刷新就会触发过期检查，不包含切换账号后的检查) */
   if (store.state.global.expired) {
     var localAuth = me.locals.get('ynWxUser') ? JSON.parse(me.locals.get('ynWxUser')) : null
@@ -65,6 +79,7 @@ router.beforeEach((to, from, next) => {
           store.commit('storeData', {key: 'wxInfo', data: localAuth.data})
           store.commit('storeData', {key: 'expired', data: false})
           console.profile('in auth page and (id)')
+          // checkLog(true)
           return next('/home')
         }
       } else {
@@ -84,6 +99,7 @@ router.beforeEach((to, from, next) => {
           store.commit('storeData', {key: 'wxInfo', data: localAuth.data})
           store.commit('storeData', {key: 'expired', data: false})
           console.profile('not in auth page and (id)')
+          // checkLog()
           next()
         }
       } else {
@@ -96,6 +112,7 @@ router.beforeEach((to, from, next) => {
     window.youniMall.userAuth = store.state.global.wxInfo
     next()
   }
+
 })
 
 /* ----- 封装一些方法 -------- */
@@ -105,15 +122,14 @@ Vue.prototype.$axios = Axios
 Vue.prototype.loadData = function (url, params, type, sucCb, errCb) {
   params = params || {}
   setTimeout(function () {
-    var winAuth = window.youniMall.userAuth
-    var localGeo = me.sessions.get('cur5656Geo') ? JSON.parse(me.sessions.get('cur5656Geo')) : null
-    var localIps = me.sessions.get('cur5656Ips') ? JSON.parse(me.sessions.get('cur5656Ips')) : null
-    alert(JSON.stringify(localGeo))
+    var winAuth = me.locals.get('ynWxUser') ? JSON.parse(me.locals.get('ynWxUser')) : store.state.global.wxInfo
+    var localGeo = me.sessions.get('cur5656Geo') ? JSON.parse(me.sessions.get('cur5656Geo')) : {}
+    var localIps = me.sessions.get('cur5656Ips') ? JSON.parse(me.sessions.get('cur5656Ips')) : {}
     var localParams = {
-      ip: localIps.cip,
-      cityCode: localGeo.cityCode || localIps.cid,
-      lon: localGeo.lng,
-      lat: localGeo.lat
+      ip: localIps.cip || '',
+      cityCode: localGeo.cityCode || (localIps.cid || '100000'),
+      lon: localGeo.lng || '',
+      lat: localGeo.lat || ''
     }
     $.extend(params, winAuth)
     // console.log('%c'+JSON.stringify(params, null, 2), 'color:#fff;background:purple')
@@ -130,7 +146,7 @@ Vue.prototype.loadData = function (url, params, type, sucCb, errCb) {
           if (vm.$route.name === 'regist') return
           vm.processing(0, 1)
           // vm.confirm('温馨提示','请先登录！',function(){
-          vm.$router.push({path: '/login'})
+          // vm.$router.push({path: '/login'})
           // })
         }
         try {
@@ -364,17 +380,12 @@ new Vue({
     window.youniMall.userAuth = vm.$store.state.global.wxInfo || (me.sessions.get('ynWxUser') ? JSON.parse(me.sessions.get('ynWxUser')) : null)
     !vm.$store.state.global.dict ? vm.getDict() : null
     /* 特定条件下才检查是否登录 */
-    if (!vm.$store.state.global.isLogin) {
-      this.isLogin()
-    }
+    vm.checkLogin()
   },
-  watch: {
+  /*watch: {
     '$route'(to, from) {
-      if (this.$route.name === 'login' || this.$route.name === 'regist') {
-        this.isLogin()
-      }
     }
-  },
+  },*/
   mounted() {
     // vm = this
     // console.log(XXX)
@@ -411,23 +422,31 @@ new Vue({
      */
   },
   methods: {
-    isLogin() {
-      var isLogin = me.locals.get('ynVendorLogin') ? me.locals.get('ynVendorLogin') : null
-      /* 检查登录session是否过期(7天保质期) */
-      if (isLogin && me.getDiffDay(isLogin) > 6) {
-        if (vm.$route.name === 'regist') return
+    checkLogin() {
+      alert()
+      var isLogin = me.locals.get('ynVendorLogin') || false
+      var checkServer = function () {
         // 检测是否登录
         vm.loadData(commonApi.login, null, 'POST', function (res) {
           if (res.data.success) {
             vm.$store.commit('storeData', {key: 'isLogin', data: true})
-            if (vm.$route.name === 'login' || vm.$route.name === 'regist') {
-              vm.$router.push({path: '/home'})
-            }
+            // if (vm.$route.name === 'login' || vm.$route.name === 'regist') {
+            vm.$router.push({path: '/home'})
+            // }
           } else {
             vm.$router.push({path: '/login'})
           }
         }, function () {
         })
+      }
+      /* 检查登录session是否过期(7天保质期) */
+      if (isLogin) {
+        if (me.getDiffDay(isLogin) > 6) {
+          vm.$router.push({path: '/login'})
+        }
+      } else {
+        if (vm.$route.name === 'login' || vm.$route.name === 'regist') return
+        vm.$router.push({path: '/login'})
       }
     },
     getDict() {

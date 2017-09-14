@@ -1,6 +1,5 @@
 <template>
   <div class="page-auth">
-    授权页面
     <div id="userInfo"></div>
   </div>
 </template>
@@ -37,13 +36,8 @@
         // wx授权页面
         vm.getWxInfo(function (info) {
           /* 保存用户信息 */
-          try{
-            alert(JSON.stringify(info))
-            me.locals.set('ynWxUser', JSON.stringify({data: info, timeStamp: me.formatDate(new Date(), null, 1)}))
-            vm.$router.push({path: '/home'})
-          }catch(e){
-              console.log(e)
-          }
+          me.locals.set('ynWxUser', JSON.stringify({data: info, timeStamp: me.formatDate(new Date(), null, 1)}))
+          vm.$router.push({path: '/home'})
         })
       } else {
         // 外部登录页面
@@ -74,24 +68,16 @@
       getWxInfo(cb) {
         let urlParam = me.getURLParams()
         if (urlParam.code) {
-          alert(commonApi.wxAuth+'&&&'+urlParam.code)
-          try{
-            vm.loadData(commonApi.wxAuth, {code: urlParam.code}, 'POST', function (res) {
-              alert(JSON.stringify(res))
-              if (res.success) {
-                alert('wertwet')
-                cb ? cb(res.data || null) : null
-              } else {
-                me.lightPop('拉取用户信息失败！')
-                cb ? cb(null) : null
-              }
-            }, function (res) {
+          vm.loadData(commonApi.wxAuth, {code: urlParam.code}, 'POST', function (res) {
+            if (res.success) {
+              cb ? cb(res.data || null) : null
+            } else {
               me.lightPop('拉取用户信息失败！')
-              // alert(JSON.stringify(res))
-            })
-          }catch(e){
-              alert(JSON.stringify(e))
-          }
+              cb ? cb(null) : null
+            }
+          }, function (res) {
+            me.lightPop('拉取用户信息失败！')
+          })
 
           // window.location.href = 'https://api.weixin.qq.com/sns/oauth2/access_token?appid=' + vm.appId + '&secret=' + vm.appSecret + '&code=' + urlParam.code + '&grant_type=authorization_code'
           // location.href = 'https://api.weixin.qq.com/sns/userinfo?access_token=' + resD.access_token + '&openid=' + resD.openid + '&lang=zh_CN'

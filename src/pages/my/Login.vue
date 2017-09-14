@@ -40,16 +40,27 @@
     mounted() {
       vm = this
       me.attachClick()
+      // vm.checkServer()
       vm.params.phone = vm.$route.query.phone || null
       vm.params.passwd = vm.$route.query.psw || null
-      // vm.userId = vm.$route.query.userId
     },
-    watch: {
+    /*watch: {
       '$route'(to, from) {
-        vm.lastPage = from.name
       }
-    },
+    },*/
     methods: {
+      checkServer() {
+        // 检测是否登录
+        vm.loadData(commonApi.login, null, 'POST', function (res) {
+          if (res.data.success) {
+            /* 保存用户信息 */
+            me.locals.set('ynVendorLogin', me.formatDate(new Date(), null, 1))
+            vm.$store.commit('storeData', {key: 'isLogin', data: true})
+            vm.$router.push({path: '/home'})
+          }
+        }, function () {
+        })
+      },
       login() {
         if (vm.isPosting) return false
         if (!vm.params.phone) {
@@ -75,11 +86,11 @@
             /* 保存用户信息 */
             me.locals.set('ynVendorLogin', me.formatDate(new Date(), null, 1))
             vm.$store.commit('storeData', {key: 'isLogin', data: true})
-            if (vm.lastPage === 'regist' || vm.lastPage === 'login') {
-              vm.jump('home')
-            } else {
+            // if (vm.lastPage === 'regist' || vm.lastPage === 'login') {
+            vm.jump('home')
+            /*} else {
               vm.$router.back()
-            }
+            }*/
           } else {
             vm.toast('账户不存在或密码错误 ！')
           }
