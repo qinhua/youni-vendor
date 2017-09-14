@@ -34,12 +34,13 @@
   let me
   let vm
   import {Grid, GridItem, Group, Cell} from 'vux'
+  import {userApi} from '../service/main.js'
 
   export default {
     name: 'my',
     data() {
       return {
-        sellerName: '水一波旗舰店',
+        sellerName: '',
         avatar: ''
       }
     },
@@ -50,7 +51,8 @@
     mounted() {
       // me.attachClick()
       vm = this
-      vm.avatar=vm.$store.state.global.wxInfo.headimgurl
+      vm.avatar = vm.$store.state.global.wxInfo.headimgurl
+      vm.sellerName = '大衣水颗'
       vm.getSeller()
     },
     /* watch: {
@@ -63,7 +65,16 @@
       setPageStatus(data) {
         this.$emit('listenPage', data)
       },
-      getSeller(){},
+      getSeller() {
+        vm.loadData(userApi.view, null, 'POST', function (res) {
+          if (res.success) {
+            var resD = res.data
+            vm.avatar = resD.imgurl
+            vm.sellerName = resD.name
+          }
+        }, function () {
+        })
+      },
       logout() {
         vm.confirm('退出登录？', '', function () {
           vm.$store.commit('logout')

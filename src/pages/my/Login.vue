@@ -9,7 +9,7 @@
     </group>
     <div class="btn btn-login" @click="login">登录</div>
     <div class="btn btn-regist" v-jump="['regist']">注册</div>
-    <a class="forgetPsw" href="#/reset_psw">忘记密码&nbsp;<i class="fa fa-question-circle"></i></a>
+    <a class="forgetPsw" href="#/password">忘记密码&nbsp;<i class="fa fa-question-circle"></i></a>
     <p class="b-txt">友你生活 | 开启崭新生活</p>
   </div>
 </template>
@@ -83,7 +83,7 @@
             vm.isPosting = false
             vm.toast('登录成功 ！')
             /* 保存用户信息 */
-            me.locals.set('ynVendorLogin', me.formatDate(new Date(), null, 1))
+            // me.locals.set('ynVendorLogin', me.formatDate(new Date(), null, 1))
             vm.$store.commit('storeData', {key: 'isLogin', data: true})
             // if (vm.lastPage === 'regist' || vm.lastPage === 'login') {
             vm.jump('home')
@@ -91,7 +91,7 @@
               vm.$router.back()
             }*/
           } else {
-            vm.toast('账户不存在或密码错误 ！')
+            vm.toast(res.message || '手机号或密码错误 ！')
           }
         }, function () {
           vm.isPosting = false

@@ -626,7 +626,7 @@ import $ from 'jquery'
           beginCount();
           if (secs < 0) {
             btn.removeClass("disabled").text('获取验证码').prop("disabled", false);
-            cb? cb() : null
+            cb ? cb() : null
             clearTimeout(timer);
             return;
           }
@@ -1741,6 +1741,16 @@ import $ from 'jquery'
 
       timer();
     },
+
+    /*获取相隔多少天*/
+    getDiffDay: function (timeStr) {
+      if (timeStr) {
+        var curTime = new Date().getTime();
+        var endTime = new Date(timeStr).getTime();
+        return Math.floor(Math.abs((curTime - endTime)) / (1000 * 60 * 60 * 24));
+      }
+    },
+
     // 活动是否过期
     isActEnd: function () {
       var now = new Date().getTime(); //取今天的日期

@@ -37,7 +37,7 @@ const orderApi = {
   del: host + '/order/del',
   push: host + '/order/push',
   cancel: host + '/order/cancel',
-  dispatchList: host + '/orderDispatchProgess/list',
+  dispatcher: host + '/orderDispatchProgess/list',
   dispatch: host + '/orderDispatchProgess/add',
   updateOrder: host + '/home/updateOrder'
 }

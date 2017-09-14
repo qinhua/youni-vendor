@@ -131,7 +131,6 @@ Vue.prototype.loadData = function (url, params, type, sucCb, errCb) {
       lon: localGeo.lng || '',
       lat: localGeo.lat || ''
     }
-    console.log(winAuth)
     $.extend(params, winAuth)
     // console.log('%c'+JSON.stringify(params, null, 2), 'color:#fff;background:purple')
     $.ajax({
@@ -189,7 +188,7 @@ Vue.prototype.alert = function (title, content, showCb, hideCb) {
   })
 }
 /* confirm */
-Vue.prototype.confirm = function (title, content, confirmCb, cancelCb, confirmtext, canelText) {
+Vue.prototype.confirm = function (title, content, confirmCb, cancelCb, confirmtext, canelText, noAutoClose) {
   const _this = this
   _this.$vux.confirm.show({
     theme: 'ios',
@@ -197,6 +196,7 @@ Vue.prototype.confirm = function (title, content, confirmCb, cancelCb, confirmte
     content: content || '',
     confirmText: confirmtext || '确定',
     cancelText: canelText || '取消',
+    closeOnConfirm: !noAutoClose,
     onCancel() {
       cancelCb ? cancelCb() : null
     },
@@ -380,19 +380,19 @@ new Vue({
     window.youniMall.userAuth = vm.$store.state.global.wxInfo || (me.locals.get('ynWxUser') ? JSON.parse(me.locals.get('ynWxUser')) : null)
     !vm.$store.state.global.dict ? vm.getDict() : null
   },
-  watch: {
+  /*watch: {
     '$route'(to, from) {
       this.checkLogin()
     }
-  },
+  },*/
   mounted() {
-    /* 特定条件下才检查是否登录 */
+    vm = this
     this.checkLogin()
   },
   methods: {
     checkLogin() {
       //var isLogin = me.locals.get('ynVendorLogin') || false
-      if (!vm.$store.state.global.isLogin) {
+      if (!vm.$store.state.global.isLogin && vm.$route.name !== 'login' && vm.$route.name !== 'regist' && vm.$route.name !== 'password') {
         // 检测是否登录
         vm.loadData(commonApi.login, null, 'POST', function (res) {
           // alert(JSON.stringify(res))

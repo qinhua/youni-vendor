@@ -5,6 +5,7 @@ export default {
     isLogin: false,
     geoData: null,
     expired: true,
+    userInfo: null,
     wxInfo: null,
     dict: [
       {
