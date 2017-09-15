@@ -86,8 +86,8 @@
           <!-- content goes here -->
           <section class="v-items" v-for="(item, index) in orders" :data-id="item.id"
                    :data-orderNumber="item.appOrderNumber" :data-itemId="item.orderItemId">
-            <!--<h4 class="item-top"><i class="ico-store"></i>&nbsp;{{item.sellerName}}&nbsp;&nbsp;<i
-              class="fa fa-angle-right cc"></i><span>{{item.statusName}}</span></h4>-->
+            <h4 class="item-top"><i class="ico-avatar" :style="item.userImage?'background-image:url('+item.userImage+')':''"></i>&nbsp;{{item.userName}}&nbsp;&nbsp;<i
+              class="fa fa-angle-right cc"></i><span>{{item.statusName}}</span></h4>
             <section class="item-middle">
               <div class="img-con">
                 <img :src="item.goodsImage">
@@ -139,7 +139,7 @@
           <!-- content goes here -->
           <section class="v-items" v-for="(item, index) in orders" :data-id="item.id"
                    :data-orderNumber="item.orderNumber">
-            <h4 class="item-top"><i class="fa fa-address-card"></i>&nbsp;王亮的订单&nbsp;&nbsp;<i
+            <h4 class="item-top"><i class="ico-avatar" :style="item.userImage?'background-image:url('+item.userImage+')':''"></i>&nbsp;{{item.userName}}&nbsp;&nbsp;<i
               class="fa fa-angle-right cc"></i><span>{{item.statusName}}</span></h4>
             <section class="item-middle">
               <div class="img-con">
