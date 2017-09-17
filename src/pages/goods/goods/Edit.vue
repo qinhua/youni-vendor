@@ -85,35 +85,39 @@
         fileApi: commonApi.uploadImg,
         addressData: ChinaAddressV3Data,
         brands: [{
-          key: '028283447c4311e7aa18d8cb8a971933',
-          value: '一方人',
-          name: '一方人'
-        }, {
-          key: '038283447c4311e7aa18d8cb8a971936',
-          value: '娃哈哈',
-          name: '娃哈哈'
-        }, {
-          key: '018283447c4311e7aa18d8cb8a941930',
-          value: '蒙牛',
-          name: '蒙牛'
-        }, {
-          key: '038283447c4311e7aa18d8cb8a941939',
-          value: '康师傅',
-          name: '康师傅'
-        }, {
-          key: '058283447c4311e7aa18d8cb8a971935',
-          value: '花果山',
-          name: '花果山'
-        }, {
-          key: '028283447c4311e7ab18d8cb8a971932',
+          key: 1,
           value: '怡宝',
           name: '怡宝'
         }, {
-          key: '018283447c4311e7aa18d8cb8a971932',
+          key: 2,
+          value: '康师傅',
+          name: '康师傅'
+        }, {
+          key: 3,
           value: '百岁山',
           name: '百岁山'
         }, {
-          key: '068283447c4311e7aa18d8cb8a971943',
+          key: 4,
+          value: '花果山',
+          name: '花果山'
+        }, {
+          key: 5,
+          value: '水老官',
+          name: '水老官'
+        }, {
+          key: 6,
+          value: '一方人',
+          name: '一方人'
+        }, {
+          key: 7,
+          value: '农夫山泉',
+          name: '农夫山泉'
+        }, {
+          key: 8,
+          value: '八宝山',
+          name: '八宝山'
+        }, {
+          key: 9,
           value: '昆仑山',
           name: '昆仑山'
         }],
@@ -175,8 +179,6 @@
     },
     mounted() {
       vm = this
-      // me.attachClick()
-      // vm.params.sellerId = vm.$store.state.global.sellerId
       vm.getGoods()
     },
     computed: {},
@@ -187,22 +189,19 @@
     },
     methods: {
       getImgUrl(data) {
-        if (!vm.lineData) {
-          data = null
-        }
         if (me.isArray(data) && data.length) {
           vm.params.imgurl = data.join(',')
         } else {
           vm.params.imgurl = ''
         }
-        console.log(vm.params.imgurl,5454)
+        console.log(vm.params.imgurl)
       },
       switchData(data, value, target, isUpdate) {
         let tmp
         if (isUpdate) {
           tmp = []
           for (let i = 0; i < data.length; i++) {
-            if (value === data[i].key) {
+            if (value == data[i].key) {
               tmp.push(data[i].name)
             }
           }
@@ -242,11 +241,11 @@
           vm.renderTags(vm.lineData.label)
         } else {
           vm.params = {
-            brandId: null,
+            brandId: '',
             name: '',
             type: 1,
             category: 2,
-            stock: '',
+            stock: null,
             price: null,
             imgurl: '',
             saleStatus: 1,

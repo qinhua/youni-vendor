@@ -64,14 +64,23 @@
       </div>-->
     </div>
 
+    <group>
+      <x-switch :title="'订单类别 ['+(isMilk?'奶':'水')+']'" v-model="isMilk" @on-click="changeType"></x-switch>
+    </group>
+
     <!--订单列表-->
     <div class="orders-list-con">
       <sticky ref="sticky">
-        <tab class="order-tab" ref="orderTab" active-color="#FE6246">
-          <!--<tab-item :selected="!params.status?true:false" @on-item-click="onItemClick">全部</tab-item>-->
+        <tab class="order-tab" ref="orderTab" active-color="#FE6246" v-if="!isMilk">
+          <tab-item :selected="!params.status?true:false" @on-item-click="onItemClick">全部</tab-item>
           <tab-item :selected="params.status==1?true:false" @on-item-click="onItemClick(1)">待支付</tab-item>
           <tab-item :selected="params.status==2?true:false" @on-item-click="onItemClick(2)">待派送</tab-item>
           <tab-item :selected="params.status==3?true:false" @on-item-click="onItemClick(3)">派送中</tab-item>
+          <tab-item :selected="params.status==5?true:false" @on-item-click="onItemClick(5)">已完成</tab-item>
+        </tab>
+        <tab class="order-tab" ref="orderTab" active-color="#FE6246" v-else>
+          <tab-item :selected="!params.status?true:false" @on-item-click="onItemClick">全部</tab-item>
+          <tab-item :selected="params.status==3?true:false" @on-item-click="onItemClick(3)">配送中</tab-item>
           <tab-item :selected="params.status==4?true:false" @on-item-click="onItemClick(4)">已暂停</tab-item>
           <tab-item :selected="params.status==5?true:false" @on-item-click="onItemClick(5)">已完成</tab-item>
         </tab>
@@ -79,7 +88,7 @@
 
       <div :class="'order-list' + (orders.length?' hasContent':'')">
         <scroller class="inner-scroller" ref="orderScroller" :on-refresh="refresh" :on-infinite="infinite"
-                  refreshText="下拉刷新" noDataText="没有更多数据" snapping>
+                  refreshText="下拉刷新" noDataText="没有更多数据" snapping v-if="!isMilk">
           <!-- content goes here -->
           <ul>
             <li v-for="(item, index) in orders">
@@ -97,17 +106,14 @@
                       <div class="info-con">
                         <h3>{{itm.goodsName}}</h3>
                         <section class="middle">
-                          <span class="unit-price">￥{{itm.goodsPrice | toFixed}}元</span>
+                          <span class="unit-price">￥{{itm.goodsPrice | toFixed}}</span>
                           <span class="order-info">{{itm.info}}</span>
-                          <div class="dispatch-info" v-if="itm.goodsType==='goods_type.2'">
-                            <span>已送：{{itm.totalDispatcheNum}}件</span><span>待送：{{itm.waitDispatcheNum}}件</span>
-                          </div>
                         </section>
-                        <!--<label>{{itm.label}}</label>-->
+                        <label>{{itm.label}}</label>
                       </div>
                       <div class="price-con">
-                        <p class="price">总价：￥{{itm.goodsAmount | toFixed}}</p>
-                        <p class="buy-count">x{{itm.goodsNum}}</p>
+                        <p class="price">￥{{(itm.goodsPrice * itm.goodsAmount) | toFixed}}</p>
+                        <p class="buy-count">x{{itm.goodsAmount}}</p>
                       </div>
                     </section>
                   </li>
@@ -118,7 +124,7 @@
                     </p>
                   </div>-->
                   <div class="total-price">
-                    共{{item.totalGoodsNum}}件商品&nbsp;合计：<span>￥{{item.payAmount | toFixed}}</span>（含上楼费）
+                    共{{item.totalAmount * item.totalGoodsNum}}件商品&nbsp;合计：<span>￥{{(item.totalAmount * item.payAmount) | toFixed}}</span>（含上楼费）
                   </div>
                   <!--<a class="btn btn-del" @click="cancelOrder(item.orderId)">取消订单</a>-->
                   <!--<a class="btn btn-del" @click="delOrder(item.orderId)">删除订单</a>-->
@@ -127,19 +133,82 @@
                   <!--<a class="btn btn-del" @click="cancelOrder(item.orderId)">取消订单</a>-->
                   <!--</div>-->
                   <div class="btns" v-if="item.status===2">
-                    <button type="button" class="btn btn-dispatch" @click="dispatch(item.orderId)">派送</button>
+                    <a class="btn btn-cancel" @click="dispatchOrder(item.orderId)">派送</a>
+                    <!--<a class="btn btn-del" @click="cancelOrder(item.orderId)">取消订单</a>-->
                   </div>
-                  <div class="btns" v-if="item.status===3&&item.todayDispatch">
-                    <div>
-                      <span class="status-txt disabled">当天未派送</span>
-                      <button type="button" class="btn btn-dispatch" @click="dispatch(item.orderId)">派送</button>
-                    </div>
-                    <div>
-                      <span class="status-txt">当天已派送</span>
-                      <button type="button" disabled class="btn btn-dispatch" @click="dispatch(item.orderId)">派送
-                      </button>
-                    </div>
+                  <!--<div class="btns" v-if="item.status===3">-->
+                  <!--<a class="btn btn-cancel" @click="dispatchOrder(item.orderId)">查看</a>-->
+                  <!--<a class="btn btn-del" @click="cancelOrder(item.orderId)">取消订单</a>-->
+                  <!--</div>-->
+                  <!--<div class="btns" v-if="item.status===5">-->
+                  <!--<a class="btn btn-del" @click="delOrder(item.orderId)">删除订单</a>-->
+                  <!--</div>-->
+                </section>
+              </section>
+            </li>
+          </ul>
+        </scroller>
+
+        <scroller class="inner-scroller" ref="orderScroller" :on-refresh="refresh" :on-infinite="infinite"
+                  refreshText="下拉刷新" noDataText="没有更多数据" snapping v-else>
+          <!-- content goes here -->
+          <ul>
+            <li v-for="(item, index) in orders">
+              <section class="v-items" :data-id="item.id" :data-orderNumber="item.orderNumber">
+                <h4 class="item-top"><i class="ico-avatar"
+                                        :style="item.userImage?'background-image:url('+item.userImage+')':''"></i>&nbsp;{{item.userName}}&nbsp;&nbsp;<i
+                  class="fa fa-angle-right cc"></i><span>{{item.statusName}}</span></h4>
+                <ul>
+                  <li v-for="itm in item.goodsList">
+                    <section class="item-middle">
+                      <div class="img-con">
+                        <img :src="itm.goodsImage">
+                      </div>
+                      <div class="info-con">
+                        <h3>{{itm.goodsName}}</h3>
+                        <section class="middle">
+                          <span class="unit-price">￥{{itm.goodsPrice | toFixed}}</span>
+                          <span class="order-info">{{itm.info}}</span>
+                        </section>
+                        <label class="progress" v-if="itm.status==2"><span>已送：{{itm.dispatcheDayNum}}次</span>&nbsp;&nbsp;<span>待送：{{itm.dispatcheDayNum}}次</span></label>
+                      </div>
+                      <div class="price-con">
+                        <p class="price">￥{{(itm.goodsPrice * itm.goodsAmount) | toFixed}}</p>
+                        <p class="buy-count">x{{itm.goodsAmount}}</p>
+                      </div>
+                    </section>
+                  </li>
+                </ul>
+                <section class="item-bottom">
+                  <!--<div class="extra-info">
+                    <p v-for="(ext, idx) in item.extras">{{ext.name}}<span>￥{{ext.type ? '-' : ''}}{{ext.value}}.00</span>
+                    </p>
+                  </div>-->
+                  <div class="total-price">
+                    共{{item.totalAmount * item.totalGoodsNum}}件商品&nbsp;合计：<span>￥{{(item.totalAmount * item.payAmount) | toFixed}}</span>（含上楼费）
                   </div>
+                  <div class="btns" v-if="item.status===-1">
+                    <a class="btn btn-del" @click="delOrder(item.orderId)">删除订单</a>
+                  </div>
+                  <!--<div class="btns" v-if="itm.status===0">
+                    <a class="btn btn-pay" @click="payOrder(itm.orderId)">支付</a>
+                    <a class="btn btn-cancel" @click="cancelOrder(itm.orderId)">取消订单</a>
+                  </div>-->
+                  <!--<div class="btns" v-if="itm.status===1">-->
+                  <!--<a class="btn btn-cancel" @click="pushPay(itm.orderId)">提醒支付</a>-->
+                  <!--<a class="btn btn-del" @click="cancelOrder(itm.orderId)">取消订单</a>-->
+                  <!--</div>-->
+                  <div class="btns" v-if="item.status===2">
+                    <a class="btn btn-cancel" @click="dispatchOrder(item.orderId)">派送</a>
+                    <!--<a class="btn btn-del" @click="cancelOrder(itm.orderId)">取消订单</a>-->
+                  </div>
+                  <div class="btns" v-if="item.status===4">
+                    <a class="btn btn-cancel" @click="dispatchOrder(item.orderId)">恢复派送</a>
+                    <!--<a class="btn btn-del" @click="cancelOrder(itm.orderId)">取消订单</a>-->
+                  </div>
+                  <!--<div class="btns" v-if="itm.status===5">
+                    <a class="btn btn-del" @click="delOrder(itm.orderId)">删除订单</a>
+                  </div>-->
                 </section>
               </section>
             </li>
@@ -185,6 +254,7 @@
           totalAmount: 0,
           totalCount: 0
         },
+        isMilk: false,
         type: 0,
         orders: [],
         scrollTop: 0,
@@ -192,7 +262,6 @@
         isPosting: false,
         noMore: false,
         params: {
-          status: 1,
           userType: 2,
           goodsType: 'goods_type.1',
           pagerSize: 10,
@@ -251,9 +320,13 @@
     watch: {
       '$route'(to, from) {
         if (to.name === 'home') {
-          vm.params.status = vm.$route.params.status
           vm.getOrders()
         }
+      },
+      isMilk() {
+        delete vm.params.status
+        vm.params.goodsType = vm.isMilk ? 'goods_type.2' : 'goods_type.1'
+        vm.getOrders()
       }
     },
     methods: {
@@ -392,20 +465,6 @@
           vm.isPosting = false
         })
       },
-      dispatch(id) {
-        if (vm.isPosting) return false
-        vm.confirm('确认派送？', null, function () {
-          vm.isPosting = true
-          vm.loadData(orderApi.updateOrderStatus, {userType: 2, id: id, status: 3}, 'POST', function (res) {
-            vm.isPosting = false
-            vm.toast('派送成功')
-            vm.getOrders()
-          }, function () {
-            vm.isPosting = false
-          })
-        }, function () {
-        })
-      },
       dispatchOrder(id) {
         if (vm.isPosting) return false
         vm.isPosting = true
@@ -479,7 +538,7 @@
     height: 100%;
     /*overflow-y: scroll; // 此两个属性至关重要，不写@scroll监听不到滚动*/
     .orders-list-con {
-      /*height: 100%;*/
+      height: 100%;
     }
 
     .overview {
@@ -693,9 +752,50 @@
                 .fz(22);
               }
             }
-            .dispatch-info {
+          }
+          .item-bottom {
+            .extra-info {
+              margin-top: 2px;
+              padding: 10/@rem 20/@rem;
+              .bf8;
+              p {
+                .fz(22);
+                .c3;
+                span {
+                  .fr;
+                }
+                &:not(:last-child) {
+                  padding-bottom: 10/@rem;
+                }
+              }
+            }
+            .total-price {
+              padding: 10/@rem 20/@rem;
+              .right;
+              .c3;
+              .fz(22);
               span {
-                padding-right: 28/@rem;
+                .fz(30);
+              }
+            }
+            .btns {
+              padding: 20/@rem 20/@rem;
+              overflow: hidden;
+              a {
+                .fr;
+                padding: 4px 40/@rem;
+                margin-left: 20/@rem;
+                .cf;
+                .fz(22);
+                .borR(50px);
+                &.btn-cancel, &.btn-del {
+                  .c6;
+                  .bor(1px, solid, #ccc);
+                }
+                &.btn-push, &.btn-appraise, &.btn-pay {
+                  .cdiy(@c2);
+                  .bor(1px, solid, @c2);
+                }
               }
             }
           }
@@ -703,66 +803,9 @@
             .c9!important;
           }
         }
-        .item-bottom {
-          .extra-info {
-            margin-top: 2px;
-            padding: 10/@rem 20/@rem;
-            .bf8;
-            p {
-              .fz(22);
-              .c3;
-              span {
-                .fr;
-              }
-              &:not(:last-child) {
-                padding-bottom: 10/@rem;
-              }
-            }
-          }
-          .total-price {
-            padding: 10/@rem 20/@rem;
-            .right;
-            .c3;
-            .fz(22);
-            span {
-              .fz(30);
-            }
-          }
-          .btns {
-            padding: 20/@rem 20/@rem;
-            overflow: hidden;
-            .bor-t;
-            button {
-              .fr;
-              padding: 4px 40/@rem;
-              margin-left: 20/@rem;
-              .c3;
-              .fz(22);
-              .bf;
-              .borR(50px);
-              &:disabled {
-                .c9!important;
-                .bor(1px, solid, #999) !important;
-              }
-              &.btn-cancel, &.btn-del {
-                .c6;
-                .bor(1px, solid, #ccc);
-              }
-              &.btn-push, &.btn-appraise, &.btn-pay, &.btn-dispatch {
-                .cdiy(@c2);
-                .bor(1px, solid, @c2);
-              }
-            }
-            .status-txt {
-              .cdiy(@c3);
-              &.disabled {
-                .c9;
-              }
-            }
-          }
-        }
       }
     }
   }
+
 
 </style>

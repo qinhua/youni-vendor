@@ -327,7 +327,7 @@
             filter: ''
           }
         vm.loadData(nearbyApi.shopsList, params, 'POST', function (res) {
-          console.log(res.data, '首页shopsList')
+          console.log(res.data, 'shopsList')
           if (!isLoadMore) {
             vm.shops = res.data.itemList
           } else {

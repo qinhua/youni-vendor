@@ -3,12 +3,18 @@
     <group class="list-modal">
       <!--<cell title="店铺公告" link="/store_topic">
         <i slot="icon" width="20" style="margin-right:5px;" class="fa fa-credit-card"></i>
-      </cell>-->
+      </cell>
       <cell title="优惠管理" link="/coupons">
         <i slot="icon" width="20" style="margin-right:5px;" class="fa fa-money"></i>
       </cell>
       <cell title="上楼费" link="/floor_fee"><i slot="icon" width="20" style="margin-right:5px;"
                                          class="fa fa-building-o"></i></cell>
+      <cell title="保证金" link="/guarantee_fee"><i slot="icon" width="20" style="margin-right:5px;"
+                                             class="fa fa-cny"></i></cell>-->
+      <cell title="店铺公告" link="/store_topic"></cell>
+      <cell title="优惠管理" link="/coupons"></cell>
+      <cell title="上楼费" link="/floor_fee"></cell>
+      <cell title="保证金" link="/guarantee_fee"></cell>
     </group>
   </div>
 </template>
@@ -21,15 +27,14 @@
 
   export default {
     name: 'my',
-    data () {
-      return {
-      }
+    data() {
+      return {}
     },
     components: {Grid, GridItem, Group, Cell},
-    beforeMount () {
+    beforeMount() {
       me = window.me
     },
-    mounted () {
+    mounted() {
       // me.attachClick()
     },
     /*watch: {
@@ -39,10 +44,10 @@
     computed: {},
     methods: {
       // 向父组件传值
-      setPageStatus (data) {
+      setPageStatus(data) {
         this.$emit('listenPage', data)
       },
-      jumpTo (pathName, param, type) {
+      jumpTo(pathName, param, type) {
         /* [type=2] 1:'path'2:'name',3:'query' */
         type = type || 'name'
         if (pathName) {

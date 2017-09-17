@@ -64,12 +64,10 @@
         vm.isPosting = true
         vm.loadData(userApi.getFloor, null, 'POST', function (res) {
           vm.isPosting = false
-          if (res) {
-            if (res.success && res.data) {
-              vm.params.costSection1 = res.data.costSection1 || 0
-              vm.params.costSection2 = res.data.costSection2 || 0
-              vm.params.costSection3 = res.data.costSection3 || 0
-            }
+          if (res.success && res.data) {
+            vm.params.costSection1 = res.data.costSection1 || 0
+            vm.params.costSection2 = res.data.costSection2 || 0
+            vm.params.costSection3 = res.data.costSection3 || 0
           }
         }, function () {
           vm.isPosting = false

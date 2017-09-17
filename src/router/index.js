@@ -6,7 +6,6 @@ import Login from '@/pages/my/Login'
 import Home from '@/pages/Home'
 import NearBy from '@/pages/NearBy'
 import Ticket from '@/pages/Ticket'
-import Order from '@/pages/Order'
 import Map from '@/components/Amap'
 import Geo from '@/components/Geo'
 import My from '@/pages/My'
@@ -26,6 +25,7 @@ import Topic from '@/pages/store/topic/Topic'
 import Coupons from '@/pages/store/coupons/Coupons'
 import EditCoupon from '@/pages/store/coupons/Edit'
 import FloorFee from '@/pages/store/floor/FloorFee'
+import GuaranteeFee from '@/pages/store/guarantee/GuaranteeFee'
 
 import GoodsItems from '@/pages/goods/Items'
 import Goods from '@/pages/goods/goods/Goods'
@@ -49,7 +49,7 @@ Vue.use(Router)
 
 export default new Router({
   // mode: '',
-  scrollBehavior (to, from, savedPosition) {
+  scrollBehavior(to, from, savedPosition) {
     return {x: 0, y: 0}
   },
   routes: [
@@ -100,6 +100,15 @@ export default new Router({
       }
     },
     {
+      path: '/home/:status',
+      name: 'home',
+      component: Home,
+      meta: {
+        title: '我的小店',
+        keepAlive: false
+      }
+    },
+    {
       path: '/nearby',
       name: 'nearby',
       component: NearBy,
@@ -127,15 +136,6 @@ export default new Router({
       }
     },
     {
-      path: '/order',
-      name: 'order',
-      component: Order,
-      meta: {
-        title: '订单',
-        keepAlive: false
-      }
-    },
-    {
       path: '/user',
       name: 'user',
       component: My,
@@ -150,7 +150,7 @@ export default new Router({
        }] */
     },
     {
-      path: '/edit_user/:id',
+      path: '/edit_user',
       name: 'edit_user',
       component: EditUser,
       meta: {
@@ -209,6 +209,15 @@ export default new Router({
       component: FloorFee,
       meta: {
         title: '上楼费',
+        keepAlive: false
+      }
+    },
+    {
+      path: '/guarantee_fee',
+      name: 'guarantee_fee',
+      component: GuaranteeFee,
+      meta: {
+        title: '保证金',
         keepAlive: false
       }
     },

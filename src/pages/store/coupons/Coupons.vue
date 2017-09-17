@@ -10,11 +10,11 @@
                 refreshText="下拉刷新" noDataText="没有更多数据" snapping>-->
       <!-- content goes here -->
       <swipeout>
-        <swipeout-item @on-close="" @on-open="" transition-mode="follow" :data-id="coupons.id" key="index">
+        <swipeout-item disabled @on-close="" @on-open="" transition-mode="follow" :data-id="coupons.id||0" key="index">
           <div slot="right-menu">
-            <swipeout-button @click.native="onButtonClick('edit',coupons.id)" background-color="orange">编辑
-            </swipeout-button>
-            <swipeout-button @click.native="onButtonClick('delete',coupons.id)" type="warn">删除</swipeout-button>
+            <!--<swipeout-button @click.native="onButtonClick('edit',coupons.id||0)" background-color="orange">编辑-->
+            <!--</swipeout-button>-->
+            <!--<swipeout-button @click.native="onButtonClick('delete',coupons.id||0)" type="warn">删除</swipeout-button>-->
           </div>
           <div slot="content" class="demo-content vux-1px-t">
             <section class="v-items">
@@ -24,15 +24,15 @@
                   <div class="par">
                     <!--<p>{{coupons.sellerName}}</p>-->
                     <div class="content">
-                      <h3 class="value">￥{{coupons.discountAmount | toFixed}}元<sub class="type">满减</sub></h3>
-                      <sub class="sign">（最多抵扣）￥{{coupons.maxDiscountAmount | toFixed}}元</sub>
+                      <h3 class="value">￥{{coupons.discountAmount | toFixed}}元</h3>
+                      <sub class="type">满减</sub>
+                      <sub class="sign">（最多抵扣）￥{{coupons.maxDiscountAmount | toFixed}}</sub>
                       <!--<sub class="type">{{coupons.goodsType | couponType(coupons.goodsType)}}</sub>-->
-
                     </div>
-                    <p class="info">{{coupons.couponNote||'满减优惠'}}</p>
+                    <p class="info">满{{coupons.upAmount}}减{{coupons.discountAmount}}</p>
                   </div>
                   <div class="copy" v-if="!coupons.expired">{{coupons.label}}<p>
-                    {{coupons.createTime.split(' ')[0]+'~'}}{{coupons.expireTime.split(' ')[0]}}
+                    {{coupons.createTime ? (coupons.createTime.split(' ')[0] + '~') : ''}}{{coupons.createTime ? (coupons.expireTime.split(' ')[0]) : ''}}
                   </p>
                   </div>
                   <div class="copy" v-else><span class="exp">已过期</span></div>
@@ -45,7 +45,11 @@
       </swipeout>
       <!--</scroller>-->
     </div>
-    <div class="add-goods" v-jump="['edit_coupon',null,3]" v-if="!coupons.discountAmount"><i class="fa fa-plus"></i>&nbsp添加优惠</div>
+    <div class="btn-bottom" v-jump="['edit_coupon',null,3]" v-if="!coupons.discountAmount"><i class="fa fa-plus"></i>&nbsp添加优惠
+    </div>
+    <div class="btn-bottom edit" @click="edit" v-else><i
+      class="fa fa-pencil"></i>&nbsp编辑当前优惠
+    </div>
   </div>
 </template>
 <!--/* eslint-disable no-unused-vars */-->
@@ -60,17 +64,11 @@
     name: 'my-coupons',
     data() {
       return {
-        show: false,
-        curOrderFilter: '',
         coupons: {},
         params: {
           type: 0,
           pagerSize: 10,
-          pageNo: 1,
-          /* couponNote: '',
-           discountAmount: '',
-           maxDiscountAmount: '',
-           up_amount: ''*/
+          pageNo: 1
         },
         noMore: false,
         isPosting: false
@@ -100,7 +98,7 @@
           vm.processing(0, 1)
           var resD = res.data
           if (res.data) {
-            resD.expired = !me.compareCurrentDate(resD.expireTime)
+            resD.expired = me.compareCurrentDate(resD.expireTime)
           }
           vm.coupons = resD
           console.log(vm.coupons, '优惠券数据')
@@ -117,6 +115,12 @@
             vm.isPosting = false
           })
         }, function () {
+        })
+      },
+      edit() {
+        this.$router.push({
+          name: 'edit_coupon',
+          query: {linedata: window.encodeURIComponent(JSON.stringify(vm.coupons))}
         })
       },
       onButtonClick(type, id) {
@@ -136,7 +140,7 @@
 
   .my-coupons {
     height: 100%;
-    .bf;
+    .bf5;
     overflow-y: auto;
   }
 
@@ -153,7 +157,8 @@
 
   .coupon-list {
     .borBox;
-    padding: 10px 0 20px 0;
+    padding: 20px 0 20px 0;
+    .bf;
     .v-items {
       .borBox;
       width: 100%;
@@ -220,20 +225,25 @@
             .fz(24);
           }
           .content {
+            .rel;
             padding: 10/@rem 0;
-            .value{
+            .value {
               .fz(48);
               color: #fff;
               font-weight: normal;
               margin-right: 14/@rem;
               line-height: 60/@rem;
-              sub{
-                .fr;
-                .fz(24);
-                color: rgba(255, 255, 255, .8);
-              }
             }
-            .sign{
+            .type {
+              .abs;
+              top: 20/@rem;
+              right: 20/@rem;
+              padding:0 2px;
+              .bor(1px,solid, #fff);
+              .fz(24);
+              color: rgba(255, 255, 255, .8);
+            }
+            .sign {
               .block;
               .fz(24);
               color: rgba(255, 255, 255, .8);
@@ -353,7 +363,7 @@
     }
   }
 
-  .add-goods {
+  .btn-bottom {
     .fix;
     bottom: 0;
     width: 100%;
@@ -365,5 +375,8 @@
     .cf;
     .fz(28);
     .bdiy(@c2);
+    &.edit {
+      background: #f1a83f;
+    }
   }
 </style>

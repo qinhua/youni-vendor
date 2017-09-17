@@ -31,18 +31,18 @@
     mounted() {
       vm = this
       // 检测用户是否登录
-//      if (vm.$store.state.global.wxInfo) {
+      // if (vm.$store.state.global.wxInfo) {
       if (me.isWeixin) {
         // wx授权页面
         vm.getWxInfo(function (info) {
           /* 保存用户信息 */
           window.youniMall.userAuth = vm.$store.state.global.wxInfo = info
           me.locals.set('ynWxUser', JSON.stringify({data: info, timeStamp: me.formatDate(new Date(), null, 1)}))
-          vm.$router.push({path: '/home'})
+          vm.goBeforePage()
         })
       } else {
         // 外部登录页面
-//          location.href='https://open.weixin.qq.com/connect/oauth2/authorize?appid=123456&connect_redirect=1#wechat_redirect'
+        // location.href='https://open.weixin.qq.com/connect/oauth2/authorize?appid=123456&connect_redirect=1#wechat_redirect'
 
         /*测试专用*/
         var info = {
@@ -58,7 +58,8 @@
         }
         window.youniMall.userAuth = vm.$store.state.global.wxInfo = info
         me.locals.set('ynWxUser', JSON.stringify({data: info, timeStamp: me.formatDate(new Date(), null, 1)}))
-        vm.$router.push({path: '/home'})
+        // vm.jump('/home')
+        vm.goBeforePage()
       }
       /*} else {
        vm.$router.push({path: '/home'})
@@ -80,7 +81,6 @@
           }, function (res) {
             me.lightPop('拉取用户信息失败！')
           })
-
           // window.location.href = 'https://api.weixin.qq.com/sns/oauth2/access_token?appid=' + vm.appId + '&secret=' + vm.appSecret + '&code=' + urlParam.code + '&grant_type=authorization_code'
           // location.href = 'https://api.weixin.qq.com/sns/userinfo?access_token=' + resD.access_token + '&openid=' + resD.openid + '&lang=zh_CN'
         } else {
@@ -90,8 +90,9 @@
       // 02.wx外部登录
       login() {
       },
-      goBeforeLoginUrl() {
-        let url = me.locals.get('beforeLoginUrl')
+      // 03.返回判断
+      goBeforePage() {
+        let url = me.locals.get('beforeLoginUrl') || '/login'
         if (!url || url.indexOf('/author') !== -1) {
           this.$router.push({path: '/home'})
         } else {

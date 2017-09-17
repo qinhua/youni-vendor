@@ -39,27 +39,39 @@
     },
     mounted() {
       vm = this
-      me.attachClick()
       vm.params.phone = vm.$route.query.phone || null
       vm.params.passwd = vm.$route.query.psw || null
+      vm.checkServer()
     },
-    /*watch: {
+    watch: {
       '$route'(to, from) {
+        if(to.name==='login'){
+          vm.checkServer()
+        }
       }
-    },*/
+    },
     methods: {
+      // 01.检查是否登录
       checkServer() {
-        // 检测是否登录
+        if(!me.locals.get('ynWxUser')){
+          me.locals.set('beforeLoginUrl', '/login')
+          vm.jump('author')
+        }
         vm.loadData(commonApi.login, null, 'POST', function (res) {
+          vm.processing()
           if (res.data.success) {
+            vm.processing(0, 1)
+            vm.jump('home')
             /* 保存用户信息 */
-            me.locals.set('ynVendorLogin', me.formatDate(new Date(), null, 1))
             vm.$store.commit('storeData', {key: 'isLogin', data: true})
-            vm.$router.push({path: '/home'})
+            me.sessions.set('ynLogin', true)
+          }else{
+            //vm.jump('login')
           }
         }, function () {
         })
       },
+      // 02.登录
       login() {
         if (vm.isPosting) return false
         if (!vm.params.phone) {
@@ -83,20 +95,27 @@
             vm.isPosting = false
             vm.toast('登录成功 ！')
             /* 保存用户信息 */
-            // me.locals.set('ynVendorLogin', me.formatDate(new Date(), null, 1))
             vm.$store.commit('storeData', {key: 'isLogin', data: true})
-            // if (vm.lastPage === 'regist' || vm.lastPage === 'login') {
+            me.sessions.set('ynLogin', true)
+            // vm.goBeforePage()
             vm.jump('home')
-            /*} else {
-              vm.$router.back()
-            }*/
           } else {
-            vm.toast(res.message || '手机号或密码错误 ！')
+            vm.toast('手机号或密码错误 ！')
           }
         }, function () {
           vm.isPosting = false
           vm.processing(0, 1)
         })
+      },
+      // 03.返回判断
+      goBeforePage() {
+        let url = me.locals.get('beforeLoginUrl')
+        if (!url || url.indexOf('/login') !== -1) {
+          this.$router.push({path: '/home'})
+        } else {
+          this.$router.push({path: url})
+          me.locals.set('beforeLoginUrl', '')
+        }
       }
     }
   }

@@ -35,26 +35,29 @@ const ticketApi = {
 const orderApi = {
   list: host + '/order/list',
   del: host + '/order/del',
-  push: host + '/order/push',
   cancel: host + '/order/cancel',
+  count: host + '/order/count',
   dispatcher: host + '/orderDispatchProgess/list',
   dispatch: host + '/orderDispatchProgess/add',
-  updateOrder: host + '/home/updateOrder'
+  updateOrderStatus: host + '/order/updateOrderStatus'
 }
 const clientApi = {
-  list: host + '/home/order',
-  updateOrder: host + '/home/updateOrder'
+  list: host + '/user/list',
+  del: host + '/order/del',
+  block: host + '/order/block',
+  updateOrder: host + '/home/updateOrder',
+  depositList: host + '/userDeposit/sellerDepositList'
 }
 const userApi = {
-  view: host + '/seller/view',
+  get: host + '/seller/get',
+  update: host + '/seller/updateSeller',
   set: host + '/seller/set',
   code: host + '/seller/code',
   userInfo: host + '/seller/userInfo',
-  updateSeller: host + '/seller/updateSeller',
   getFloor: host + '/floorCost/get',
-  addFloor: host + '/floorCost/add',
+  addFloor: host + '/floorCost/add'
 }
-const couponApi={
+const couponApi = {
   get: host + '/sellerCoupon/get',
   add: host + '/sellerCoupon/add',
   update: host + '/sellerCoupon/update',
@@ -67,13 +70,13 @@ const statisticApi = {
 const commonApi = {
   wxAuth: host + '/weixin/auth',
   login: host + '/seller/login',
+  logout: host + '/seller/logout',
   regist: host + '/seller/applySeller',
-  caclu: host + '/order/calcuPrice',
   dict: host + '/common/dictList',
   uploadImg: host + '/file/uploadImage',
   sendSms: host + '/common/sendSms',
   checkCode: host + '/common/checkSmsCode'
 }
-console.log('当前域名：%c' + host, 'color:red;font-size:14px;font-weight:bold')
+// console.log('当前域名：%c' + host, 'color:red;font-size:14px;font-weight:bold')
 // console.log('当前API：%c' + JSON.stringify(homeApi, null, 2), 'color:orange;font-size:14px')
-export {commonApi, homeApi, nearbyApi, ticketApi, orderApi, clientApi,couponApi, userApi, goodsApi, statisticApi}
+export {commonApi, homeApi, nearbyApi, ticketApi, orderApi, clientApi, couponApi, userApi, goodsApi, statisticApi}

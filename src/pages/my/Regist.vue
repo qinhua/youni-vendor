@@ -5,8 +5,6 @@
         <x-input title="商家名称：" placeholder="商家名称" text-align="right" required v-model="params.name"></x-input>
         <x-input title="商家电话：" placeholder="您的手机号" text-align="right" type="tel" required
                  v-model="params.phone"></x-input>
-        <!--<x-input title="登录密码：" placeholder="登录密码" type="password" text-align="right" required
-                 v-model="params.passwd"></x-input>-->
         <x-input title="公司名称：" placeholder="公司名称" required text-align="right" v-model="params.companyName"></x-input>
       </group>
       <group class="bottom">
@@ -28,9 +26,17 @@
         </x-address>
         <x-input title="详细地址：" placeholder="输入详细地址" required readonly text-align="right" v-model="tmpAddress.detail"
                  @click.native="choosePoint"></x-input>
-        <img-uploader title="营业执照" :api="fileApi" :limit="1" @on-uploaded="getImgUrl"></img-uploader>
+        <!--<div class="upload-group-row">
+          <img-uploader ref="imgPicker01" title="店铺头像" :api="fileApi" :limit="1"
+                        @on-uploaded="getImgUrl(1)"></img-uploader>-->
+        <img-uploader ref="imgPicker02" title="营业执照" :api="fileApi" :limit="1"
+                      @on-uploaded="getImgUrl"></img-uploader>
+        <!--</div>-->
+        <x-input title="登录密码：" placeholder="登录密码" type="password" text-align="right" required
+                 v-model="params.passwd"></x-input>
         <x-input title="验证码：" class="weui-vcode" v-model="params.smsCode">
-          <x-button class="btn-vercode" slot="right" type="primary" mini :disabled="btnStatus" @click.native="getCode">{{btnText}}
+          <x-button class="btn-vercode" slot="right" type="primary" mini :disabled="btnStatus" @click.native="getCode">
+            {{btnText}}
           </x-button>
         </x-input>
       </group>
@@ -81,7 +87,7 @@
         params: {
           name: '',
           phone: '',
-          // passwd: '',
+          passwd: '',
           companyName: '',
           address: '',
           lat: '',
@@ -101,14 +107,12 @@
     },
     mounted() {
       vm = this
-      // me.attachClick()
-//        vm.levels = vm.$store.commit('getFromDict', 'seller_level')
     },
     methods: {
       getMap(data) {
         vm.showMap = false;
         console.log(data, 'home amap info')
-        if(data) {
+        if (data) {
           vm.params.lon = data.lng
           vm.params.lat = data.lat
           vm.tmpAddress.detail = data.name
@@ -167,7 +171,9 @@
             vm.btnStatus = false
           }, 60000)*/
           vm.btnStatus = true
-          me.verCodeBtn(60,'.btn-vercode',function(){vm.btnStatus = false})
+          me.verCodeBtn(60, '.btn-vercode', function () {
+            vm.btnStatus = false
+          })
           vm.isPosting = false
         }, function () {
           vm.isPosting = false
@@ -206,10 +212,10 @@
           vm.toast('请填写正确的手机号！', 'warn')
           return false
         }
-        /*if (!vm.params.passwd) {
-         vm.toast('请填写登录密码！')
-         return false
-         }*/
+        if (!vm.params.passwd) {
+          vm.toast('请填写登录密码！')
+          return false
+        }
         if (!vm.params.companyName) {
           vm.toast('请填写公司名！', 'warn')
           return false
@@ -313,11 +319,21 @@
     .bottom {
       margin-top: 10/@rem;
     }
+    .upload-group-row {
+      .borBox;
+      padding: 0 24/@rem;
+      overflow: hidden;
+      .upload-group {
+        padding: 0;
+        width: 50%;
+        .fl;
+      }
+    }
     .vux-no-group-title {
       margin-top: 0;
       .vux-x-input {
         padding: 24/@rem 30/@rem;
-        input{
+        input {
           .ellipsis;
         }
       }

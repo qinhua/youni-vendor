@@ -60,7 +60,7 @@
   let vm
   import Home from './pages/Home'
   import Geo from './components/Geo'
-  import {commonApi} from './service/main.js'
+  import {userApi} from './service/main.js'
   import {Tabbar, TabbarItem} from 'vux'
   import {mapState, mapActions} from 'vuex'
 
@@ -82,6 +82,7 @@
     mounted() {
       // me.attachClick()
       vm = this
+      vm.getSeller()
     },
     computed: {
       'showTabbar'() {
@@ -102,6 +103,17 @@
         console.log(data, 'home geo info')
         this.geo = data
       },
+      getSeller() {
+        var localSeller = vm.$store.state.global.userInfo || me.sessions.get('ynSellerInfo')
+        if (localSeller) return false
+        vm.loadData(userApi.get, null, 'POST', function (res) {
+          vm.isPosting = false
+          if (res.success && res.data) {
+            vm.$store.commit('storeData', {key:'userInfo',data: res.data})
+            me.sessions.set('ynSellerInfo', JSON.stringify(res.data))
+          }
+        })
+      },
     },
     watch: {
       '$route'(to, from) {
@@ -116,7 +128,7 @@
          const toDepth = to.path.split('/').length
          const fromDepth = from.path.split('/').length
          vm.direction = toDepth < fromDepth ? 'forward' : 'reverse' */
-//        vm.showTabbar = true
+        // vm.showTabbar = true
         switch (to.name) {
           case 'home':
             vm.curSelected = 1
@@ -134,8 +146,7 @@
             vm.curSelected = 5
             break
           default:
-//            vm.showTabbar = false
-            break
+            vm.curSelected = 1
         }
       }
     }

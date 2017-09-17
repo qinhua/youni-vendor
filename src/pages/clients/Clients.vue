@@ -4,7 +4,6 @@
       <search
         @result-click="resultClick"
         @on-change="getResult"
-        :results="results"
         v-model="value"
         placeholder="输入手机号、昵称等搜索"
         position="absolute"
@@ -19,24 +18,24 @@
                 refreshText="下拉刷新" noDataText="没有更多数据" snapping>
         <!-- content goes here -->
         <swipeout>
-          <swipeout-item @on-close="" @on-open="" transition-mode="follow" v-for="(item, index) in clients"
-                         :data-id="item.id" :data-orderNumber="item.orderNumber" key="index">
+          <swipeout-item @on-close="" @on-open="" transition-mode="follow" v-for="(item, index) in results"
+                         :data-id="item.id" key="index">
             <div slot="right-menu">
-              <!--<swipeout-button @click.native="onButtonClick('fav')" type="primary">yes</swipeout-button>-->
-              <swipeout-button @click.native="onButtonClick('delete')" type="warn">删除</swipeout-button>
+              <swipeout-button @click.native="onButtonClick('block',item.id)" type="primary">拉黑</swipeout-button>
+              <swipeout-button @click.native="onButtonClick('delete',item.id)" type="warn">删除</swipeout-button>
             </div>
             <div slot="content" class="demo-content vux-1px-t">
               <section class="v-items">
                 <section class="wrap">
-                  <img :src="item.imgurl">
+                  <img :src="item.headimgurl">
                   <div class="info-con">
-                    <h3>倪香菇</h3>
-                    <div class="nums"><span>下单数：30</span><span>成交数：25</span></div>
-                    <div class="progress">
+                    <h3>{{item.nickname}}</h3>
+                    <div class="nums"><span>订单数：30</span><span>已完成：25</span></div>
+                    <!--<div class="progress">
                       <div style='width:150px;height:150px;'>
                         <x-progress :percent="35" :showCancel="false"></x-progress>
                       </div>
-                    </div>
+                    </div>-->
                   </div>
                 </section>
               </section>
@@ -52,49 +51,49 @@
   /* eslint-disable */
   let me
   let vm
-  import {Search, Swipeout, SwipeoutItem, SwipeoutButton, XProgress} from 'vux'
+  import {Search, Swipeout, SwipeoutItem, SwipeoutButton} from 'vux'
   import {clientApi} from '../../service/main.js'
 
   export default {
     name: 'clients-con',
     data() {
       return {
-        sellerId: null,
         value: '',
         results: [],
         clients: [],
         isPosting: false,
-        onFetching: false
+        onFetching: false,
+        noMore: false,
+        params: {
+          pagerSize: 10,
+          pageNo: 1
+        }
       }
     },
-    components: {Search, Swipeout, SwipeoutItem, SwipeoutButton, XProgress},
+    components: {Search, Swipeout, SwipeoutItem, SwipeoutButton},
     beforeMount() {
       me = window.me
     },
     mounted() {
       vm = this
-      vm.sellerId = vm.$store.state.global.sellerId
       vm.getClients()
       vm.$nextTick(() => {
         vm.$refs.clientScroller.finishInfinite(true)
         vm.$refs.clientScroller.resize()
       })
     },
-    computed: {},
-    /*watch: {
+    /*computed: {},
+    watch: {
       '$route'(to, from) {
       }
     },*/
     methods: {
-      onButtonClick(type) {
-        alert('on button click ' + type)
-      },
-      // 向父组件传值
-      setPageStatus(data) {
-        this.$emit('listenPage', data)
-      },
-      toAppraise(id) {
-        this.$router.push({path: '/appraise' + (param ? '/' + param : '')})
+      onButtonClick(type, id) {
+        if (type === 'delete') {
+          vm.del(id)
+        } else {
+          vm.block(id)
+        }
       },
       refresh(done) {
         console.log('下拉加载')
@@ -112,28 +111,47 @@
       },
       getClients(isLoadMore) {
         if (vm.onFetching) return false
+        !isLoadMore ? vm.params.pageNo = 1 : vm.params.pageNo++
         vm.processing()
         vm.onFetching = true
-        vm.loadData(clientApi.list, {id: vm.sellerId}, 'POST', function (res) {
-          var resD = res.data.itemList
-          if (!isLoadMore) {
-            vm.clients = resD
-          } else {
-            vm.clients.push(resD)
-          }
-          console.log(vm.clients, '客户数据')
+        vm.loadData(clientApi.list, vm.params, 'POST', function (res) {
           vm.onFetching = false
           vm.processing(0, 1)
+          var resD = res.data.pager
+          if (!isLoadMore) {
+            if (resD.totalCount < vm.params.pageSize) {
+              vm.noMore = true
+            } else {
+              vm.noMore = false
+            }
+            vm.clients = resD.itemList
+          } else {
+            resD.itemList.length ? vm.clients.concat(resD.itemList) : vm.noMore = true
+          }
+          vm.results = vm.clients.slice(0)
+          // console.log(vm.clients, '客户数据')
         }, function () {
           vm.onFetching = false
           vm.processing(0, 1)
         })
       },
-      delOrder(id) {
+      block(id) {
         if (vm.isPosting) return false
-        vm.confirm('确认删除？', '订单删除后不可恢复！', function () {
+        vm.confirm('确认屏蔽此客户？', null, function () {
           vm.isPosting = true
-          vm.loadData(orderApi.delOrder + '?id=' + id, vm.params, 'POST', function (res) {
+          vm.loadData(clientApi.block, {id: id}, 'POST', function (res) {
+            vm.isPosting = false
+          }, function () {
+            vm.isPosting = false
+          })
+        }, function () {
+        })
+      },
+      del(id) {
+        if (vm.isPosting) return false
+        vm.confirm('确认删除？', null, function () {
+          vm.isPosting = true
+          vm.loadData(clientApi.del, {id: id}, 'POST', function (res) {
             vm.isPosting = false
           }, function () {
             vm.isPosting = false
@@ -142,15 +160,18 @@
         })
       },
       resultClick(item) {
-        window.alert('you click the result item: ' + JSON.stringify(item))
       },
       getResult(val) {
         if (val) {
-          this.results = []
-          vm.getClients(false, val)
+          vm.results = []
+          // vm.getClients()
           for (let i = 0; i < vm.clients.length; i++) {
-            this.results.push({title: vm.clients[i].productName})
+            if (vm.clients[i].nickname.indexOf(val) > -1) {
+              vm.results.push(vm.clients[i])
+            }
           }
+        } else {
+          vm.results = vm.clients
         }
       },
       onSubmit() {
@@ -186,45 +207,48 @@
         z-index: 20;
       }
     }
-  }
 
-  .clients-list {
-    .inner-scroller {
-      .borBox;
-      padding: 44px 0 50px;
-      .v-items {
+    .clients-list {
+      .vux-swipeout-button-primary {
+        background: #5d5454;
+      }
+      .inner-scroller {
         .borBox;
-        height: 150/@rem;
-        margin-bottom: 10/@rem;
-        .bf;
-        .wrap {
-          padding: 14/@rem 20/@rem;
-          img {
-            .size(80, 80);
-            .abs-center-vertical;
-            left: 20/@rem;
-            .borR(50%);
-          }
-          .info-con {
-            .borBox;
-            padding: 0 14/@rem 0 100/@rem;
-            h3 {
-              padding-bottom: 10/@rem;
-              .txt-normal;
-              .c3;
-              .fz(26);
-              .ellipsis-clamp-2;
+        padding: 44px 0 50px;
+        .v-items {
+          .borBox;
+          /*height: 150/@rem;*/
+          margin-bottom: 10/@rem;
+          .bf;
+          .wrap {
+            padding: 14/@rem 20/@rem;
+            img {
+              .size(80, 80);
+              .abs-center-vertical;
+              left: 20/@rem;
+              .borR(50%);
             }
-            .nums {
-              .fz(22);
-              span {
-                padding-right: 20/@rem;
+            .info-con {
+              .borBox;
+              padding: 0 14/@rem 0 100/@rem;
+              h3 {
+                padding-bottom: 10/@rem;
+                .txt-normal;
+                .c3;
+                .fz(26);
+                .ellipsis-clamp-2;
               }
-            }
-            .progress {
-              padding: 20/@rem 0;
-              > div {
-                height: auto;
+              .nums {
+                .fz(22);
+                span {
+                  padding-right: 20/@rem;
+                }
+              }
+              .progress {
+                padding: 20/@rem 0;
+                > div {
+                  height: auto;
+                }
               }
             }
           }
@@ -232,4 +256,5 @@
       }
     }
   }
+
 </style>

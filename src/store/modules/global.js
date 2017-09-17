@@ -166,6 +166,11 @@ export default {
     },
     logout(state) {
       state.wxInfo = null
+      state.userInfo = null
+      state.isLogin = false
+      me.sessions.remove('ynLogin')
+      me.sessions.remove('ynSellerInfo')
+      me.locals.remove('ynWxUser')
     },
     /* 更新路由方向 */
     updateDirection(state, payload) {

@@ -3,28 +3,32 @@
     <!--<router-view></router-view>-->
     <div class="user-modal">
       <div class="user-inner">
-        <img :src="avatar">
-        <p class="user-name">{{sellerName}}</p>
+        <img :src="seller.headimgurl">
+        <p class="user-name">{{seller.name}}</p>
+        <!--<span><i class="fa fa-building-o"></i>&nbsp;{{seller.companyName}}</span>-->
       </div>
     </div>
     <group class="list-modal">
-      <cell title="店铺资料" link="/edit_user/255">
-        <i slot="icon" width="20" style="margin-right:5px;" class="fa fa-credit-card"></i>
+      <cell title="店铺资料" link="/edit_user">
+        <!--<i slot="icon" width="20" style="margin-right:5px;" class="fa fa-credit-card"></i>-->
       </cell>
       <cell title="押金列表" link="/myguarantee">
-        <i slot="icon" width="20" style="margin-right:5px;" class="fa fa-money"></i>
+        <!--<i slot="icon" width="20" style="margin-right:5px;" class="fa fa-money"></i>-->
       </cell>
-      <cell title="使用帮助" link="/help"><i slot="icon" width="20" style="margin-right:5px;"
-                                         class="fa fa-question-circle"></i></cell>
-      <cell title="关于友你" link="/aboutus"><i slot="icon" width="20" style="margin-right:5px;"
-                                            class="fa fa-info-circle"></i></cell>
+      <cell title="使用帮助" link="/help">
+        <!--<i slot="icon" width="20" style="margin-right:5px;" class="fa fa-question-circle"></i>-->
+      </cell>
+      <cell title="关于友你" link="/aboutus">
+        <!--<i slot="icon" width="20" style="margin-right:5px;" class="fa fa-info-circle"></i>-->
+      </cell>
     </group>
     <group class="bottom">
-      <cell title="修改密码" style="color:#666" @click.native="modPassword"><i slot="icon" width="20"
+      <!--<cell title="修改密码" style="color:#666" @click.native="modPassword"><i slot="icon" width="20"
                                                                            style="margin-right:5px;"
-                                                                           class="fa fa-wrench"></i></cell>
-      <cell title="退出登录" style="color:#666" @click.native="logout"><i slot="icon" width="20" style="margin-right:5px;"
-                                                                      class="fa fa-sign-out"></i></cell>
+                                                                           class="fa fa-wrench"></i></cell>-->
+      <cell title="退出登录" style="color:#666" @click.native="logout">
+        <!--<i slot="icon" width="20" style="margin-right:5px;" class="fa fa-sign-out"></i>-->
+      </cell>
     </group>
   </div>
 </template>
@@ -34,14 +38,13 @@
   let me
   let vm
   import {Grid, GridItem, Group, Cell} from 'vux'
-  import {userApi} from '../service/main.js'
+  import {commonApi, userApi} from '../service/main.js'
 
   export default {
     name: 'my',
     data() {
       return {
-        sellerName: '',
-        avatar: ''
+        seller: {}
       }
     },
     components: {Grid, GridItem, Group, Cell},
@@ -51,34 +54,38 @@
     mounted() {
       // me.attachClick()
       vm = this
-      vm.avatar = vm.$store.state.global.wxInfo.headimgurl
-      vm.sellerName = '大衣水颗'
       vm.getSeller()
     },
-    /* watch: {
-       '$route'(to, from) {
-       }
-     },
-    computed: {},*/
+    watch: {
+      '$route'(to, from) {
+        if (to.name === 'user') {
+          vm.getSeller()
+        }
+      }
+    },
+    // computed: {},
     methods: {
-      // 向父组件传值
-      setPageStatus(data) {
-        this.$emit('listenPage', data)
-      },
       getSeller() {
-        vm.loadData(userApi.view, null, 'POST', function (res) {
-          if (res.success) {
-            var resD = res.data
-            vm.avatar = resD.imgurl
-            vm.sellerName = resD.name
+        if (vm.isPosting) return false
+        vm.isPosting = true
+        vm.loadData(userApi.get, null, 'POST', function (res) {
+          vm.isPosting = false
+          if (res.success && res.data) {
+            vm.seller = res.data
           }
         }, function () {
+          vm.isPosting = false
         })
       },
       logout() {
         vm.confirm('退出登录？', '', function () {
-          vm.$store.commit('logout')
-          vm.$router.push({name: 'login'})
+          vm.loadData(commonApi.logout, null, 'POST', function (res) {
+            if (res.success) {
+              vm.$store.commit('logout')
+              vm.jump('login')
+            }
+          }, function () {
+          })
         })
       },
       modPassword() {
@@ -93,6 +100,7 @@
   @import '../../static/css/tools.less';
 
   .my {
+    .disable-sel;
     padding-bottom: 150/@rem;
     overflow-x: hidden;
     .user-modal {
@@ -103,13 +111,14 @@
       .user-inner {
         .rel;
         z-index: 2;
-        padding: 50/@rem 20/@rem;
+        padding: 50/@rem 20/@rem 30/@rem;
         > img {
           .block;
           .size(130, 130);
           .ma-w(100);
           .ma-h(100);
           .ma;
+          background: rgba(255, 255, 255, .5);
           .bor(3px, solid, #fff);
           .borR(50%);
           box-shadow: 0 0 0 5px rgba(255, 255, 255, .4), 0 0 0 11px rgba(255, 255, 255, .2)
@@ -122,6 +131,12 @@
           i {
             padding-left: 10/@rem;
           }
+        }
+        span {
+          opacity: .8;
+          .center;
+          .fz(22);
+          .ce;
         }
       }
       canvas {

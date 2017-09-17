@@ -1,12 +1,18 @@
 <template>
   <div class="tickets-con" v-cloak>
     <tab class="tickets-tab" bar-active-color="#f34c18">
-      <tab-item :selected="!params.saleStatus?true:false" @on-item-click="filterStatus"><i class="fa fa-th-large"></i>&nbsp;全部
+      <!--<tab-item :selected="!params.saleStatus?true:false" @on-item-click="filterStatus"><i class="fa fa-th-large"></i>&nbsp;全部
       </tab-item>
       <tab-item :selected="params.saleStatus===1?true:false" @on-item-click="filterStatus(1)"><i
         class="fa fa-podcast"></i>&nbsp;出售
       </tab-item>
       <tab-item :selected="params.saleStatus===2?true:false" @on-item-click="filterStatus(2)"><i class="fa fa-plug"></i>&nbsp;停售
+      </tab-item>-->
+      <tab-item :selected="!params.saleStatus?true:false" @on-item-click="filterStatus">全部
+      </tab-item>
+      <tab-item :selected="params.saleStatus===1?true:false" @on-item-click="filterStatus(1)">出售
+      </tab-item>
+      <tab-item :selected="params.saleStatus===2?true:false" @on-item-click="filterStatus(2)">停售
       </tab-item>
     </tab>
     <div class="tickets-list">
@@ -70,7 +76,7 @@
           pagerSize: 10,
           pageNo: 1,
         },
-        noMore:false,
+        noMore: false,
         isPosting: false
       }
     },
@@ -81,7 +87,7 @@
     mounted() {
       vm = this
       vm.getTickets()
-      vm.$nextTick(function() {
+      vm.$nextTick(function () {
         vm.$refs.ticketScroller.finishInfinite(true)
         vm.$refs.ticketScroller.resize()
       })
@@ -112,7 +118,7 @@
         vm.processing()
         vm.loadData(ticketApi.list, vm.params, 'POST', function (res) {
           vm.isPosting = false
-          vm.processing(0,1)
+          vm.processing(0, 1)
           var resD = res.data.pager
           if (!isLoadMore) {
             vm.goods = res.data.itemList
@@ -145,14 +151,14 @@
         }, 1000)
       },
       filterStatus(status) {
-        vm.params.saleStatus = status || 0
+        status ? vm.params.saleStatus = status : delete vm.params.saleStatus
         vm.getTickets()
       },
       delTicket(id) {
         if (vm.isPosting) return false
         vm.confirm('确认删除？', '水票删除后不可恢复！', function () {
           vm.isPosting = true
-          vm.loadData(ticketApi.delTicket, {id:id}, 'POST', function (res) {
+          vm.loadData(ticketApi.delTicket, {id: id}, 'POST', function (res) {
             vm.isPosting = false
           }, function () {
             vm.isPosting = false
@@ -163,7 +169,7 @@
       setState(id, status) {
         if (vm.isPosting) return false
         vm.isPosting = true
-        vm.loadData(ticketApi.setSaleStatus, {id: id, saleStatus: status}, 'POST', function (res) {
+        vm.loadData(ticketApi.update, {id: id, saleStatus: status}, 'POST', function (res) {
           vm.isPosting = false
           vm.toast(status === 1 ? '上架成功' : '已下架')
           vm.getTickets()
@@ -267,7 +273,7 @@
                 padding-right: 40/@rem;
                 .cdiy(@c2);
               }
-              .order-info{
+              .order-info {
                 .fr;
               }
             }

@@ -1,12 +1,18 @@
 <template>
   <div class="goods-con" v-cloak>
     <tab class="goods-tab" bar-active-color="#f34c18">
-      <tab-item :selected="!params.saleStatus?true:false" @on-item-click="filterStatus"><i class="fa fa-th-large"></i>&nbsp;全部
+      <!--<tab-item :selected="!params.saleStatus?true:false" @on-item-click="filterStatus"><i class="fa fa-th-large"></i>&nbsp;全部
       </tab-item>
       <tab-item :selected="params.saleStatus===1?true:false" @on-item-click="filterStatus(1)"><i
         class="fa fa-podcast"></i>&nbsp;出售
       </tab-item>
       <tab-item :selected="params.saleStatus===2?true:false" @on-item-click="filterStatus(2)"><i class="fa fa-plug"></i>&nbsp;停售
+      </tab-item>-->
+      <tab-item :selected="!params.saleStatus?true:false" @on-item-click="filterStatus">全部
+      </tab-item>
+      <tab-item :selected="params.saleStatus===1?true:false" @on-item-click="filterStatus(1)">出售
+      </tab-item>
+      <tab-item :selected="params.saleStatus===2?true:false" @on-item-click="filterStatus(2)">停售
       </tab-item>
     </tab>
     <div class="goods-list">
@@ -25,10 +31,10 @@
             <div class="info-con">
               <h3>{{item.name}}</h3>
               <section class="middle">
-                <span class="unit-price">售价：￥{{item.price}}</span>
-                <span class="order-info">已售：{{item.saleCount}}</span>
+                <span class="unit-price">售价：￥{{item.price}}元</span>
+                <span class="order-info">已售：{{item.saleCount}}件</span>
               </section>
-              <label>库存：{{item.stock}}</label>
+              <label>库存：{{item.stock}}件</label>
             </div>
             <!--<div class="price-con">-->
             <!--<p class="price">￥{{item.price}}</p>-->

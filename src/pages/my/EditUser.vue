@@ -2,10 +2,7 @@
   <div class="seller-edit" v-cloak>
     <div class="f-wrap" v-if="!showMap">
       <group>
-        <x-input title="店铺名称：" placeholder="店铺名称" required text-align="right" v-model="storeName"></x-input>
-        <x-textarea title="店铺简介：" :max="20" placeholder="店铺简介" @on-blur="" v-model="description"
-                    show-clear></x-textarea>
-        <x-input title="认证信息：" placeholder="认证信息" text-align="right" v-model="authInfo"></x-input>
+        <x-input title="店铺名称：" placeholder="店铺名称" required text-align="right" v-model="params.name"></x-input>
         <img-uploader title="店铺头像" :api="fileApi" :limit="1" @on-uploaded="getImgUrl"></img-uploader>
       </group>
       <group class="bottom">
@@ -17,10 +14,12 @@
         </span>
           </template>
         </x-address>
-        <x-input title="详细地址：" placeholder="输入详细地址" required readonly text-align="right" v-model="detailAddress"
+        <x-input title="详细地址：" placeholder="输入详细地址" required readonly text-align="right" v-model="tmpAddress.detail"
                  @click.native="choosePoint"></x-input>
+        <x-textarea title="店铺简介：" :max="20" placeholder="店铺简介" @on-blur="" v-model="params.note"
+                    show-clear></x-textarea>
       </group>
-      <div class="btn btn-save" @click="updateStore"><i class="fa fa-save"></i>&nbsp;保存</div>
+      <div class="btn btn-save" @click="updateSeller"><i class="fa fa-save"></i>&nbsp;保存</div>
     </div>
     <amap @on-receive-data="getMap" v-if="showMap"></amap>
   </div>
@@ -30,54 +29,39 @@
   /* eslint-disable no-unused-vars */
   let me
   let vm
-  import {Group, Cell, XInput,XTextarea, XAddress, ChinaAddressV3Data} from 'vux'
-  import {commonApi,userApi} from '../../service/main.js'
+  import {Group, Cell, XInput, XTextarea, XAddress, ChinaAddressV3Data} from 'vux'
+  import {commonApi, userApi} from '../../service/main.js'
   import imgUploader from '../../components/ImgUploader.vue'
   import Amap from '../../components/Amap.vue'
 
   export default {
     name: 'seller-edit',
-    data () {
+    data() {
       return {
         fileApi: commonApi.uploadImg,
         showMap: false,
         isPosting: false,
         addressData: ChinaAddressV3Data,
-        seller:{},
-        sellerId: null,
-        storeName: '',
-        authInfo: '',
-        description: '',
-        topic: '',
-        area: '',
-        detailAddress: '',
-        params:{
-          storeImg: '',
-          lon:'',
-          lat:'',
-          address:''
-        }
+        tmpAddress: {province: '', city: '', detail: ''},
+        params: {}
       }
     },
     components: {Group, Cell, XInput, XTextarea, XAddress, ChinaAddressV3Data, imgUploader, Amap},
-    beforeMount () {
+    beforeMount() {
       me = window.me
     },
-    mounted () {
+    mounted() {
       vm = this
-      // me.attachClick()
-      vm.sellerId = vm.$route.params.id
-      console.log(vm.sellerId)
       vm.getSeller()
     },
     methods: {
       getMap(data) {
         vm.showMap = false;
         console.log(data, 'home amap info')
-        if(data){
+        if (data) {
           vm.params.lon = data.lng
           vm.params.lat = data.lat
-          vm.detailAddress = data.name
+          vm.tmpAddress.detail = data.name
         }
       },
       choosePoint() {
@@ -88,70 +72,92 @@
       },
       getImgUrl(data) {
         if (me.isArray(data)) {
-          vm.params.storeImg = data.join(',')
+          vm.params.headimgurl = data.join(',')
         } else {
-          vm.params.storeImg = ''
+          vm.params.headimgurl = ''
         }
       },
       validate() {
-        if (!vm.storeName) {
+        if (!vm.params.name) {
           vm.toast('请填写店铺名！')
           return false
         }
-        if (!vm.description) {
+        if (!vm.tmpAddress.province) {
+          vm.toast('请选择地区！')
+          return false
+        }
+        if (!vm.tmpAddress.detail) {
+          vm.toast('请填写详细地址！')
+          return false
+        }
+        if (!vm.params.note) {
           vm.toast('请填写店铺简介！')
           return false
         }
-        if (!vm.detailAddress) {
-          vm.toast('请填写店铺地址！')
-          return false
+        return true
+      },
+      getSeller(needSave) {
+        /*try {
+          vm.params = vm.$route.params.userinfo ? JSON.parse(window.decodeURIComponent(vm.$route.params.userinfo)) : {}
+          console.log(vm.params, '带过来的数据')
+        } catch (e) {
+          // console.log(e)
+        }*/
+        if (vm.isPosting) return false
+        vm.isPosting = true
+        vm.loadData(userApi.get, null, 'POST', function (res) {
+          vm.isPosting = false
+          if (res.success && res.data) {
+            var resD = res.data
+            vm.params.id = resD.id
+            vm.params.name = resD.name
+            vm.params.headimgurl = resD.headimgurl
+            vm.params.address = resD.address
+            vm.params.note = resD.note
+            if (needSave) {
+              vm.$store.commit('storeData', {key: 'userInfo', data: res.data})
+              me.sessions.set('ynSellerInfo', JSON.stringify(res.data))
+            }
+          }
+          // console.error(vm.params)
+        }, function () {
+          vm.isPosting = false
+        })
+      },
+      updateSeller() {
+        if (vm.isPosting) return false
+        if (vm.validate()) {
+          vm.isPosting = true
+          vm.processing()
+          if (vm.tmpAddress.detail.indexOf('省') === -1 && vm.tmpAddress.detail.indexOf('市') === -1) {
+            vm.params.address = vm.tmpAddress.province + vm.tmpAddress.city + vm.tmpAddress.detail
+          } else {
+            vm.params.address = vm.tmpAddress.detail
+          }
+          vm.loadData(userApi.update, vm.params, 'POST', function (res) {
+            vm.isPosting = false
+            vm.processing(0, 1)
+            if (res.success) {
+              vm.toast('资料更新成功')
+              vm.getSeller(true)
+              vm.$router.back()
+            } else {
+              vm.toast('设置失败！')
+            }
+          }, function () {
+            vm.isPosting = false
+            vm.processing(0, 1)
+          }, true)
         }
-      },
-      updateStore() {
-        console.log({
-          id: vm.sellerId,
-          name: vm.storeName,
-          avtar: vm.storeImg,
-          authInfo: vm.authInfo,
-          description: vm.description,
-          area: vm.area,
-          detailAddress: vm.detailAddress
-        })
-        if (vm.isPosting || !vm.validate()) return false
-        vm.isPosting = true
-        vm.processing()
-        vm.loadData(userApi.set, {
-          id: vm.sellerId,
-          name: vm.storeName,
-          avtar: vm.storeImg,
-          authInfo: vm.authInfo,
-          description: vm.description,
-          area: vm.area,
-          detailAddress: vm.detailAddress
-        }, 'POST', function (res) {
-          vm.isPosting = false
-          vm.processing(0, 1)
-          vm.$router.back()
-        }, function () {
-          vm.isPosting = false
-          vm.processing(0, 1)
-        })
-      },
-      getSeller() {
-        vm.isPosting = true
-        vm.processing()
-        vm.loadData(userApi.view, {}, 'POST', function (res) {
-          vm.isPosting = false
-          vm.processing(0, 1)
-          vm.seller=res.data
-        }, function () {
-          vm.isPosting = false
-          vm.processing(0, 1)
-        })
       },
       changeArea(ids, names) {
         console.log(ids, names)
-        // vm.area = names.join('')
+        vm.params.province = ids[0]
+        vm.params.city = ids[1]
+        vm.tmpAddress.province = names[0]
+        vm.tmpAddress.city = names[1].indexOf('市辖区') === -1 ? names[1] : ''
+        vm.area = names[0] + (names[1].indexOf('市辖区') === -1 ? names[1] : '') + names[2]
+        // vm.params.area = names[0] + (names[1].indexOf('市辖区') === -1 ? names[1] : '') + names[2]
       },
     }
   }
@@ -168,7 +174,7 @@
       margin-top: 0;
       .vux-x-input {
         padding: 24/@rem 30/@rem;
-        .fz(28);
+        .fz(26);
       }
     }
     .bottom {

@@ -1,12 +1,14 @@
 <template>
   <div class="store-con" v-cloak>
     <group class="list-modal">
-      <cell title="商品管理" link="/goods">
+      <!--<cell title="商品管理" link="/goods">
         <i slot="icon" width="20" style="margin-right:5px;" class="fa fa-credit-card"></i>
       </cell>
       <cell title="水票管理" link="/tickets">
         <i slot="icon" width="20" style="margin-right:5px;" class="fa fa-money"></i>
-      </cell>
+      </cell>-->
+      <cell title="商品管理" link="/goods"></cell>
+      <cell title="水票管理" link="/tickets"></cell>
     </group>
   </div>
 </template>

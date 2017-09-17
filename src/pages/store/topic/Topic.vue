@@ -1,7 +1,8 @@
 <template>
   <div class="s-topic" v-cloak>
     <group class="bottom">
-      <x-textarea title="店铺公告：" :max="20" placeholder="一段展示在店铺首页的文字…" @on-blur="" v-model="topic" show-clear></x-textarea>
+      <x-textarea title="店铺公告：" :max="20" placeholder="一段展示在店铺首页的文字…" @on-blur="" v-model="topic"
+                  show-clear></x-textarea>
     </group>
     <div class="btn btn-save" @click="update"><i class="fa fa-save"></i>&nbsp;保存</div>
   </div>
@@ -19,50 +20,42 @@
     data() {
       return {
         onFetching: false,
-        isPosting: false,
-        sellerId: null,
-        topic: ''
+        isPosting: false
       }
     },
-    components: {Group,XTextarea},
+    components: {Group, XTextarea},
     beforeMount() {
       me = window.me
     },
     mounted() {
       vm = this
-      // me.attachClick()
-      // vm.userId = vm.$route.query.userId
-      vm.sellerId = vm.$store.state.sellerId
-      console.log(vm.sellerId)
+      vm.sellerId = me.sessions.get('ynSellerInfo') ? JSON.parse(me.sessions.get('ynSellerInfo')).id : ''
     },
     methods: {
-      validate() {
+      update() {
         if (!vm.topic) {
           vm.toast('请填写公告内容！')
           return false
         }
-      },
-      update() {
-        if (vm.isPosting || !vm.validate()) return false
+        if (vm.isPosting) return false
         vm.isPosting = true
         vm.processing()
-        vm.loadData(userApi.updateSeller, {
+        vm.loadData(userApi.update, {
           id: vm.sellerId,
-          name: vm.storeName,
-          avtar: vm.storeImg,
-          authInfo: vm.authInfo,
-          description: vm.description,
-          topic: vm.topic,
-          area: vm.area,
-          detailAddress: vm.detailAddress
+          notice: vm.topic
         }, 'POST', function (res) {
-          vm.$router.back()
           vm.isPosting = false
           vm.processing(0, 1)
+          if (res.success) {
+            vm.$router.back()
+            vm.getSeller(true)
+          } else {
+            vm.toast('设置失败！')
+          }
         }, function () {
           vm.isPosting = false
           vm.processing(0, 1)
-        })
+        }, true)
       }
     }
   }

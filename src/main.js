@@ -16,6 +16,9 @@ import store from './store'
 import VueScroller from 'vue-scroller'
 import {AlertPlugin, ConfirmPlugin, ToastPlugin, LoadingPlugin} from 'vux'
 
+const FastClick = require('fastclick')
+FastClick.attach(document.body)
+
 Vue.use(require('vue-wechat-title'))
 Vue.use(ConfirmPlugin)
 Vue.use(AlertPlugin)
@@ -29,7 +32,7 @@ let me = window.me
 let vm
 // 在路由路由跳转前判断一些东西
 router.beforeEach((to, from, next) => {
-  console.log(store.state, '当前vuex中的data')
+  console.info(store.state, '当前vuex中的data')
   /* 判断页面的方向 */
   /* const history = window.sessionStorage
    history.clear()
@@ -49,20 +52,6 @@ router.beforeEach((to, from, next) => {
    to.path !== '/' && history.setItem(to.path, historyCount)
    store.commit('UPDATE_DIRECTION', {direction: 'forward'})
    } */
-
-  /* 判断是否登录 */
-  var checkLog = function (inAuthPage) {
-    var isLog = me.locals.get('ynVendorLogin')
-    if (!isLog) {
-      return next('/login')
-    } else {
-      if (inAuthPage) {
-        return next('/home')
-      } else {
-        next()
-      }
-    }
-  }
 
   /* 判断授权是否存在或过期(页面刷新就会触发过期检查，不包含切换账号后的检查) */
   if (store.state.global.expired) {
@@ -109,30 +98,29 @@ router.beforeEach((to, from, next) => {
       }
     }
   } else {
-    window.youniMall.userAuth = store.state.global.wxInfo || (me.locals.get('ynWxUser') ? JSON.parse(me.locals.get('ynWxUser')) : null)
+    window.youniMall.userAuth = store.state.global.wxInfo || (me.locals.get('ynWxUser') ? JSON.parse(me.locals.get('ynWxUser')).data : null)
     next()
   }
-
 })
 
 /* ----- 封装一些方法 -------- */
 /* ajax请求 */
 Vue.prototype.weui = weui
 Vue.prototype.$axios = Axios
-Vue.prototype.loadData = function (url, params, type, sucCb, errCb) {
+Vue.prototype.loadData = function (url, params, type, sucCb, errCb, noAuthInfo) {
   params = params || {}
+  var winAuth = window.youniMall.userAuth || (me.locals.get('ynWxUser') ? JSON.parse(me.locals.get('ynWxUser')).data : null)
+  var localGeo = me.sessions.get('cur5656Geo') ? JSON.parse(me.sessions.get('cur5656Geo')) : {}
+  var localIps = me.sessions.get('cur5656Ips') ? JSON.parse(me.sessions.get('cur5656Ips')) : {}
+  var localParams = {
+    ip: localIps.cip || '',
+    cityCode: localGeo.cityCode || (localIps.cid || '100000'),
+    lon: localGeo.lng || '',
+    lat: localGeo.lat || ''
+  }
+  !noAuthInfo ? $.extend(params, winAuth) : null
+  // console.log('%c'+JSON.stringify(params, null, 2), 'color:#fff;background:purple')
   setTimeout(function () {
-    var winAuth = window.youniMall.userAuth || (me.locals.get('ynWxUser') ? JSON.parse(me.locals.get('ynWxUser')) : null)
-    var localGeo = me.sessions.get('cur5656Geo') ? JSON.parse(me.sessions.get('cur5656Geo')) : {}
-    var localIps = me.sessions.get('cur5656Ips') ? JSON.parse(me.sessions.get('cur5656Ips')) : {}
-    var localParams = {
-      ip: localIps.cip || '',
-      cityCode: localGeo.cityCode || (localIps.cid || '100000'),
-      lon: localGeo.lng || '',
-      lat: localGeo.lat || ''
-    }
-    $.extend(params, winAuth)
-    // console.log('%c'+JSON.stringify(params, null, 2), 'color:#fff;background:purple')
     $.ajax({
       url: url + me.param(localParams, '?'),
       type: type || 'POST',
@@ -377,7 +365,7 @@ new Vue({
   created() {
     vm = this
     // 缓存授权信息
-    window.youniMall.userAuth = vm.$store.state.global.wxInfo || (me.locals.get('ynWxUser') ? JSON.parse(me.locals.get('ynWxUser')) : null)
+    window.youniMall.userAuth = vm.$store.state.global.wxInfo || (me.locals.get('ynWxUser') ? JSON.parse(me.locals.get('ynWxUser')).data : null)
     !vm.$store.state.global.dict ? vm.getDict() : null
   },
   /*watch: {
@@ -391,13 +379,13 @@ new Vue({
   },
   methods: {
     checkLogin() {
-      //var isLogin = me.locals.get('ynVendorLogin') || false
-      if (!vm.$store.state.global.isLogin && vm.$route.name !== 'login' && vm.$route.name !== 'regist' && vm.$route.name !== 'password') {
+      if (!vm.$store.state.global.isLogin && !me.sessions.get('ynLogin') && vm.$route.name !== 'login' && vm.$route.name !== 'regist' && vm.$route.name !== 'password') {
         // 检测是否登录
         vm.loadData(commonApi.login, null, 'POST', function (res) {
           // alert(JSON.stringify(res))
           if (res.data.success) {
             vm.$store.commit('storeData', {key: 'isLogin', data: true})
+            me.sessions.set('ynLogin', true)
             if (vm.$route.name === 'login' || vm.$route.name === 'regist') {
               vm.$router.push({path: '/home'})
             }

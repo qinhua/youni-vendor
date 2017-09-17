@@ -57,7 +57,7 @@
     /*computed: {},*/
     /*watch: {},*/
     methods: {
-      reset(){
+      reset() {
         vm.initImgPicker()
       },
       initImgPicker() {
@@ -111,6 +111,9 @@
             // console.log(this, procent)
           },
           onSuccess: function (ret) {
+            if (limit === 1) {
+              vm.imgArr = []
+            }
             vm.imgArr.push(window.youniMall.host + '/' + ret.imageUrl)
             vm.$emit('on-uploaded', vm.imgArr)
           },

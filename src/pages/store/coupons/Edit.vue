@@ -1,8 +1,8 @@
 <template>
   <div class="coupon-edit-con" v-cloak>
     <group>
-      <popup-picker title="优惠分类：" :data="types" :columns="1" v-model="tmpType" ref="picker3" @on-show=""
-                    @on-hide="" @on-change="changeType"></popup-picker>
+      <!--<popup-picker title="优惠分类：" :data="types" :columns="1" v-model="tmpType" ref="picker3" @on-show=""
+                    @on-hide="" @on-change="changeType"></popup-picker>-->
       <!--<x-input title="优惠名称：" placeholder="优惠名称" required text-align="right" v-model="params.name"></x-input>-->
       <x-input title="优惠条件：" placeholder="满多少元减免" required text-align="right" type="number"
                v-model="params.upAmount"></x-input>
@@ -12,7 +12,7 @@
                v-model="params.maxDiscountAmount"></x-input>
       <!--<datetime title="开始时间" required v-model="params.beginTime" @on-change="onChange"></datetime>-->
       <x-switch title="是否过期" v-model="needExpire"></x-switch>
-      <datetime title="过期时间：" required v-model="params.expireTime" @on-change="onChange" v-show="needExpire"></datetime>
+      <datetime title="过期时间：" v-model="params.expireTime" @on-change="onChange" v-show="needExpire"></datetime>
     </group>
     <group class="bottom">
       <x-textarea title="优惠说明：" :max="20" placeholder="如水票买20送1" @on-blur="" v-model="params.discountNote"
@@ -70,7 +70,7 @@
           upAmount: '',
           discountAmount: '',
           maxDiscountAmount: '',
-          goodsType: ''
+          // goodsType: ''
         },
       }
     },
@@ -125,24 +125,32 @@
         }
       },
       getData() {
-        vm.couponId=vm.$route.query.id
+        try {
+          vm.params = vm.$route.query.linedata ? JSON.parse(window.decodeURIComponent(vm.$route.query.linedata)) : {}
+          console.log(vm.params, '带过来的数据')
+          // vm.switchData(vm.coupons, vm.tmpCoupon, 'couponId')
+        } catch (e) {
+          // console.log(e)
+        }
+
+        /*vm.couponId=vm.$route.query.id
         if (!vm.couponId) return
-        if (vm.isPosting) return false
-        vm.isPosting = true
-        vm.loadData(couponApi.get, null, 'POST', function (res) {
-          vm.isPosting = false
-          vm.params = res.data || {}
-          vm.switchData(vm.types, resD.goodsType, 'tmpType')
-          console.log(vm.params, '编辑的数据')
-        }, function () {
-          vm.isPosting = false
-        })
+       /* (vm.isPosting) return false
+       vm.isPosting = true
+       vm.loadData(couponApi.get, null, 'POST', function (res) {
+         vm.isPosting = false
+         vm.params = res.data || {}
+         // vm.switchData(vm.types, vm.params.goodsType, 'tmpType')
+         console.log(vm.params, '编辑的数据')
+       }, function () {
+         vm.isPosting = false
+       })*/
       },
       validate() {
-        if (!vm.tmpType.length) {
+        /*if (!vm.tmpType.length) {
           vm.toast('请选择优惠分类！')
           return false
-        }
+        }*/
         if (!vm.params.upAmount) {
           vm.toast('请填写优惠条件！')
           return false
@@ -151,10 +159,10 @@
           vm.toast('请填写优惠金额！')
           return false
         }
-        /*if (!vm.params.maxDiscountAmount) {
+        if (!vm.params.maxDiscountAmount) {
           vm.toast('请填写最大优惠金额！')
           return false
-        }*/
+        }
         if (vm.needExpire && !vm.params.expireTime) {
           vm.toast('请选择过期时间！')
           return false
@@ -166,18 +174,18 @@
         /*此处转换一些字段类型*/
         let curApi
         if (vm.couponId) {
-          curApi = couponApi.update
+          curApi = couponApi.add
         } else {
           delete vm.params.id
           curApi = couponApi.add
         }
-        console.log('最后选择的数据：', vm.params)
         vm.isPosting = true
         vm.processing()
         vm.loadData(curApi, vm.params, 'POST', function (res) {
           vm.isPosting = false
           vm.processing(0, 1)
-//          vm.$router.back()
+          vm.toast('设置成功！')
+          vm.$router.push({path: '/coupons'})
         }, function () {
           vm.isPosting = false
           vm.processing(0, 1)
