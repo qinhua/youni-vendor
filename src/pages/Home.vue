@@ -129,15 +129,15 @@
                   <div class="btns" v-if="item.status===2">
                     <button type="button" class="btn btn-dispatch" @click="dispatch(item.orderId)">派送</button>
                   </div>
-                  <div class="btns" v-if="item.status===3&&item.todayDispatch">
-                    <div>
-                      <span class="status-txt disabled">当天未派送</span>
-                      <button type="button" class="btn btn-dispatch" @click="dispatch(item.orderId)">派送</button>
-                    </div>
-                    <div>
+                  <div class="btns" v-if="item.status===3">
+                    <div v-if="item.todayDispatch">
                       <span class="status-txt">当天已派送</span>
                       <button type="button" disabled class="btn btn-dispatch" @click="dispatch(item.orderId)">派送
                       </button>
+                    </div>
+                    <div v-else>
+                      <span class="status-txt disabled">当天未派送</span>
+                      <button type="button" class="btn btn-dispatch" @click="dispatch(item.orderId)">派送</button>
                     </div>
                   </div>
                 </section>
