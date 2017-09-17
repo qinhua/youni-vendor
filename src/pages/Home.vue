@@ -140,6 +140,7 @@
                       <button type="button" class="btn btn-dispatch" @click="dispatch(item.orderId)">派送</button>
                     </div>
                   </div>
+                  <span class="timestamp">{{item.createTime}}</span>
                 </section>
               </section>
             </li>
@@ -704,6 +705,7 @@
           }
         }
         .item-bottom {
+          .rel;
           .extra-info {
             margin-top: 2px;
             padding: 10/@rem 20/@rem;
@@ -759,6 +761,13 @@
                 .c9;
               }
             }
+          }
+          .timestamp {
+            display: block;
+            padding: 0 22/@rem 20/@rem;
+            .right;
+            .c9;
+            .fz(22);
           }
         }
       }
