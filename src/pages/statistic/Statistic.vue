@@ -7,7 +7,7 @@
     </tab>
     <div class="echarts">
       <IEcharts ref="myChart" :option="bar" :loading="loading" @ready="onReady" @click="onClick"></IEcharts>
-      <button @click="doRandom">生成</button>
+      <!--<button @click="doRandom">生成</button>-->
     </div>
   </div>
 </template>
@@ -35,24 +35,24 @@
         datas: [
 //          ['0点', '6点', '12点', '18点', '24点'],
           ['周一', '周二', '周三', '周四', '周五'],
-          ['1号', '15号', '30号'],
+          ['1号', '6号', '12号', '28号', '30号'],
           ['1月', '2月', '3月', '4月', '5月']
         ],
         bar: {
-          width: 250,
+          width: 320,
           title: {
-            text: '近7天数据'
+            text: ''
           },
           tooltip: {},
           xAxis: {
             data: ['周一', '周二', '周三', '周四', '周五']
-//            data: ['Shirt', 'Sweater', 'Chiffon Shirt', 'Pants', 'High Heels', 'Socks']
           },
+          // color:'yellow',
           yAxis: {},
           series: [{
             name: 'Sales',
             type: 'bar',
-            data: [5, 20, 36, 10, 10, 20]
+            data: [5, 20, 36, 10, 10]
           }]
         }
       }
@@ -65,8 +65,8 @@
       vm = this
       vm.sellerId = vm.$store.state.global.sellerId
       vm.getStatistic()
-      var myChart=vm.$refs.myChart
-      window.onresize = function(){
+      var myChart = vm.$refs.myChart
+      window.onresize = function () {
         myChart.resize();
       }
     },
@@ -131,13 +131,13 @@
 <style lang='less'>
   @import '../../../static/css/tools.less';
 
-  .echarts {
-    width: 400px;
-    height: 400px;
-  }
-
   .statistic-con {
     .rel;
     height: 100%;
+    overflow-x: hidden;
+    .echarts {
+      width: 400px;
+      height: 400px;
+    }
   }
 </style>

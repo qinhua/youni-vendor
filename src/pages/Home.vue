@@ -87,7 +87,9 @@
                        :data-orderNumber="item.appOrderNumber" :data-itemId="item.orderItemId">
                 <h4 class="item-top"><i class="ico-avatar"
                                         :style="item.userImage?'background-image:url('+item.userImage+')':''"></i>&nbsp;{{item.userName}}&nbsp;&nbsp;<i
-                  class="fa fa-angle-right cc"></i><span>{{item.statusName}}</span></h4>
+                  class="fa fa-angle-right cc"></i><span>{{item.statusName}}</span><span class="remind-txt"
+                                                                                         v-if="item.status===2&&item.remind">收到买家派送提醒</span>
+                </h4>
                 <ul>
                   <li v-for="itm in item.goodsList">
                     <section class="item-middle">
@@ -139,6 +141,17 @@
                       <span class="status-txt disabled">当天未派送</span>
                       <button type="button" class="btn btn-dispatch" @click="dispatch(item.orderId)">派送</button>
                     </div>
+                  </div>
+                  <div class="score-info" v-if="item.status===5">
+                    <!--<span>买家评分：{{item.userScore}}星</span>-->
+                    <div class="has-score" v-if="item.userScore">
+                      <span>买家评分：</span>
+                      <ol class="star">
+                        <li v-for="star in item.userScore">★</li>
+                      </ol>
+                      <span>{{item.userScore}}星</span>
+                    </div>
+                    <span v-else>买家未评价</span>
                   </div>
                   <span class="timestamp">{{item.createTime}}</span>
                 </section>
@@ -238,9 +251,10 @@
     },
     mounted() {
       vm = this
+      vm.params.status = vm.$route.params.status || 1
+      vm.getOverview()
+      vm.getOrders()
       vm.$nextTick(function () {
-        vm.getOverview()
-        vm.getOrders()
         try {
           vm.$refs.orderScroller.finishInfinite(true)
           vm.$refs.orderScroller.resize()
@@ -252,7 +266,7 @@
     watch: {
       '$route'(to, from) {
         if (to.name === 'home') {
-          vm.params.status = vm.$route.params.status
+          vm.params.status = vm.$route.params.status || 1
           vm.getOrders()
         }
       }
@@ -411,42 +425,42 @@
         if (vm.isPosting) return false
         vm.isPosting = true
         /*var dispatchers = '<option value="">-请选择派送员-</option>'
-        vm.loadData(orderApi.dispatcher, {orderId: id}, 'POST', function (res) {
-          if (res.success) {
-            if (res.data.itemList.length) {
-              var resD = res.data.itemList
-              for (var i = 0; i < resD.length; i++) {
-                var cur = resD[i]
-                dispatchers += '<option value="' + cur.id + ',' + cur.dispatcher + '">' + cur.dispatcher + '</option>'
-              }
-            } else {
-              vm.toast('暂无派送员！')
-              return
-            }
-          }
-          vm.isPosting = false
-        }, function () {
-          vm.isPosting = false
-        })
-        vm.confirm('请选择派送员？', '<div class="despatchModal"><select name="dispatcher" id="dispatcher">' + dispatchers + '</select><!--<input id="dispatcher" type="text" placeholder="输入派送员姓名" required>--></div>', function () {
-          var curVal = window.document.getElementById('dispatcher').value
-          if (!curVal) {
-            vm.toast('请选择派送员', 'warn')
-            return false
-          }
-          vm.loadData(orderApi.dispatch, {orderId: id, dispatcher: curVal}, 'POST', function (res) {
-            vm.isPosting = false
-            if (res.success) {
-              vm.toast('派送成功')
-            } else {
-              vm.toast(res.message || '支付失败！')
-            }
-          }, function () {
-            vm.isPosting = false
-          })
-        }, function () {
-          vm.isPosting = false
-        }, '派送', null, true)*/
+         vm.loadData(orderApi.dispatcher, {orderId: id}, 'POST', function (res) {
+         if (res.success) {
+         if (res.data.itemList.length) {
+         var resD = res.data.itemList
+         for (var i = 0; i < resD.length; i++) {
+         var cur = resD[i]
+         dispatchers += '<option value="' + cur.id + ',' + cur.dispatcher + '">' + cur.dispatcher + '</option>'
+         }
+         } else {
+         vm.toast('暂无派送员！')
+         return
+         }
+         }
+         vm.isPosting = false
+         }, function () {
+         vm.isPosting = false
+         })
+         vm.confirm('请选择派送员？', '<div class="despatchModal"><select name="dispatcher" id="dispatcher">' + dispatchers + '</select><!--<input id="dispatcher" type="text" placeholder="输入派送员姓名" required>--></div>', function () {
+         var curVal = window.document.getElementById('dispatcher').value
+         if (!curVal) {
+         vm.toast('请选择派送员', 'warn')
+         return false
+         }
+         vm.loadData(orderApi.dispatch, {orderId: id, dispatcher: curVal}, 'POST', function (res) {
+         vm.isPosting = false
+         if (res.success) {
+         vm.toast('派送成功')
+         } else {
+         vm.toast(res.message || '支付失败！')
+         }
+         }, function () {
+         vm.isPosting = false
+         })
+         }, function () {
+         vm.isPosting = false
+         }, '派送', null, true)*/
 
         vm.confirm('确认派送？', '', function () {
           vm.loadData(orderApi.dispatch, {orderId: id, dispatcher: ''}, 'POST', function (res) {
@@ -634,8 +648,16 @@
             }
             span {
               .fr;
+              padding-left: 10/@rem;
               .fz(22);
               .cdiy(@c2);
+              &.remind-txt {
+                .cdiy(#78b933);
+                padding-right: 14/@rem;
+                .bor-r;
+                -webkit-animation: flash 4.5s ease infinite;
+                animation: flash 4.5s ease infinite;
+              }
             }
           }
           .item-middle {
@@ -695,6 +717,13 @@
               }
             }
             .dispatch-info {
+              padding-top: 8/@rem;
+              span {
+                padding-right: 28/@rem;
+              }
+            }
+            .score-info {
+              padding-top: 8/@rem;
               span {
                 padding-right: 28/@rem;
               }
@@ -722,7 +751,7 @@
             }
           }
           .total-price {
-            padding: 10/@rem 20/@rem;
+            padding: 14/@rem 20/@rem;
             .right;
             .c3;
             .fz(22);
@@ -760,6 +789,39 @@
               &.disabled {
                 .c9;
               }
+            }
+          }
+          .score-info {
+            margin-top: -20/@rem;
+            .fl;
+            overflow: hidden;
+            padding: 20/@rem 20/@rem;
+            .has-score {
+              overflow: hidden;
+              .fz(24);
+              span {
+                .fl;
+              }
+            }
+            .star {
+              .fl;
+              margin-top: -6/@rem;
+              overflow: hidden;
+              li {
+                .fl;
+                margin-right: 10/@rem;
+                .cdiy(#ff9900);
+                .rfz(16);
+                &.gray {
+                  .c9;
+                }
+              }
+            }
+            .noScore {
+              padding: 0 22/@rem 20/@rem;
+              .left;
+               .cdiy(#9fb52b);
+              .fz(24);
             }
           }
           .timestamp {

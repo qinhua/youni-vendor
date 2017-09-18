@@ -16,7 +16,7 @@
         </x-address>
         <x-input title="详细地址：" placeholder="输入详细地址" required readonly text-align="right" v-model="tmpAddress.detail"
                  @click.native="choosePoint"></x-input>
-        <x-textarea title="店铺简介：" :max="20" placeholder="店铺简介" @on-blur="" v-model="params.note"
+        <x-textarea title="店铺简介：" :max="200" placeholder="店铺简介" @on-blur="" v-model="params.note"
                     show-clear></x-textarea>
       </group>
       <div class="btn btn-save" @click="updateSeller"><i class="fa fa-save"></i>&nbsp;保存</div>
