@@ -30,7 +30,7 @@
         <!--<div class="tags-group">
           <label>标签</label>
           <div class="tags-cons">
-            <tags-input :tags="tags" placeholder="商品标签（3~5字最佳）" @focus="handleFocus" @blur="handleBlur"
+            <tags-input :tags="tags" placeholder="商品标签（3~5字最佳,最多3个）" @focus="handleFocus" @blur="handleBlur"
                         @tags-change="changeTags"></tags-input>
           </div>
         </div>-->
@@ -410,22 +410,22 @@
       formatNewTag(text) {
         vm.params.label = vm.tags ? vm.tags.join(',') : ''
       },
+      /*富文本editor*/
       handleImageAdded: function (file, Editor, cursorLocation) {
         // An example of using FormData
         // NOTE: Your key could be different such as:
-        // formData.append('file', file)
         var formData = new FormData();
         formData.append('image', file)
-        vm.loadData(commonApi.uploadImg, formData, 'POST', function (res) {
-          let url = res.data.url // Get url from response
-          console.log(res)
-          Editor.insertEmbed(cursorLocation, 'image', url);
-          vm.$router.back()
-          vm.isPosting = false
-          vm.processing(0, 1)
-        }, function () {
-          vm.isPosting = false
-          vm.processing(0, 1)
+        vm.$axios({
+            url: commonApi.uploadImg,
+            method: 'POST',
+            data: formData
+          })
+          .then(function (result) {
+            var url = window.youniMall.host + '/' + result.data.imageUrl
+            Editor.insertEmbed(cursorLocation, 'image', url);
+          }).catch(function (err) {
+          console.log(err);
         })
       }
     }

@@ -1,5 +1,5 @@
 <template>
-  <div class="deposite-con" v-cloak>
+  <div class="income-con" v-cloak>
     <div class="search-con">
       <search
         @result-click="resultClick"
@@ -13,25 +13,29 @@
         @on-submit="onSubmit"
         ref="search"></search>
     </div>
-    <div class="deposite-list">
-      <scroller class="inner-scroller" ref="depositeScroller" :on-refresh="refresh" :on-infinite="infinite"
+    <div class="income-list">
+      <scroller class="inner-scroller" ref="incomeScroller" :on-refresh="refresh" :on-infinite="infinite"
                 refreshText="下拉刷新" noDataText="没有更多数据" snapping>
         <!-- content goes here -->
         <swipeout>
           <swipeout-item disabled @on-close="" @on-open="" transition-mode="follow" v-for="(item, index) in results"
-                         :data-id="item.userId" key="index">
+                         :data-id="item.id" key="index">
             <div slot="right-menu">
-              <swipeout-button @click.native="onButtonClick('block',item.id)" type="primary">退还</swipeout-button>
-              <!--<swipeout-button @click.native="onButtonClick('delete',item.id)" type="warn">删除</swipeout-button>-->
+              <swipeout-button @click.native="onButtonClick('delete',item.id)" type="warn">删除</swipeout-button>
             </div>
             <div slot="content" class="demo-content vux-1px-t">
               <section class="v-items">
                 <section class="wrap">
-                  <img :src="item.headimgurl">
+                  <img :src="item.userImage">
                   <div class="info-con">
-                    <h3>{{item.nickname}}</h3>
-                    <div class="nums"><span>总押金：￥{{item.totalAmount|toFixed}}</span><span>桶数：{{item.bucketNum}}</span>
+                    <h3>{{item.userName}}<span>{{item.createTime}}</span></h3>
+                    <div class="nums"><span>订单总额：￥{{item.payAmount|toFixed}}元</span><span class="income">收入：+{{item.payAmount|toFixed}}元</span>
                     </div>
+                    <!--<div class="progress">
+                      <div style='width:150px;height:150px;'>
+                        <x-progress :percent="35" :showCancel="false"></x-progress>
+                      </div>
+                    </div>-->
                   </div>
                 </section>
               </section>
@@ -48,10 +52,10 @@
   let me
   let vm
   import {Search, Swipeout, SwipeoutItem, SwipeoutButton} from 'vux'
-  import {clientApi} from '../../service/main.js'
+  import {orderApi} from '../../../service/main.js'
 
   export default {
-    name: 'deposite-con',
+    name: 'income-con',
     data() {
       return {
         value: '',
@@ -61,9 +65,11 @@
         onFetching: false,
         noMore: false,
         params: {
+          status: 5,
+          userType: 2,
           pagerSize: 10,
           pageNo: 1
-        }
+        },
       }
     },
     components: {Search, Swipeout, SwipeoutItem, SwipeoutButton},
@@ -72,79 +78,66 @@
     },
     mounted() {
       vm = this
-      vm.getDeposite()
+      vm.getIncome()
       vm.$nextTick(function () {
-        vm.$refs.depositeScroller.finishInfinite(true)
-        vm.$refs.depositeScroller.resize()
+        vm.$refs.incomeScroller.finishInfinite(true)
+        vm.$refs.incomeScroller.resize()
       })
     },
-    /*computed: {},
-     watch: {
-     '$route'(to, from) {
-     }
-     },*/
+    /*computed: {},*/
+    watch: {
+      '$route'(to, from) {
+        if (to.name === 'income_list') {
+          vm.getIncome()
+        }
+      }
+    },
     methods: {
       onButtonClick(type, id) {
         if (type === 'delete') {
           vm.del(id)
-        } else {
-          vm.block(id)
         }
-      },
-      toAppraise(id) {
-        this.$router.push({path: '/appraise' + (param ? '/' + param : '')})
       },
       refresh(done) {
         console.log('下拉加载')
         setTimeout(function () {
-          vm.getDeposite()
-          vm.$refs.depositeScroller.finishPullToRefresh()
+          vm.getIncome()
+          vm.$refs.incomeScroller.finishPullToRefresh()
         }, 1000)
       },
       infinite(done) {
         console.log('无限滚动')
         setTimeout(function () {
-          vm.getDeposite(true)
-          vm.$refs.depositeScroller.finishInfinite(true)
+          vm.getIncome(true)
+          vm.$refs.incomeScroller.finishInfinite(true)
         }, 1000)
       },
-      getDeposite(isLoadMore) {
-        if (vm.onFetching) return false
+      getIncome(isLoadMore) {
+        if (vm.onFecthing) return false
         !isLoadMore ? vm.params.pageNo = 1 : vm.params.pageNo++
         vm.processing()
-        vm.onFetching = true
-        vm.loadData(clientApi.depositList, vm.params, 'POST', function (res) {
-          vm.onFetching = false
-          vm.processing(0, 1)
-          var resD = res.data.pager
-          if (!isLoadMore) {
-            if (resD.totalCount < vm.params.pageSize) {
-              vm.noMore = true
+        vm.onFecthing = true
+        vm.loadData(orderApi.list, vm.params, 'POST', function (res) {
+            vm.onFecthing = false
+            vm.processing(0, 1)
+            var resD = res.data.pager
+            if (!isLoadMore) {
+              if (resD.totalCount < vm.params.pageSize) {
+                vm.noMore = true
+              } else {
+                vm.noMore = false
+              }
+              vm.list = resD.itemList
             } else {
-              vm.noMore = false
+              resD.itemList.length ? vm.list.concat(resD.itemList) : vm.noMore = true
             }
-            vm.list = resD.itemList
-          } else {
-            resD.itemList.length ? vm.list.concat(resD.itemList) : vm.noMore = true
-          }
-          vm.results = vm.list.slice(0)
-          // console.log(vm.list, '客户数据')
-        }, function () {
-          vm.onFetching = false
-          vm.processing(0, 1)
-        })
-      },
-      block(id) {
-        if (vm.isPosting) return false
-        vm.confirm('确认屏蔽此客户？', null, function () {
-          vm.isPosting = true
-          vm.loadData(clientApi.block, {id: id}, 'POST', function (res) {
-            vm.isPosting = false
+            vm.results = vm.list.slice(0)
+            console.log(vm.list, '订单数据')
           }, function () {
-            vm.isPosting = false
-          })
-        }, function () {
-        })
+            vm.onFecthing = false
+            vm.processing(0, 1)
+          }
+        )
       },
       del(id) {
         if (vm.isPosting) return false
@@ -163,9 +156,9 @@
       getResult(val) {
         if (val) {
           vm.results = []
-          // vm.getDeposite()
+          // vm.getIncome()
           for (let i = 0; i < vm.list.length; i++) {
-            if (vm.list[i].nickname.indexOf(val) > -1) {
+            if (vm.list[i].userName.indexOf(val) > -1) {
               vm.results.push(vm.list[i])
             }
           }
@@ -180,7 +173,7 @@
           position: 'top',
           text: 'on submit'
         })
-        vm.getDeposite()
+        vm.getIncome()
       },
       onFocus() {
         console.log('on focus')
@@ -194,9 +187,9 @@
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang='less'>
-  @import '../../../static/css/tools.less';
+  @import '../../../../static/css/tools.less';
 
-  .deposite-con {
+  .income-con {
     .rel;
     height: 100%;
     .search-con {
@@ -206,8 +199,7 @@
         z-index: 20;
       }
     }
-
-    .deposite-list {
+    .income-list {
       .vux-swipeout-button-primary {
         background: #5d5454;
       }
@@ -239,11 +231,20 @@
                 .c3;
                 .fz(26);
                 .ellipsis-clamp-2;
+                span {
+                  .fr;
+                  .c9;
+                  .fz(22);
+                }
               }
               .nums {
-                .fz(22);
+                .fz(28);
                 span {
                   padding-right: 20/@rem;
+                  &.income {
+                    .fr;
+                    .cdiy(#fd271a);
+                  }
                 }
               }
               .progress {

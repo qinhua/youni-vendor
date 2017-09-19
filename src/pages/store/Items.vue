@@ -13,8 +13,9 @@
                                              class="fa fa-cny"></i></cell>-->
       <cell title="店铺公告" link="/store_topic"></cell>
       <cell title="优惠管理" link="/coupons"></cell>
-      <cell title="上楼费" link="/floor_fee"></cell>
-      <cell title="保证金" link="/guarantee_fee"></cell>
+      <cell title="上楼费用" link="/floor_fee"></cell>
+      <cell title="店铺押金" link="/guarantee_fee"></cell>
+      <cell title="押金列表" link="/myguarantee"></cell>
     </group>
   </div>
 </template>

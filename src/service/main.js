@@ -63,6 +63,11 @@ const couponApi = {
   update: host + '/sellerCoupon/update',
   del: host + '/sellerCoupon/del'
 }
+const assetsApi = {
+  asset: host + '/seller/asset',
+  withDrawList: host + '/seller/statistic',
+  withDraw: host + '/common/top10'
+}
 const statisticApi = {
   list: host + '/seller/statistic',
   top10: host + '/common/top10',
@@ -79,4 +84,4 @@ const commonApi = {
 }
 // console.log('当前域名：%c' + host, 'color:red;font-size:14px;font-weight:bold')
 // console.log('当前API：%c' + JSON.stringify(homeApi, null, 2), 'color:orange;font-size:14px')
-export {commonApi, homeApi, nearbyApi, ticketApi, orderApi, clientApi, couponApi, userApi, goodsApi, statisticApi}
+export {commonApi, homeApi, nearbyApi, ticketApi, orderApi, clientApi, couponApi, userApi, goodsApi, assetsApi,statisticApi}

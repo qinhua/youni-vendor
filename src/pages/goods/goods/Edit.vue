@@ -31,7 +31,7 @@
       <div class="tags-group">
         <label>标签</label>
         <div class="tags-cons">
-          <tags-input :tags="tags" placeholder="商品标签（3~5字最佳）" @focus="handleFocus" @blur="handleBlur"
+          <tags-input :tags="tags" placeholder="商品标签（3~5字最佳,最多3个）" @focus="handleFocus" @blur="handleBlur"
                       @tags-change="changeTags"></tags-input>
         </div>
       </div>
@@ -40,16 +40,6 @@
         <vue-editor v-model="params.note" placeholder="我是示例文字…" useCustomImageHandler @imageAdded="handleImageAdded"
                     :editorToolbar="customToolbar"></vue-editor>
       </div>
-      <!--<x-textarea title="详情：" :max="20" placeholder="详情" @on-blur="" v-model="params.note" show-clear></x-textarea>-->
-      <!--<x-address class="address-area" title="所在地区" @on-hide="logHide" @on-shadow-change="changeArea" :list="addressData"
-                 placeholder="请选择地区">
-        <template slot="title" scope="props">
-        <span :class="props.labelClass" :style="props.labelStyle" style="height:24px;">
-          <span style="vertical-align:middle;">所在地区：</span>
-        </span>
-        </template>
-      </x-address>
-      <x-input title="详细地址：" placeholder="输入详细地址" required v-model="detailAddress"></x-input>-->
     </group>
     <div class="btn btn-save" @click="updateGoods"><i class="fa fa-save"></i>&nbsp;保存</div>
   </div>
@@ -79,6 +69,9 @@
     name: 'goods-edit',
     data() {
       return {
+        editorOption: {
+          // some quill options
+        },
         onFetching: false,
         isPosting: false,
         lineData: null,
@@ -146,7 +139,7 @@
            discountNote: '',*/
           note: ''
         },
-        tags: ['标签一'],
+        tags: [],
         tmpBrand: [],
         tmpType: [],
         tmpCat: [],
@@ -181,7 +174,11 @@
       vm = this
       vm.getGoods()
     },
-    computed: {},
+    computed: {
+      editor() {
+        return this.$refs.myQuillEditor.quill
+      }
+    },
     watch: {
       '$route'(to, from) {
         vm.getGoods()
@@ -252,28 +249,28 @@
             label: '',
             note: ''
           }
-          vm.tags = ['标签一']
+          vm.tags = []
           vm.tmpBrand = []
           vm.tmpType = []
           vm.tmpCat = []
         }
         /*if (vm.onFetching) return false
-        vm.onFetching = true
-        vm.loadData(goodsApi.list, {id: vm.params.id}, 'POST', function (res) {
-          if (res) {
-            let resD = res.data.itemList
-            /!*此处转换一些字段类型*!/
-            // a.比如把type和goodsCategory转换成数组
-            vm.switchData(vm.types, vm.params.type, 'tmpType')
-            vm.switchData(vm.categories, vm.params.category, 'tmpCat')
-            vm.renderTags(resD.label)
-            vm.goods = resD
-            console.log(vm.goods)
-          }
-          vm.onFetching = false
-        }, function () {
-          vm.onFetching = false
-        })*/
+         vm.onFetching = true
+         vm.loadData(goodsApi.list, {id: vm.params.id}, 'POST', function (res) {
+         if (res) {
+         let resD = res.data.itemList
+         /!*此处转换一些字段类型*!/
+         // a.比如把type和goodsCategory转换成数组
+         vm.switchData(vm.types, vm.params.type, 'tmpType')
+         vm.switchData(vm.categories, vm.params.category, 'tmpCat')
+         vm.renderTags(resD.label)
+         vm.goods = resD
+         console.log(vm.goods)
+         }
+         vm.onFetching = false
+         }, function () {
+         vm.onFetching = false
+         })*/
       },
       validate() {
         if (vm.params.brandId === '') {
@@ -301,13 +298,13 @@
           return false
         }
         /*if (!vm.params.imgurl) {
-          vm.toast('请上传商品图片！', 'warn')
-          return false
-        }*/
+         vm.toast('请上传商品图片！', 'warn')
+         return false
+         }*/
         /*if (!vm.params.note) {
-          vm.toast('请填写商品详情！', 'warn')
-          return false
-        }*/
+         vm.toast('请填写商品详情！', 'warn')
+         return false
+         }*/
         return true
       },
       updateGoods() {
@@ -380,22 +377,22 @@
       formatNewTag(text) {
         vm.params.label = vm.tags ? vm.tags.join(',') : ''
       },
+      /*富文本editor*/
       handleImageAdded: function (file, Editor, cursorLocation) {
         // An example of using FormData
         // NOTE: Your key could be different such as:
-        // formData.append('file', file)
         var formData = new FormData();
         formData.append('image', file)
-        vm.loadData(commonApi.uploadImg, formData, 'POST', function (res) {
-          let url = res.data.url // Get url from response
-          console.log(res)
-          Editor.insertEmbed(cursorLocation, 'image', url);
-          vm.$router.back()
-          vm.isPosting = false
-          vm.processing(0, 1)
-        }, function () {
-          vm.isPosting = false
-          vm.processing(0, 1)
+        vm.$axios({
+            url: commonApi.uploadImg,
+            method: 'POST',
+            data: formData
+          })
+          .then(function (result) {
+            var url = window.youniMall.host + '/' + result.data.imageUrl
+            Editor.insertEmbed(cursorLocation, 'image', url);
+          }).catch(function (err) {
+          console.log(err);
         })
       }
     }

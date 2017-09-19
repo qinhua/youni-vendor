@@ -1,5 +1,6 @@
 <template>
   <div class="guarantee-fee-con" v-cloak>
+    <label class="tips"><i class="fa fa-smile-o"></i>&nbsp;买家可在店铺详情看到您设置的押金数量</label>
     <group>
       <cell title="押金：" primary="content">
         <x-input placeholder="请输入押金（元/桶）" required text-align="right" type="number" v-model="guarantee"></x-input>
@@ -71,16 +72,16 @@
           vm.loadData(userApi.update, {id: vm.sellerId, mortgage: vm.guarantee}, 'POST', function (res) {
             vm.isPosting = false
             vm.processing(0, 1)
-            if(res.success){
+            if (res.success) {
               vm.toast('押金设置成功！')
               vm.$router.back()
-            }else{
+            } else {
               vm.toast('设置失败！')
             }
           }, function () {
             vm.isPosting = false
             vm.processing(0, 1)
-          },true)
+          }, true)
         }
       }
     }
@@ -94,6 +95,16 @@
   .guarantee-fee-con {
     .bottom {
       margin-top: 10/@rem;
+    }
+    .tips {
+      display: block;
+      padding: 12/@rem 24/@rem;
+      .fz(22);
+      .c6;
+      background: #f9ecc6;
+      i{
+        .cdiy(#1db314);
+      }
     }
     .vux-no-group-title {
       margin-top: 0;

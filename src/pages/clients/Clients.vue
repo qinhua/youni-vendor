@@ -5,7 +5,7 @@
         @result-click="resultClick"
         @on-change="getResult"
         v-model="value"
-        placeholder="输入手机号、昵称等搜索"
+        placeholder="输入昵称搜索"
         position="absolute"
         auto-scroll-to-top top="46px"
         @on-focus="onFocus"
@@ -77,16 +77,19 @@
     mounted() {
       vm = this
       vm.getClients()
-      vm.$nextTick(() => {
+      vm.$nextTick(function () {
         vm.$refs.clientScroller.finishInfinite(true)
         vm.$refs.clientScroller.resize()
       })
     },
-    /*computed: {},
-    watch: {
-      '$route'(to, from) {
-      }
-    },*/
+    /*computed: {},*/
+     watch: {
+     '$route'(to, from) {
+       if (to.name === 'clients') {
+         vm.getClients()
+       }
+     }
+     },
     methods: {
       onButtonClick(type, id) {
         if (type === 'delete') {
@@ -100,7 +103,7 @@
         setTimeout(function () {
           vm.getClients()
           vm.$refs.clientScroller.finishPullToRefresh()
-        }, 1200)
+        }, 1000)
       },
       infinite(done) {
         console.log('无限滚动')
@@ -207,10 +210,12 @@
         z-index: 20;
       }
     }
-
     .clients-list {
       .vux-swipeout-button-primary {
         background: #5d5454;
+      }
+      .vux-1px-t:before {
+        .none;
       }
       .inner-scroller {
         .borBox;
@@ -230,7 +235,7 @@
             }
             .info-con {
               .borBox;
-              padding: 0 14/@rem 0 100/@rem;
+              padding-left: 100/@rem;
               h3 {
                 padding-bottom: 10/@rem;
                 .txt-normal;

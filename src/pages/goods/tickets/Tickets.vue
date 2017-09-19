@@ -31,10 +31,10 @@
             <div class="info-con">
               <h3>{{item.name}}</h3>
               <section class="middle">
-                <span class="unit-price">售价：￥{{item.price}}</span>
-                <span class="order-info">已售：{{item.saleCount}}</span>
+                <span class="unit-price">售价：￥{{item.price}}元</span>
+                <span class="order-info">已售：{{item.saleCount}}件</span>
               </section>
-              <label>{{item.waterNote}}</label>
+              <label><i class="fa fa-tag"></i>&nbsp;{{item.waterNote}}</label>
             </div>
             <!--<div class="price-con">-->
             <!--<p class="price">￥{{item.price}}</p>-->
@@ -279,6 +279,9 @@
             }
             label {
               .fz(20);
+              i{
+                .cdiy(#FFC107);
+              }
             }
           }
           .price-con {

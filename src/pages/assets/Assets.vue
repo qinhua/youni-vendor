@@ -6,7 +6,7 @@
           <h3>可提现金额</h3>
           <p>￥0.00</p>
         </div>
-        <div class="right">提现</div>
+        <div class="right" @click="withDraw">提现</div>
       </div>
       <cell title="不可用金额" link="">￥0.00
         <!--<i slot="icon" width="20" style="margin-right:5px;" class="fa fa-cube"></i>-->
@@ -21,10 +21,10 @@
       </cell>
     </group>
     <group class="list-modal bottom">
-      <cell title="收支明细" link="/home/5">
+      <cell title="收支明细" link="/income_list">
         <!--<i slot="icon" width="20" style="margin-right:5px;" class="fa fa-table"></i>-->
       </cell>
-      <cell title="提现记录" link="">
+      <cell title="提现记录" link="/with_draw_list">
         <!--<i slot="icon" width="20" style="margin-right:5px;" class="fa fa-file-text-o"></i>-->
       </cell>
     </group>
@@ -36,13 +36,16 @@
   let me
   let vm
   import {Grid, GridItem, Group, Cell} from 'vux'
+  import {assetsApi} from '../../service/main.js'
 
   export default {
     name: 'assets-con',
     data() {
       return {
-        sellerName: '水一波旗舰店',
-        count: 0
+        isPosting: false,
+        onFetching: false,
+        noMore: false,
+        assets: {}
       }
     },
     components: {Grid, GridItem, Group, Cell},
@@ -50,31 +53,36 @@
       me = window.me
     },
     mounted() {
-      // me.attachClick()
+      vm = this
+      vm.getAssets()
     },
-    /*watch: {
+    watch: {
       '$route'(to, from) {
+        if (to.name === 'assets') {
+          vm.getAssets()
+        }
       }
-    },*/
-    computed: {},
+    },
+    /*computed: {},*/
     methods: {
-      // 向父组件传值
-      setPageStatus(data) {
-        this.$emit('listenPage', data)
+      getAssets(){
+        if (vm.onFetching) return false
+        vm.processing()
+        vm.onFetching = true
+        vm.loadData(assetsApi.asset, null, 'POST', function (res) {
+          vm.onFetching = false
+          vm.processing(0, 1)
+          vm.assets = res.data
+        }, function () {
+          vm.onFetching = false
+          vm.processing(0, 1)
+        })
       },
-      jumpTo(pathName, param, type) {
-        /* [type=2] 1:'path'2:'name',3:'query' */
-        type = type || 'name'
-        if (pathName) {
-          if (type === 1) {
-            this.$router.push({path: '/' + pathName + (param ? '/' + param : '')})
-          }
-          if (type === 2) {
-            this.$router.push({name: pathName, params: param || ''})
-          }
-          if (type === 3) {
-            this.$router.push({path: '/' + pathName, query: param || ''})
-          }
+      withDraw(){
+        if (vm.assets.currentAmount > 0) {
+          vm.jump('with_draw')
+        } else {
+          vm.toast('当前无可提现金额', 'warn')
         }
       }
     }
@@ -100,7 +108,6 @@
         .rel;
         padding: 80/@rem 24/@rem !important;
         .cf;
-        /*.bdiy(#FE6246);*/
         background: #FE6246 url(../../../static/img/sw_d.png) no-repeat 96% bottom;
         .rbg-size(32%);
         .left {
@@ -131,11 +138,9 @@
             border-style: solid;
             -webkit-transform: matrix(0.71, 0.71, -0.71, 0.71, 0, 0);
             transform: matrix(0.71, 0.71, -0.71, 0.71, 0, 0);
-            position: relative;
-            top: -2px;
             position: absolute;
             top: 50%;
-            margin-top: -4px;
+            margin-top: -6px;
             right: 2px;
           }
         }

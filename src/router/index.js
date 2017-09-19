@@ -35,6 +35,9 @@ import EditTicket from '@/pages/goods/tickets/Edit'
 
 import Clients from '@/pages/clients/Clients'
 import Assets from '@/pages/assets/Assets'
+import Income from '@/pages/assets/income/Income'
+import WithDrawList from '@/pages/assets/withDraw/WithDrawList'
+import WithDraw from '@/pages/assets/withDraw/WithDraw'
 import Statistic from '@/pages/statistic/Statistic'
 import Regist from '@/pages/my/Regist'
 import Password from '@/pages/my/Password'
@@ -281,6 +284,33 @@ export default new Router({
       component: Assets,
       meta: {
         title: '资金管理',
+        keepAlive: false
+      }
+    },
+    {
+      path: '/income_list',
+      name: 'income_list',
+      component: Income,
+      meta: {
+        title: '收支明细',
+        keepAlive: false
+      }
+    },
+    {
+      path: '/with_draw',
+      name: 'with_draw',
+      component: WithDraw,
+      meta: {
+        title: '提现',
+        keepAlive: false
+      }
+    },
+    {
+      path: '/with_draw_list',
+      name: 'with_draw_list',
+      component: WithDrawList,
+      meta: {
+        title: '提现记录',
         keepAlive: false
       }
     },

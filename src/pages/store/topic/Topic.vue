@@ -1,7 +1,7 @@
 <template>
   <div class="s-topic" v-cloak>
     <group class="bottom">
-      <x-textarea title="店铺公告：" :max="20" placeholder="一段展示在店铺首页的文字…" @on-blur="" v-model="topic"
+      <x-textarea title="店铺公告：" :max="150" placeholder="一条展示在店铺页的消息…" @on-blur="" v-model="topic"
                   show-clear></x-textarea>
     </group>
     <div class="btn btn-save" @click="update"><i class="fa fa-save"></i>&nbsp;保存</div>
