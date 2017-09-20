@@ -30,7 +30,7 @@
                   <img :src="item.headimgurl">
                   <div class="info-con">
                     <h3>{{item.nickname}}</h3>
-                    <div class="nums"><span>订单数：30</span><span>已完成：25</span></div>
+                    <div class="nums"><span>订单数：{{item.orderCount}}</span><span>已完成：{{item.finishCount}}</span></div>
                     <!--<div class="progress">
                       <div style='width:150px;height:150px;'>
                         <x-progress :percent="35" :showCancel="false"></x-progress>

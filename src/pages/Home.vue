@@ -6,28 +6,30 @@
      </div>-->
     <div class="overview" v-cloak>
       <a href="#/user" class="top-seller-avatar">
-        <img :src="avatar" alt="店铺头像" v-if="avatar">
+        <img :src="seller.headimgurl" alt="店铺头像" v-if="seller.headimgurl" v-cloak>
         <i class="fa fa-user-circle-o user-center" v-else></i>
       </a>
       <div class="top">
         <p class="today">今日收入(元)</p>
         <h2>
-          <countup :start-val="0" :end-val="overview.payAmount ? parseInt(overview.payAmount.toFixed(2)) : 0.00"
+          <countup :start-val="0"
+                   :end-val="overview.today.totalPayAmount ? parseInt(overview.today.totalPayAmount.toFixed(2)) : 0.00"
                    :decimals="2"
                    :duration="2"></countup>
         </h2>
-        <p class="yesterday">昨日：{{overview.payAmount ? parseInt(overview.payAmount.toFixed(2)) : 0.00}}</p>
+        <p class="yesterday">
+          昨日：{{overview.yesterday.totalPayAmount ? parseInt(overview.yesterday.totalPayAmount.toFixed(2)) : 0.00}}</p>
       </div>
       <div class="bottom">
         <div class="col left-col">
           <p class="today">成交数</p>
-          <h2 class="total">{{overview.payCount}}</h2>
-          <p class="yesterday">昨日{{overview.payCount}}</p>
+          <h2 class="total">{{overview.today.payCount}}</h2>
+          <p class="yesterday">昨日{{overview.yesterday.payCount}}</p>
         </div>
         <div class="col right-col">
           <p class="today">订单数</p>
-          <h2 class="total">{{overview.totalCount}}</h2>
-          <p class="yesterday">昨日{{overview.totalCount}}</p>
+          <h2 class="total">{{overview.today.orderCount}}</h2>
+          <p class="yesterday">昨日{{overview.yesterday.orderCount}}</p>
         </div>
       </div>
     </div>
@@ -183,7 +185,7 @@
     XSwitch,
     Sticky
   } from 'vux'
-  import {homeApi, orderApi, goodsApi} from '../service/main.js'
+  import {homeApi, userApi, orderApi, goodsApi} from '../service/main.js'
   import {mapState, mapMutations} from 'vuex'
 
   export default {
@@ -192,12 +194,18 @@
       return {
         geo: null,
         location: '',
-        avatar: '',
+        seller: {},
         overview: {
-          payAmount: 0,
-          payCount: 0,
-          totalAmount: 0,
-          totalCount: 0
+          today: {
+            orderCount: 0,
+            payCount: 0,
+            totalPayAmount: 0
+          },
+          yesterday: {
+            orderCount: 0,
+            payCount: 0,
+            totalPayAmount: 0
+          }
         },
         type: 0,
         orders: [],
@@ -252,7 +260,7 @@
     mounted() {
       vm = this
       vm.params.status = vm.$route.params.status || 1
-      vm.getOverview()
+      vm.getSeller()
       vm.getOrders()
       vm.$nextTick(function () {
         try {
@@ -311,11 +319,14 @@
           vm.$refs.orderScroller.finishInfinite(true)
         }, 1000)
       },
+      getSeller() {
+        vm.seller = vm.$store.state.global.userInfo || (me.sessions.get('ynSellerInfo') ? JSON.parse(me.sessions.get('ynSellerInfo')) : {})
+        vm.getOverview()
+      },
       getOverview() {
-        vm.avatar = me.sessions.get('ynSellerInfo') ? JSON.parse(me.sessions.get('ynSellerInfo')).headimgurl : '' || vm.$store.state.global.wxInfo.headimgurl
         if (vm.isPosting) return false
         vm.isPosting = true
-        vm.loadData(orderApi.count, null, 'POST', function (res) {
+        vm.loadData(orderApi.count, {sellerId: vm.seller.id}, 'POST', function (res) {
           vm.isPosting = false
           vm.overview = res.data
         }, function () {
@@ -820,7 +831,7 @@
             .noScore {
               padding: 0 22/@rem 20/@rem;
               .left;
-               .cdiy(#9fb52b);
+              .cdiy(#9fb52b);
               .fz(24);
             }
           }

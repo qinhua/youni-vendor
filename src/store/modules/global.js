@@ -139,9 +139,9 @@ export default {
   },
 
   getters: {
-    /*getSth: ()=> {
-      return state.name
-    }*/
+    getUserInfo(key) {
+      return state[key]
+    }
   },
 
   mutations: {
@@ -154,11 +154,12 @@ export default {
             return cur.items
           }
         }
-      }, 2000)
+      }, 1000)
     },
-    getData(state, payload) {
-      if (payload.res.httpStatusCode === 200) {
-        state.itemDetail = payload.res.topiclist
+    getData(state, key) {
+      console.log(arguments)
+      if (key) {
+        return state[key]
       }
     },
     storeData(state, response) {
@@ -171,6 +172,7 @@ export default {
       me.sessions.remove('ynLogin')
       me.sessions.remove('ynSellerInfo')
       me.locals.remove('ynWxUser')
+      vm.jump('author')
     },
     /* 更新路由方向 */
     updateDirection(state, payload) {

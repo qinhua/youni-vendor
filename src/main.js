@@ -24,7 +24,7 @@ Vue.use(AlertPlugin)
 Vue.use(ToastPlugin)
 Vue.use(LoadingPlugin)
 Vue.use(VueScroller)
-import {commonApi} from './service/main.js'
+import {commonApi, userApi} from './service/main.js'
 
 Vue.config.productionTip = false
 let me = window.me
@@ -394,6 +394,7 @@ new Vue({
         }, function () {
         })
       }
+      this.getSeller()
 
       /*/!* 检查登录session是否过期(7天保质期) *!/
        if (isLogin) {
@@ -410,6 +411,21 @@ new Vue({
         vm.$store.commit('storeData', {key: 'dict', data: res.data.itemList})
       }, function () {
       })
+    },
+    getSeller() {
+      var localSeller = me.sessions.get('ynSellerInfo')
+      if (localSeller) {
+        vm.$store.commit('storeData', {key: 'userInfo', data: JSON.parse(localSeller)})
+        return false
+      } else {
+        vm.loadData(userApi.get, null, 'POST', function (res) {
+          vm.isPosting = false
+          if (res.success && res.data) {
+            vm.$store.commit('storeData', {key: 'userInfo', data: res.data})
+            me.sessions.set('ynSellerInfo', JSON.stringify(res.data))
+          }
+        })
+      }
     }
   }
 })

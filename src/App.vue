@@ -60,7 +60,7 @@
   let vm
   import Home from './pages/Home'
   import Geo from './components/Geo'
-  import {userApi} from './service/main.js'
+  // import {userApi} from './service/main.js'
   import {Tabbar, TabbarItem} from 'vux'
   import {mapState, mapActions} from 'vuex'
 
@@ -77,12 +77,10 @@
     },
     components: {Geo, Tabbar, TabbarItem},
     beforeMount() {
-      // console.log(window.me)
     },
     mounted() {
       // me.attachClick()
       vm = this
-      vm.getSeller()
     },
     computed: {
       'showTabbar'() {
@@ -102,18 +100,7 @@
       getMap(data) {
         console.log(data, 'home geo info')
         this.geo = data
-      },
-      getSeller() {
-        var localSeller = vm.$store.state.global.userInfo || me.sessions.get('ynSellerInfo')
-        if (localSeller) return false
-        vm.loadData(userApi.get, null, 'POST', function (res) {
-          vm.isPosting = false
-          if (res.success && res.data) {
-            vm.$store.commit('storeData', {key:'userInfo',data: res.data})
-            me.sessions.set('ynSellerInfo', JSON.stringify(res.data))
-          }
-        })
-      },
+      }
     },
     watch: {
       '$route'(to, from) {

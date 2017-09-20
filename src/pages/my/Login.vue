@@ -45,9 +45,9 @@
     },
     watch: {
       '$route'(to, from) {
-        if(to.name==='login'){
+//        if(to.name==='login'){
           vm.checkServer()
-        }
+//        }
       }
     },
     methods: {
@@ -56,6 +56,7 @@
         if(!me.locals.get('ynWxUser')){
           me.locals.set('beforeLoginUrl', '/login')
           vm.jump('author')
+          return
         }
         vm.loadData(commonApi.login, null, 'POST', function (res) {
           vm.processing()

@@ -56,26 +56,17 @@
       vm = this
       vm.getSeller()
     },
-    watch: {
+    /*watch: {
       '$route'(to, from) {
         if (to.name === 'user') {
           vm.getSeller()
         }
       }
-    },
+    },*/
     // computed: {},
     methods: {
       getSeller() {
-        if (vm.isPosting) return false
-        vm.isPosting = true
-        vm.loadData(userApi.get, null, 'POST', function (res) {
-          vm.isPosting = false
-          if (res.success && res.data) {
-            vm.seller = res.data
-          }
-        }, function () {
-          vm.isPosting = false
-        })
+        vm.seller = vm.$store.state.global.userInfo || (me.sessions.get('ynSellerInfo') ? JSON.parse(me.sessions.get('ynSellerInfo')) : {})
       },
       logout() {
         vm.confirm('退出登录？', '', function () {
