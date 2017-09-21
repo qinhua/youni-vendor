@@ -99,7 +99,9 @@
      }, */
     watch: {
       '$route'(to, from) {
-        vm.getTickets()
+        if(to.name==='goods'){
+          vm.getTickets()
+        }
       }
     },
     methods: {

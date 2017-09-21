@@ -19,6 +19,7 @@
     name: 's-topic',
     data() {
       return {
+        topic: '',
         onFetching: false,
         isPosting: false
       }

@@ -101,7 +101,9 @@
      }, */
     watch: {
       '$route'(to, from) {
-        vm.getGoods()
+        if(to.name==='goods'){
+          vm.getGoods()
+        }
       }
     },
     methods: {

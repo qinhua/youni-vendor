@@ -84,8 +84,8 @@
                   refreshText="下拉刷新" noDataText="没有更多数据" snapping>
           <!-- content goes here -->
           <ul>
-            <li v-for="(item, index) in orders">
-              <section class="v-items" v-for="(item, index) in orders" :data-id="item.id"
+            <li v-for="(item, index) in orders" v-cloak>
+              <section class="v-items" :data-id="item.id"
                        :data-orderNumber="item.appOrderNumber" :data-itemId="item.orderItemId">
                 <h4 class="item-top"><i class="ico-avatar"
                                         :style="item.userImage?'background-image:url('+item.userImage+')':''"></i>&nbsp;{{item.userName}}&nbsp;&nbsp;<i
@@ -93,7 +93,7 @@
                                                                                          v-if="item.status===2&&item.remind">收到买家派送提醒</span>
                 </h4>
                 <ul>
-                  <li v-for="itm in item.goodsList">
+                  <li v-for="itm in item.goodsList" v-cloak>
                     <section class="item-middle">
                       <div class="img-con">
                         <img :src="itm.goodsImage">

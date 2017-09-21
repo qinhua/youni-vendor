@@ -12,9 +12,9 @@
       <swipeout>
         <swipeout-item disabled @on-close="" @on-open="" transition-mode="follow" :data-id="coupons.id||0" key="index">
           <div slot="right-menu">
-            <!--<swipeout-button @click.native="onButtonClick('edit',coupons.id||0)" background-color="orange">编辑-->
-            <!--</swipeout-button>-->
-            <!--<swipeout-button @click.native="onButtonClick('delete',coupons.id||0)" type="warn">删除</swipeout-button>-->
+            <swipeout-button @click.native="onButtonClick('edit',coupons.id||0)" background-color="orange">编辑
+            </swipeout-button>
+            <swipeout-button @click.native="onButtonClick('delete',coupons.id||0)" type="warn">删除</swipeout-button>
           </div>
           <div slot="content" class="demo-content vux-1px-t">
             <section class="v-items">
