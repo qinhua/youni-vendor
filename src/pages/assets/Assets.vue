@@ -140,7 +140,7 @@
             transform: matrix(0.71, 0.71, -0.71, 0.71, 0, 0);
             position: absolute;
             top: 50%;
-            margin-top: -6px;
+            margin-top: -4px;
             right: 2px;
           }
         }

@@ -3,6 +3,8 @@
     <div class="f-wrap" v-if="!showMap">
       <group>
         <x-input title="店铺名称：" placeholder="店铺名称" required text-align="right" v-model="params.name"></x-input>
+        <datetime title="营业时间" format="HH:mm" minute-row :min-hour="6" :max-hour="23" v-model="params.businessTime"
+                  @on-change="changeTime"></datetime>
         <img-uploader title="店铺头像" :api="fileApi" :limit="1" @on-uploaded="getImgUrl"></img-uploader>
       </group>
       <group class="bottom">
@@ -29,7 +31,7 @@
   /* eslint-disable no-unused-vars */
   let me
   let vm
-  import {Group, Cell, XInput, XTextarea, XAddress, ChinaAddressV3Data} from 'vux'
+  import {Group, Cell, XInput, XTextarea, PopupPicker, Datetime, XAddress, ChinaAddressV3Data} from 'vux'
   import {commonApi, userApi} from '../../service/main.js'
   import imgUploader from '../../components/ImgUploader.vue'
   import Amap from '../../components/Amap.vue'
@@ -46,7 +48,7 @@
         params: {}
       }
     },
-    components: {Group, Cell, XInput, XTextarea, XAddress, ChinaAddressV3Data, imgUploader, Amap},
+    components: {Group, Cell, XInput, XTextarea, PopupPicker, Datetime, XAddress, imgUploader, Amap},
     beforeMount() {
       me = window.me
     },
@@ -98,11 +100,11 @@
       },
       getSeller(needSave) {
         /*try {
-          vm.params = vm.$route.params.userinfo ? JSON.parse(window.decodeURIComponent(vm.$route.params.userinfo)) : {}
-          console.log(vm.params, '带过来的数据')
-        } catch (e) {
-          // console.log(e)
-        }*/
+         vm.params = vm.$route.params.userinfo ? JSON.parse(window.decodeURIComponent(vm.$route.params.userinfo)) : {}
+         console.log(vm.params, '带过来的数据')
+         } catch (e) {
+         // console.log(e)
+         }*/
         if (vm.isPosting) return false
         vm.isPosting = true
         vm.loadData(userApi.get, null, 'POST', function (res) {
