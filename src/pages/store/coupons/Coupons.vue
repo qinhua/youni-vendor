@@ -82,10 +82,12 @@
       vm = this
       vm.getCoupons()
     },
-    computed: {},
+//    computed: {},
     watch: {
       '$route'(to, from) {
-        vm.getCoupons()
+        if (to.name === 'coupons') {
+          vm.getCoupons()
+        }
       }
     },
     methods: {
@@ -238,8 +240,8 @@
               .abs;
               top: 20/@rem;
               right: 20/@rem;
-              padding:0 2px;
-              .bor(1px,solid, #fff);
+              padding: 0 2px;
+              .bor(1px, solid, #fff);
               .fz(24);
               color: rgba(255, 255, 255, .8);
             }

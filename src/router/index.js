@@ -29,7 +29,9 @@ import GuaranteeFee from '@/pages/store/guarantee/GuaranteeFee'
 
 import GoodsItems from '@/pages/goods/Items'
 import Goods from '@/pages/goods/goods/Goods'
+import OrderDetail from '@/pages/order/Detail'
 import EditGoods from '@/pages/goods/goods/Edit'
+import EditSubPrice from '@/components/EditSubPrice'
 import Tickets from '@/pages/goods/tickets/Tickets'
 import EditTicket from '@/pages/goods/tickets/Edit'
 
@@ -248,6 +250,24 @@ export default new Router({
       component: EditGoods,
       meta: {
         title: '编辑商品',
+        keepAlive: false
+      }
+    },
+    {
+      path: '/order_detail',
+      name: 'order_detail',
+      component: OrderDetail,
+      meta: {
+        title: '订单详情',
+        keepAlive: false
+      }
+    },
+    {
+      path: '/edit_sub_price',
+      name: 'edit_sub_price',
+      component: EditSubPrice,
+      meta: {
+        title: '价格标签',
         keepAlive: false
       }
     },

@@ -138,11 +138,11 @@ export default {
     direction: 'forward'
   },
 
-  getters: {
-    getUserInfo(key) {
+ /* getters: {
+    getUserInfo(state,key) {
       return state[key]
     }
-  },
+  },*/
 
   mutations: {
     getFromDict(state, type) {
@@ -169,10 +169,9 @@ export default {
       state.wxInfo = null
       state.userInfo = null
       state.isLogin = false
-      me.sessions.remove('ynLogin')
+      me.sessions.remove('logYn')
       me.sessions.remove('ynSellerInfo')
       me.locals.remove('ynWxUser')
-      vm.jump('author')
     },
     /* 更新路由方向 */
     updateDirection(state, payload) {

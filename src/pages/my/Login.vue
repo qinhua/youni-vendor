@@ -13,7 +13,6 @@
     <p class="b-txt">友你生活 | 开启崭新生活</p>
   </div>
 </template>
-
 <script>
   /* eslint-disable no-unused-vars */
   let me
@@ -42,32 +41,36 @@
       vm.params.phone = vm.$route.query.phone || null
       vm.params.passwd = vm.$route.query.psw || null
       vm.checkServer()
+      window.addEventListener('keydown', function (e) {
+        if (e.keyCode === 13) {
+          vm.login()
+        }
+      }, false)
     },
     watch: {
       '$route'(to, from) {
-//        if(to.name==='login'){
+        if (to.name === 'login') {
           vm.checkServer()
-//        }
+        }
       }
     },
     methods: {
       // 01.检查是否登录
       checkServer() {
-        if(!me.locals.get('ynWxUser')){
+        if (!me.locals.get('ynWxUser')) {
           me.locals.set('beforeLoginUrl', '/login')
           vm.jump('author')
-          return
         }
         vm.loadData(commonApi.login, null, 'POST', function (res) {
           vm.processing()
           if (res.data.success) {
             vm.processing(0, 1)
-            vm.jump('home')
             /* 保存用户信息 */
             vm.$store.commit('storeData', {key: 'isLogin', data: true})
-            me.sessions.set('ynLogin', true)
-          }else{
-            //vm.jump('login')
+            me.sessions.set('logYn', true)
+            vm.jump('home')
+          } else {
+            vm.jump('login')
           }
         }, function () {
         })
@@ -97,7 +100,7 @@
             vm.toast('登录成功 ！')
             /* 保存用户信息 */
             vm.$store.commit('storeData', {key: 'isLogin', data: true})
-            me.sessions.set('ynLogin', true)
+            me.sessions.set('logYn', true)
             // vm.goBeforePage()
             vm.jump('home')
           } else {

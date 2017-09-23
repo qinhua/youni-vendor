@@ -1,47 +1,62 @@
 <template>
   <div class="goods-edit-con" v-cloak>
-    <group>
-      <popup-picker title="品牌" :data="brands" :columns="1" v-model="tmpBrand" ref="picker1" @on-show=""
-                    @on-hide="" @on-change="changeBrand"></popup-picker>
-      <x-input title="商品名称：" placeholder="商品名称" required text-align="right" v-model="params.name"></x-input>
-      <!--<selector placeholder="商品分类" v-model="params.goodsType" title="商品分类" name="goodsType" :options="types"-->
-      <!--@on-change="changeType"></selector>-->
-      <popup-picker title="商品分类" :data="types" :columns="1" v-model="tmpType" ref="picker2" @on-show=""
-                    @on-hide="" @on-change="changeType"></popup-picker>
-      <popup-picker title="商品类目" :data="categories" :columns="1" v-model="tmpCat" ref="picker3" @on-show=""
-                    @on-hide="" @on-change="changeCategory"></popup-picker>
-      <x-input title="库存：" placeholder="库存" required text-align="right" type="number" v-model="params.stock"></x-input>
-      <x-input title="价格：" placeholder="价格" required text-align="right" type="number" v-model="params.price"></x-input>
-    </group>
-    <group class="bottom">
-      <div class="checker-group">
-        <label>销售状态：</label>
-        <checker v-model="params.saleStatus" default-item-class="demo-item" selected-item-class="demo-item-selected">
-          <checker-item :value="item.key" v-for="(item, index) in status" :key="index" @on-item-click="changeStatus">
-            {{item.value}}
-          </checker-item>
-        </checker>
-      </div>
-      <img-uploader ref="imgPicker" title="商品头图" :api="fileApi" :limit="1" @on-uploaded="getImgUrl"></img-uploader>
-      <!--<x-input title="折扣价：" placeholder="折扣价" text-align="right" v-model="params.discountPrice"></x-input>
-      <x-textarea title="折扣说明：" :max="20" placeholder="折扣说明" @on-blur="" v-model="params.discountNote"
-                  show-clear></x-textarea>-->
-    </group>
-    <group class="bottom">
-      <div class="tags-group">
-        <label>标签</label>
-        <div class="tags-cons">
-          <tags-input :tags="tags" placeholder="商品标签（3~5字最佳,最多3个）" @focus="handleFocus" @blur="handleBlur"
-                      @tags-change="changeTags"></tags-input>
+    <div class="edit-con" v-if="!editPriceTag">
+      <group>
+        <popup-picker title="品牌" :data="brands" :columns="1" v-model="tmpBrand" ref="picker1" @on-show=""
+                      @on-hide="" @on-change="changeBrand"></popup-picker>
+        <x-input title="商品名称：" placeholder="商品名称" required text-align="right" v-model="params.name"></x-input>
+        <!--<selector placeholder="商品分类" v-model="params.goodsType" title="商品分类" name="goodsType" :options="types"-->
+        <!--@on-change="changeType"></selector>-->
+        <popup-picker title="商品分类" :data="types" :columns="1" v-model="tmpType" ref="picker2" @on-show=""
+                      @on-hide="" @on-change="changeType"></popup-picker>
+        <popup-picker title="商品类目" :data="categories" :columns="1" v-model="tmpCat" ref="picker3" @on-show=""
+                      @on-hide="" @on-change="changeCategory"></popup-picker>
+        <x-input title="库存：" placeholder="库存" required text-align="right" type="number"
+                 v-model="params.stock"></x-input>
+        <x-input title="价格：" placeholder="价格" required text-align="right" type="number" v-model="params.price"
+                 v-if="params.type==='goods_type.1'"></x-input>
+        <x-input title="价格标签" placeholder="去设置" text-align="right" readonly disabled
+                 v-if="params.id && params.type==='goods_type.2'"
+                 @click.native="editSubPrice(params.priceTags)"></x-input>
+        <div class="tags-group favor-group" v-if="params.id && params.type!=='goods_type.1'">
+          <label>口味标签：</label>
+          <div class="tags-cons">
+            <tags-input :tags="flavourLabel" placeholder="口味标签（3~5字最佳,最多5个）" @focus="handleFocus" @blur="handleBlur"
+                        @tags-change="changeFavorTags"></tags-input>
+          </div>
         </div>
-      </div>
-      <div class="editor-group">
-        <label>详情</label>
-        <vue-editor v-model="params.note" placeholder="我是示例文字…" useCustomImageHandler @imageAdded="handleImageAdded"
-                    :editorToolbar="customToolbar"></vue-editor>
-      </div>
-    </group>
-    <div class="btn btn-save" @click="updateGoods"><i class="fa fa-save"></i>&nbsp;保存</div>
+      </group>
+      <group class="bottom">
+        <div class="checker-group">
+          <label>销售状态：</label>
+          <checker v-model="params.saleStatus" default-item-class="demo-item" selected-item-class="demo-item-selected">
+            <checker-item :value="item.key" v-for="(item, index) in status" :key="index" @on-item-click="changeStatus">
+              {{item.value}}
+            </checker-item>
+          </checker>
+        </div>
+        <img-uploader ref="imgPicker" title="商品头图" :api="fileApi" :limit="1" @on-uploaded="getImgUrl"></img-uploader>
+        <!--<x-input title="折扣价：" placeholder="折扣价" text-align="right" v-model="params.discountPrice"></x-input>
+        <x-textarea title="折扣说明：" :max="20" placeholder="折扣说明" @on-blur="" v-model="params.discountNote"
+                    show-clear></x-textarea>-->
+      </group>
+      <group class="bottom">
+        <div class="tags-group">
+          <label>标签</label>
+          <div class="tags-cons">
+            <tags-input :tags="label" placeholder="商品标签（3~5字最佳,最多3个）" @focus="handleFocus" @blur="handleBlur"
+                        @tags-change="changeTags"></tags-input>
+          </div>
+        </div>
+        <div class="editor-group">
+          <label>详情</label>
+          <vue-editor v-model="params.note" placeholder="我是示例文字…" useCustomImageHandler @imageAdded="handleImageAdded"
+                      :editorToolbar="customToolbar"></vue-editor>
+        </div>
+      </group>
+      <div class="btn btn-save" @click="updateGoods"><i class="fa fa-save"></i>&nbsp;保存</div>
+    </div>
+    <edit-sub-price :goodsId="params.id" v-if="editPriceTag" @on-finish="getPriceTagStatus"></edit-sub-price>
   </div>
 </template>
 
@@ -61,7 +76,8 @@
     XAddress,
     ChinaAddressV3Data
   } from 'vux'
-  import imgUploader from '../../../components/ImgUploader.vue'
+  import ImgUploader from '../../../components/ImgUploader.vue'
+  import EditSubPrice from '../../../components/EditSubPrice.vue'
   import {VueEditor} from 'vue2-editor'
   import {goodsApi, commonApi} from '../../../service/main.js'
 
@@ -75,6 +91,7 @@
         onFetching: false,
         isPosting: false,
         lineData: null,
+        editPriceTag: false,
         fileApi: commonApi.uploadImg,
         addressData: ChinaAddressV3Data,
         brands: [{
@@ -132,14 +149,17 @@
           category: 2,
           stock: '',
           price: null,
+          priceTags: null,
           imgurl: '',
           saleStatus: 1,
           label: '',
+          flavourLabel: '',
           /*discountPrice: null,
            discountNote: '',*/
           note: ''
         },
-        tags: [],
+        label: [],
+        flavourLabel: [],
         tmpBrand: [],
         tmpType: [],
         tmpCat: [],
@@ -164,7 +184,8 @@
       XAddress,
       ChinaAddressV3Data,
       VueEditor,
-      imgUploader,
+      EditSubPrice,
+      ImgUploader,
       'tags-input': require('vue-tagsinput/src/input.vue')
     },
     beforeMount() {
@@ -213,9 +234,12 @@
           vm.params[target] = tmp
         }
       },
+      getPriceTagStatus(data) {
+        vm.editPriceTag = data
+      },
       getGoods() {
+        vm.editPriceTag = false
         vm.lineData = vm.$route.query.linedata ? JSON.parse(decodeURIComponent(vm.$route.query.linedata)) : ''
-        console.log(vm.lineData)
         if (vm.lineData && vm.lineData.id) {
           vm.params = {
             id: vm.lineData.id,
@@ -227,7 +251,8 @@
             price: vm.lineData.price,
             imgurl: vm.lineData.imgurl,
             saleStatus: vm.lineData.saleStatus,
-            label: null,
+            label: '',
+            flavourLabel: '',
             /*discountPrice: null,
              discountNote: '',*/
             note: vm.lineData.note
@@ -235,7 +260,8 @@
           vm.switchData(vm.brands, vm.lineData.brandId, 'tmpBrand', 1)
           vm.switchData(vm.types, vm.lineData.type, 'tmpType', 1)
           vm.switchData(vm.categories, vm.lineData.category, 'tmpCat', 1)
-          vm.renderTags(vm.lineData.label)
+          vm.renderTags('label', vm.lineData.label)
+          vm.renderTags('flavourLabel', vm.lineData.flavourLabel)
         } else {
           vm.params = {
             brandId: '',
@@ -247,9 +273,11 @@
             imgurl: '',
             saleStatus: 1,
             label: '',
+            flavourLabel: '',
             note: ''
           }
-          vm.tags = []
+          vm.label = []
+          vm.flavourLabel = []
           vm.tmpBrand = []
           vm.tmpType = []
           vm.tmpCat = []
@@ -311,7 +339,8 @@
         if (vm.isPosting || !vm.validate()) return false
         /*此处转换一些字段类型*/
         let curApi
-        vm.formatNewTag()
+        vm.formatNewTag('label')
+        vm.formatNewTag('flavourLabel')
         if (vm.lineData.id) {
           curApi = goodsApi.update
         } else {
@@ -345,6 +374,11 @@
       changeType(val) {
         vm.switchData(vm.types, vm.tmpType, 'type')
         console.log(val, vm.params.type)
+        if (vm.params.type === 'goods_type.2') {
+          vm.params.price = 1
+        } else {
+          vm.params.price = 0
+        }
       },
       changeStatus(value, disabled) {
         // console.log(value, disabled)
@@ -360,10 +394,25 @@
           return
         }
         if (text) {
-          this.tags.splice(index, 0, text)
+          this.label.splice(index, 0, text)
         } else {
-          this.tags.splice(index, 1)
+          this.label.splice(index, 1)
         }
+      },
+      changeFavorTags(index, text) {
+        console.log(index, text)
+        if (index === 5) {
+          vm.toast('最多5个标签！', 'warn')
+          return
+        }
+        if (text) {
+          this.flavourLabel.splice(index, 0, text)
+        } else {
+          this.flavourLabel.splice(index, 1)
+        }
+      },
+      editSubPrice(data) {
+        vm.editPriceTag = true
       },
       handleFocus(index) {
         // console.log(`input actived in the index ${index}`)
@@ -371,11 +420,12 @@
       handleBlur(index) {
         // console.log(`input deactived in the index ${index}`)
       },
-      renderTags(tags) {
-        vm.tags = tags ? tags.split(',') : null
+      renderTags(key, value) {
+        vm[key] = value ? value.split(',') : []
       },
-      formatNewTag(text) {
-        vm.params.label = vm.tags ? vm.tags.join(',') : ''
+      formatNewTag(key) {
+        vm.params[key] = vm[key] ? vm[key].join(',') : ''
+        vm.params[key] = vm[key] ? vm[key].join(',') : ''
       },
       /*富文本editor*/
       handleImageAdded: function (file, Editor, cursorLocation) {
@@ -384,14 +434,13 @@
         var formData = new FormData();
         formData.append('image', file)
         vm.$axios({
-            url: commonApi.uploadImg,
-            method: 'POST',
-            data: formData
-          })
-          .then(function (result) {
-            var url = window.youniMall.host + '/' + result.data.imageUrl
-            Editor.insertEmbed(cursorLocation, 'image', url);
-          }).catch(function (err) {
+          url: commonApi.uploadImg,
+          method: 'POST',
+          data: formData
+        }).then(function (result) {
+          var url = window.youniMall.host + '/' + result.data.imageUrl
+          Editor.insertEmbed(cursorLocation, 'image', url);
+        }).catch(function (err) {
           console.log(err);
         })
       }
@@ -460,6 +509,16 @@
           .tag {
             .cf;
             .bdiy(#ef834f)
+          }
+        }
+        &.favor-group {
+          margin-left: 24/@rem;
+          padding: 24/@rem 28/@rem 24/@rem 0;
+          .bor-t;
+          .tags-input{
+            .tag{
+              .bdiy(#79bd5c)
+            }
           }
         }
       }

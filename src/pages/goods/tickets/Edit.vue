@@ -71,7 +71,7 @@
     XAddress,
     ChinaAddressV3Data
   } from 'vux'
-  import imgUploader from '../../../components/ImgUploader.vue'
+  import ImgUploader from '../../../components/ImgUploader.vue'
   import goodsSearch from '../../../components/GoodsSearch.vue'
   import {VueEditor} from 'vue2-editor'
   import {ticketApi, commonApi} from '../../../service/main.js'
@@ -190,7 +190,7 @@
       ChinaAddressV3Data,
       VueEditor,
       goodsSearch,
-      imgUploader,
+      ImgUploader,
       'tags-input': require('vue-tagsinput/src/input.vue')
     },
     beforeMount() {

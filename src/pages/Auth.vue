@@ -92,13 +92,13 @@
       },
       // 03.返回判断
       goBeforePage() {
-        let url = me.locals.get('beforeLoginUrl') || '/login'
-        if (!url || url.indexOf('/author') !== -1) {
+        /*let url = me.locals.get('beforeLoginUrl') || '/login'
+        if (!url || url.indexOf('/author') !== -1) {*/
           this.$router.push({path: '/home'})
-        } else {
+        /*} else {
           this.$router.push({path: url})
           me.locals.set('beforeLoginUrl', '')
-        }
+        }*/
       }
     },
     /*watch: {

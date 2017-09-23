@@ -4,19 +4,20 @@
       <div class="withdraw-modal">
         <div class="left">
           <h3>可提现金额</h3>
-          <p>￥0.00</p>
+          <p>￥{{assets.waitTakeAmount > 0 ? assets.waitTakeAmount: 0.00}}</p>
         </div>
         <div class="right" @click="withDraw">提现</div>
       </div>
-      <cell title="不可用金额" link="">￥0.00
+      <cell title="总收入" link="">
+        ￥{{assets.totalAmount > 0 ? assets.totalAmount : 0.00}}
         <!--<i slot="icon" width="20" style="margin-right:5px;" class="fa fa-cube"></i>-->
       </cell>
     </group>
     <group class="list-modal bottom">
-      <cell title="已结算收入" link="">￥0.00
+      <cell title="已结算收入" link="">￥{{assets.takeAmount > 0 ? assets.takeAmount : 0.00}}
         <!--<i slot="icon" width="20" style="margin-right:5px;" class="fa fa-credit-card"></i>-->
       </cell>
-      <cell title="未结算收入" link="">￥0.00
+      <cell title="未结算收入" link="">￥{{assets.waitTakeAmount > 0 ? assets.waitTakeAmount : 0.00}}
         <!--<i slot="icon" width="20" style="margin-right:5px;" class="fa fa-money"></i>-->
       </cell>
     </group>
@@ -45,7 +46,11 @@
         isPosting: false,
         onFetching: false,
         noMore: false,
-        assets: {}
+        assets: {
+          /*takeAmount: 0,
+          totalAmount: 0,
+          waitTakeAmount: 0*/
+        }
       }
     },
     components: {Grid, GridItem, Group, Cell},
@@ -65,7 +70,7 @@
     },
     /*computed: {},*/
     methods: {
-      getAssets(){
+      getAssets() {
         if (vm.onFetching) return false
         vm.processing()
         vm.onFetching = true
@@ -78,7 +83,7 @@
           vm.processing(0, 1)
         })
       },
-      withDraw(){
+      withDraw() {
         if (vm.assets.currentAmount > 0) {
           vm.jump('with_draw')
         } else {

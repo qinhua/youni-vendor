@@ -73,7 +73,7 @@
           vm.loadData(commonApi.logout, null, 'POST', function (res) {
             if (res.success) {
               vm.$store.commit('logout')
-              vm.jump('login')
+              vm.$router.push({path:'/login'})
             }
           }, function () {
           })
@@ -81,7 +81,7 @@
       },
       modPassword() {
         this.$router.push({name: 'password', query: {id: vm.sellerId}})
-      },
+      }
     }
   }
 </script>

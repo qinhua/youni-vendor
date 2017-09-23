@@ -29,28 +29,36 @@ import {commonApi, userApi} from './service/main.js'
 Vue.config.productionTip = false
 let me = window.me
 let vm
+
+// 检测是否登录
+var checkLogin = function (openid) {
+  $.ajax({
+    url: commonApi.login,
+    type: 'POST',
+    data: {'requestapp': '{}'},
+    dataType: "JSON",
+    async: false,
+    cache: false,
+    headers: {'token': openid},
+    success: function (res) {
+      if (res.success && res.data.success) {
+        me.sessions.set('logYn', true)
+        // if (vm.$route.name === 'login' || vm.$route.name === 'regist') {
+        // router.push({path: '/home'})
+        // }
+      } else {
+        me.sessions.remove('logYn')
+        // router.push({path: '/login'})
+      }
+    },
+    error: function (res) {
+    }
+  })
+}
+
 // 在路由路由跳转前判断一些东西
 router.beforeEach((to, from, next) => {
   console.info(store.state, '当前vuex中的data')
-  /* 判断页面的方向 */
-  /* const history = window.sessionStorage
-   history.clear()
-   let historyCount = history.getItem('count') * 1 || 0
-   history.setItem('/', 0)
-   const toIndex = history.getItem(to.path)
-   const fromIndex = history.getItem(from.path)
-   if (toIndex) {
-   if (!fromIndex || parseInt(toIndex, 10) > parseInt(fromIndex, 10) || (toIndex === '0' && fromIndex === '0')) {
-   store.commit('UPDATE_DIRECTION', {direction: 'forward'})
-   } else {
-   store.commit('UPDATE_DIRECTION', {direction: 'reverse'})
-   }
-   } else {
-   ++historyCount
-   history.setItem('count', historyCount)
-   to.path !== '/' && history.setItem(to.path, historyCount)
-   store.commit('UPDATE_DIRECTION', {direction: 'forward'})
-   } */
 
   /* 判断授权是否存在或过期(页面刷新就会触发过期检查，不包含切换账号后的检查) */
   if (store.state.global.expired) {
@@ -59,18 +67,32 @@ router.beforeEach((to, from, next) => {
       if (localAuth) {
         /* 检查本地token是否过期(7天保质期) */
         if (me.getDiffDay(localAuth.timeStamp) > 7) {
+          // alert('author页授权已过期，重新授权')
           store.commit('storeData', {key: 'expired', data: true})
           console.profile('in auth page and (no id)')
           next()
         } else {
+          // alert('author页授权在有效期内，进首页')
           window.youniMall.userAuth = localAuth.data
           store.commit('storeData', {key: 'wxInfo', data: localAuth.data})
           store.commit('storeData', {key: 'expired', data: false})
           console.profile('in auth page and (id)')
-          // checkLog(true)
-          return next('/home')
+          /*检测登录*/
+          // setTimeout(function () {
+          checkLogin(window.youniMall.userAuth.openid)
+          if (me.sessions.get('logYn')) {
+            // alert('author页授权在有效期内，检测已登录')
+            //当前已登录
+            return next('/home')
+          } else {
+            // alert('author页授权在有效期内，检测到未登录')
+            //当前未登录
+            return next('/login')
+          }
+          // }, 0)
         }
       } else {
+        // alert('author页无授权，授权中')
         console.profile('in auth page and (no id)')
         next()
       }
@@ -78,19 +100,32 @@ router.beforeEach((to, from, next) => {
       if (localAuth) {
         /* 检查本地token是否过期(7天保质期) */
         if (me.getDiffDay(localAuth.timeStamp) > 7) {
+          // alert('非author页授权已过期，跳至授权')
           store.commit('storeData', {key: 'expired', data: true})
           console.profile('not in auth page and (no id)')
           me.locals.set('beforeLoginUrl', to.fullPath) // 保存用户进入的url
           return next('/author')
         } else {
+          // alert('非author页授权在有效期内，进首页or继续当前')
           window.youniMall.userAuth = localAuth.data
           store.commit('storeData', {key: 'wxInfo', data: localAuth.data})
           store.commit('storeData', {key: 'expired', data: false})
           console.profile('not in auth page and (id)')
-          // checkLog()
-          next()
+          /*检测登录*/
+          checkLogin(window.youniMall.userAuth.openid)
+          if (me.sessions.get('logYn')) {
+            // alert('非author页授权在有效期内，检测到已登录')
+            //当前已登录
+            next()
+            // return next('/home')
+          } else {
+            // alert('非author页授权在有效期内，检测到未登录')
+            //当前未登录
+            return next('/login')
+          }
         }
       } else {
+        // alert('非author页无授权，跳至授权')
         console.profile('not in auth page and (no id)')
         me.locals.set('beforeLoginUrl', to.fullPath) // 保存用户进入的url
         return next('/author')
@@ -129,13 +164,13 @@ Vue.prototype.loadData = function (url, params, type, sucCb, errCb, noAuthInfo) 
       headers: {token: winAuth ? winAuth.openid : ''},
       success: function (res) {
         // 检测是否登录
-        if (res.message.indexOf('登录') > -1) {
+        /*if (res.message.indexOf('登录') > -1) {
           if (vm.$route.name === 'regist') return
-          vm.processing(0, 1)
+          // vm.processing(0, 1)
           // vm.confirm('温馨提示','请先登录！',function(){
           vm.$router.push({path: '/login'})
           // })
-        }
+        }*/
         try {
           sucCb ? sucCb(res) : console.log(res, '接口的res')
         } catch (e) {
@@ -367,34 +402,33 @@ new Vue({
     window.youniMall.userAuth = vm.$store.state.global.wxInfo || (me.locals.get('ynWxUser') ? JSON.parse(me.locals.get('ynWxUser')).data : null)
     !vm.$store.state.global.dict ? vm.getDict() : null
   },
-  /*watch: {
-    '$route'(to, from) {
-      this.checkLogin()
-    }
-  },*/
   mounted() {
     vm = this
-    this.checkLogin()
+    this.getSeller()
+  },
+  watch: {
+    '$route'(to, from) {
+      this.getSeller()
+    }
   },
   methods: {
     checkLogin() {
-      if (!vm.$store.state.global.isLogin && !me.sessions.get('ynLogin') && vm.$route.name !== 'login' && vm.$route.name !== 'regist' && vm.$route.name !== 'password') {
+      if (!vm.$store.state.global.isLogin && !me.sessions.get('logYn') && vm.$route.name !== 'login' && vm.$route.name !== 'regist' && vm.$route.name !== 'password') {
         // 检测是否登录
         vm.loadData(commonApi.login, null, 'POST', function (res) {
-          // alert(JSON.stringify(res))
           if (res.data.success) {
             vm.$store.commit('storeData', {key: 'isLogin', data: true})
-            me.sessions.set('ynLogin', true)
+            me.sessions.set('logYn', true)
             if (vm.$route.name === 'login' || vm.$route.name === 'regist') {
               vm.$router.push({path: '/home'})
             }
+            this.getSeller()
           } else {
             vm.$router.push({path: '/login'})
           }
         }, function () {
         })
       }
-      this.getSeller()
 
       /*/!* 检查登录session是否过期(7天保质期) *!/
        if (isLogin) {

@@ -99,7 +99,7 @@
      }, */
     watch: {
       '$route'(to, from) {
-        if(to.name==='goods'){
+        if(to.name==='tickets'){
           vm.getTickets()
         }
       }

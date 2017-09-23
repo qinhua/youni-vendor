@@ -21,6 +21,9 @@ const goodsApi = {
   list: host + '/goods/list',
   add: host + '/goods/add',
   update: host + '/goods/update',
+  saleConfigList: host + '/goods/listSaleConfig',
+  setSaleConfig: host + '/goods/setSaleConfig',
+  delSaleConfig: host + '/goods/delSaleConfig',
   setSaleStatus: host + '/goods/setSaleStatus'
 }
 const nearbyApi = {
@@ -34,6 +37,7 @@ const ticketApi = {
 }
 const orderApi = {
   list: host + '/order/list',
+  view: host + '/order/view',
   del: host + '/order/del',
   cancel: host + '/order/cancel',
   count: host + '/order/count',
@@ -64,13 +68,16 @@ const couponApi = {
   del: host + '/sellerCoupon/del'
 }
 const assetsApi = {
-  asset: host + '/seller/asset',
+  asset: host + '/seller/amount',
   withDrawList: host + '/seller/statistic',
   withDraw: host + '/common/top10'
 }
 const statisticApi = {
   list: host + '/seller/statistic',
   top10: host + '/common/top10',
+  orderAnalysis: host + '/common/orderAnalysis',
+  saleAnalysis: host + '/common/saleAnalysis',
+  puvAnalysis: host + '/common/puvAnalysis',
 }
 const commonApi = {
   wxAuth: host + '/weixin/auth',
