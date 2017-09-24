@@ -673,12 +673,12 @@
         .item-middle {
           .rel;
           padding: 14/@rem 20/@rem;
-          /*padding: 14/@rem 20/@rem 14/@rem 14/@rem;*/
           min-height: 160/@rem;
           .bf8;
           .bor-b;
           .img-con {
-            .abs-center-vertical;
+            .abs;
+            top: 14/@rem;
             padding: 10/@rem 0;
             .size(140, 120);
             overflow: hidden;

@@ -43,12 +43,8 @@ var checkLogin = function (openid) {
     success: function (res) {
       if (res.success && res.data.success) {
         me.sessions.set('logYn', true)
-        // if (vm.$route.name === 'login' || vm.$route.name === 'regist') {
-        // router.push({path: '/home'})
-        // }
       } else {
         me.sessions.remove('logYn')
-        // router.push({path: '/login'})
       }
     },
     error: function (res) {

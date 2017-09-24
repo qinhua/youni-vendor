@@ -16,7 +16,7 @@
         </div>
         <div class="flex-con" v-else>
           <button type="button" class="btn btn-col btn-cancel" @click="clear(true)">取消</button>
-          <button type="button" class="btn btn-col btn-clear" @click="clear">清空</button>
+          <button type="button" class="btn btn-col btn-clear" @click="clear(false)">清空</button>
           <button type="button" class="btn btn-col btn-sure" @click="update">保存</button>
         </div>
       </div>
@@ -80,7 +80,7 @@
         }
       }
     },
-    props: ['goodsId'],
+    props: ['goodsId', 'isAddGoods'],
     components: {
       Group,
       Cell,
@@ -117,7 +117,7 @@
           originPrice: 0,
           salePrice: 0
         }
-        isCancel ? vm.isEdit = false : null
+        vm.isEdit = !isCancel
       },
       edit(data) {
         vm.isEdit = true
@@ -181,7 +181,7 @@
               vm.isEdit = false
               vm.processing(0, 1)
               vm.getTags()
-              vm.clear()
+              vm.clear(true)
             } else {
               vm.toast(res.data || '保存失败！', 'warn')
             }
@@ -196,7 +196,12 @@
           vm.toast('请先完成标签！', 'warn')
           return false
         }
-        vm.$emit('on-finish', false)
+        if (vm.isAddGoods) {
+          vm.toast('已添加')
+          vm.jump('goods')
+        } else {
+          vm.$emit('on-finish', {status: false, message: vm.tags.length ? '已添加个' + vm.tags.length + '标签' : '去设置'})
+        }
       },
       onButtonClick(type, data) {
         if (type === 'edit') {

@@ -21,11 +21,12 @@
         <section class="v-items" v-for="(item, index) in results" :data-id="item.id"
                  @click="onSelect({id:item.id,name:item.name})">
           <section class="item-middle">
-            <div class="img-con">
-              <img :src="item.imgurl">
-            </div>
+            <div class="img-con"
+                 :style="item.imgurl?('background-image:url('+item.imgurl+')'):''"></div>
             <div class="info-con">
-              <h3>{{item.name}}</h3>
+              <h3><span
+                :class="item.type==='goods_type.2'?'milk':''">{{item.type === 'goods_type.2' ? '奶' : '水'}}</span>{{item.name}}
+              </h3>
               <section class="middle">
                 <span class="unit-price">售价：￥{{item.price}}</span>
                 <span class="order-info">已售：{{item.saleCount}}</span>
@@ -212,26 +213,43 @@
             }
           }
           .item-middle {
+            .rel;
             padding: 14/@rem 20/@rem;
-            .flex;
+            min-height: 140/@rem;
+            .bf8;
+            .bor-b;
             .img-con {
-              .rel;
-              .size(130, 130);
+              .abs;
+              top: 14/@rem;
+              padding: 10/@rem 0;
+              .size(140, 120);
               overflow: hidden;
-              img {
-                width: 100%;
-                .abs-center-vh;
-              }
+              background: #f5f5f5 url(../../static/img/bg_nopic.jpg) no-repeat center;
+              -webkit-background-size: cover;
+              background-size: cover;
             }
             .info-con {
-              .flex-r(2);
-              padding: 0 14/@rem;
+              .borBox;
+              width: 100%;
+              padding: 0 0 0 160/@rem;
               h3 {
                 padding-bottom: 10/@rem;
                 .txt-normal;
                 .c3;
-                .fz(28);
+                .fz(26);
                 .ellipsis-clamp-2;
+                span {
+                  margin-right: 4px;
+                  padding: 0 2px;
+                  font-weight: normal;
+                  .cf;
+                  .fz(22);
+                  background: #2acaad;
+                  .borR(2px);
+                  &.milk {
+                    background: #74c361;
+                  }
+                }
               }
               .middle {
                 .c9;

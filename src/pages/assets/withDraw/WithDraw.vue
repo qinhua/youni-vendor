@@ -1,9 +1,10 @@
 <template>
   <div class="draw-con" v-cloak>
-    <label class="tips"><i class="fa fa-smile-o"></i>&nbsp;当前可提现金额￥200.00元</label>
+    <label class="tips"><i class="fa fa-smile-o"></i>&nbsp;当前可提现金额￥{{assets.waitTakeAmount}}元</label>
     <group>
-      <cell title="金额：" primary="content">
-        <x-input placeholder="请输入提现金额" required text-align="right" type="number" v-model="params.amount"></x-input>
+      <cell title="金额(元)：" primary="content">
+        <x-input placeholder="请输入提现金额" required text-align="right" type="number" v-model="params.amount"
+                 @on-change="changeAmount"></x-input>
       </cell>
     </group>
     <div class="btn btn-save" @click="draw"><i class="fa fa-credit-card"></i>&nbsp;提交</div>
@@ -14,19 +15,17 @@
   /* eslint-disable */
   let me
   let vm
-  import {Group,Cell,XInput,XTextarea} from 'vux'
+  import {Group, Cell, XInput, XTextarea} from 'vux'
   import {assetsApi} from '../../../service/main.js'
 
   export default {
     name: 'draw-con',
     data() {
       return {
-        value: '',
-        results: [],
-        list: [],
         isPosting: false,
         onFetching: false,
         noMore: false,
+        assets: {},
         params: {
           amount: 0
         }
@@ -44,7 +43,7 @@
     watch: {
       '$route'(to, from) {
         if (to.name === 'with_draw_list') {
-          vm.getDraw()
+          vm.getAvaliDraw()
         }
       }
     },
@@ -55,28 +54,16 @@
         vm.processing()
         vm.onFecthing = true
         vm.loadData(assetsApi.asset, vm.params, 'POST', function (res) {
-            vm.onFecthing = false
+            vm.onFetching = false
             vm.processing(0, 1)
-            var resD = res.data.pager
-            if (!isLoadMore) {
-              if (resD.totalCount < vm.params.pageSize) {
-                vm.noMore = true
-              } else {
-                vm.noMore = false
-              }
-              vm.list = resD.itemList
-            } else {
-              resD.itemList.length ? vm.list.concat(resD.itemList) : vm.noMore = true
-            }
-            vm.results = vm.list.slice(0)
-            console.log(vm.list, '订单数据')
+            vm.assets = res.data
           }, function () {
             vm.onFecthing = false
             vm.processing(0, 1)
           }
         )
       },
-      draw(){
+      draw() {
         if (!vm.params.amount) {
           vm.toast('请输入提现金额', 'warn')
           return false
@@ -97,8 +84,16 @@
           vm.isPosting = false
           vm.processing(0, 1)
         })
+      },
+      changeAmount(val) {
+        if (val && val > vm.assets.waitTakeAmount) {
+          vm.toast('最多可提现' + vm.assets.waitTakeAmount + '元', 'warn')
+          vm.params.amount = vm.assets.waitTakeAmount
+        }
+        /*else {
+          vm.toast('提现金额必须大于0', 'warn')
+        }*/
       }
-
     }
   }
 </script>

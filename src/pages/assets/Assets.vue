@@ -4,9 +4,9 @@
       <div class="withdraw-modal">
         <div class="left">
           <h3>可提现金额</h3>
-          <p>￥{{assets.waitTakeAmount > 0 ? assets.waitTakeAmount: 0.00}}</p>
+          <p>￥{{assets.waitTakeAmount > 0 ? assets.waitTakeAmount: 0.00}}<i>元</i></p>
         </div>
-        <div class="right" @click="withDraw">提现</div>
+        <div class="right" :data-amount="assets.waitTakeAmount" v-jump="['with_draw']">提现</div>
       </div>
       <cell title="总收入" link="">
         ￥{{assets.totalAmount > 0 ? assets.totalAmount : 0.00}}
@@ -84,7 +84,7 @@
         })
       },
       withDraw() {
-        if (vm.assets.currentAmount > 0) {
+        if (vm.assets.waitTakeAmount > 0) {
           vm.jump('with_draw')
         } else {
           vm.toast('当前无可提现金额', 'warn')
@@ -104,6 +104,9 @@
       .weui-cells {
         margin-top: 10/@rem;
         padding: 0;
+        &:before{
+          .none;
+        }
       }
       .weui-cell {
         padding: 24/@rem !important;
@@ -121,11 +124,16 @@
           padding-right: 100/@rem;
           h3 {
             .txt-normal;
-            .fz(30)
+            .fz(30);
           }
           p {
             padding-top: 40/@rem;
             .fz(50) !important;
+            i{
+              padding-left: 4px;
+              font-style: normal;
+              .fz(24);
+            }
           }
         }
         .right {

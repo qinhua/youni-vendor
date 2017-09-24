@@ -15,10 +15,10 @@
                  v-model="params.stock"></x-input>
         <x-input title="价格：" placeholder="价格" required text-align="right" type="number" v-model="params.price"
                  v-if="params.type==='goods_type.1'"></x-input>
-        <x-input title="价格标签" placeholder="去设置" text-align="right" readonly disabled
-                 v-if="params.id && params.type==='goods_type.2'"
+        <x-input title="价格标签" v-model="priceStatusText" text-align="right" readonly disabled
+                 v-if="isEdit && params.type==='goods_type.2'"
                  @click.native="editSubPrice(params.priceTags)"></x-input>
-        <div class="tags-group favor-group" v-if="params.id && params.type!=='goods_type.1'">
+        <div class="tags-group favor-group" v-if="params.type==='goods_type.2'">
           <label>口味标签：</label>
           <div class="tags-cons">
             <tags-input :tags="flavourLabel" placeholder="口味标签（3~5字最佳,最多5个）" @focus="handleFocus" @blur="handleBlur"
@@ -54,9 +54,13 @@
                       :editorToolbar="customToolbar"></vue-editor>
         </div>
       </group>
-      <div class="btn btn-save" @click="updateGoods"><i class="fa fa-save"></i>&nbsp;保存</div>
+      <div class="btn btn-nextstep" @click="updateGoods(true)" v-if="!isEdit && params.type!=='goods_type.1'">
+        &nbsp;下一步
+      </div>
+      <div class="btn btn-save" @click="updateGoods" v-else><i class="fa fa-save"></i>&nbsp;保存</div>
     </div>
-    <edit-sub-price :goodsId="params.id" v-if="editPriceTag" @on-finish="getPriceTagStatus"></edit-sub-price>
+    <edit-sub-price :goodsId="params.id" :isAddGoods="!isEdit" v-if="editPriceTag"
+                    @on-finish="getPriceTagStatus"></edit-sub-price>
   </div>
 </template>
 
@@ -85,13 +89,12 @@
     name: 'goods-edit',
     data() {
       return {
-        editorOption: {
-          // some quill options
-        },
         onFetching: false,
         isPosting: false,
         lineData: null,
+        isEdit: false,
         editPriceTag: false,
+        priceStatusText: '去设置',
         fileApi: commonApi.uploadImg,
         addressData: ChinaAddressV3Data,
         brands: [{
@@ -145,11 +148,10 @@
         params: {
           brandId: null,
           name: '',
-          type: 1,
-          category: 2,
-          stock: '',
-          price: null,
-          priceTags: null,
+          type: 'goods_type.1',
+          category: '',
+          stock: 0,
+          price: 0,
           imgurl: '',
           saleStatus: 1,
           label: '',
@@ -169,7 +171,10 @@
           [{'color': []}, {'background': []}],
           [{'align': []}, {'list': 'ordered'}, {'list': 'bullet'}],
           ['image']
-        ]
+        ],
+        editorOption: {
+          // some quill options
+        },
       }
     },
     components: {
@@ -235,11 +240,13 @@
         }
       },
       getPriceTagStatus(data) {
-        vm.editPriceTag = data
+        vm.editPriceTag = data.status
+        vm.priceStatusText = data.message
       },
       getGoods() {
         vm.editPriceTag = false
         vm.lineData = vm.$route.query.linedata ? JSON.parse(decodeURIComponent(vm.$route.query.linedata)) : ''
+        vm.isEdit = vm.lineData.id ? true : false
         if (vm.lineData && vm.lineData.id) {
           vm.params = {
             id: vm.lineData.id,
@@ -266,10 +273,10 @@
           vm.params = {
             brandId: '',
             name: '',
-            type: 1,
-            category: 2,
-            stock: null,
-            price: null,
+            type: 'goods_type.1',
+            category: '',
+            stock: 0,
+            price: 0,
             imgurl: '',
             saleStatus: 1,
             label: '',
@@ -279,7 +286,7 @@
           vm.label = []
           vm.flavourLabel = []
           vm.tmpBrand = []
-          vm.tmpType = []
+          vm.tmpType = ['水']
           vm.tmpCat = []
         }
         /*if (vm.onFetching) return false
@@ -335,25 +342,37 @@
          }*/
         return true
       },
-      updateGoods() {
+      updateGoods(isMilk) {
         if (vm.isPosting || !vm.validate()) return false
-        /*此处转换一些字段类型*/
         let curApi
-        vm.formatNewTag('label')
-        vm.formatNewTag('flavourLabel')
-        if (vm.lineData.id) {
+        if (vm.isEdit) {
           curApi = goodsApi.update
         } else {
           curApi = goodsApi.add
         }
         console.log('最后选择的数据：', vm.params)
+        /*此处转换一些字段类型*/
+        vm.formatNewTag('label')
+        vm.formatNewTag('flavourLabel')
         vm.isPosting = true
         vm.processing()
         vm.loadData(curApi, vm.params, 'POST', function (res) {
           vm.processing(0, 1)
-          vm.toast(' ')
-          vm.$router.back()
           vm.isPosting = false
+          if (res.success) {
+            if(res.data){
+              if (!isMilk) {
+                vm.toast('已添加')
+                vm.jump('goods')
+              } else {
+                vm.params.id = res.data.id
+                vm.editPriceTag = true
+              }
+            }else{
+              vm.toast('已更新')
+              vm.jump('goods')
+            }
+          }
         }, function () {
           vm.isPosting = false
           vm.processing(0, 1)
@@ -515,8 +534,8 @@
           margin-left: 24/@rem;
           padding: 24/@rem 28/@rem 24/@rem 0;
           .bor-t;
-          .tags-input{
-            .tag{
+          .tags-input {
+            .tag {
               .bdiy(#79bd5c)
             }
           }
@@ -572,6 +591,20 @@
       .cf;
       .fz(28);
       .bdiy(@c2);
+    }
+    .btn-nextstep {
+      .fix;
+      bottom: 0;
+      z-index: 20;
+      width: 100%;
+      .ma-w(640);
+      .borBox;
+      letter-spacing: 2px;
+      padding: 24/@rem;
+      .center;
+      .cf;
+      .fz(28);
+      .bdiy(#35b956);
     }
   }
 

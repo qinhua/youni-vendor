@@ -131,7 +131,14 @@
             }
             vm.goods = resD.itemList
           } else {
-            resD.itemList.length ? vm.goods.concat(resD.itemList) : vm.noMore = true
+            if (resD.itemList.length) {
+              for (var i = 0; i < resD.itemList.length; i++) {
+                var cur = resD.itemList[i];
+                vm.goods.push(cur)
+              }
+            } else {
+              vm.noMore = true
+            }
           }
           console.log(vm.goods, '商品数据')
         }, function () {

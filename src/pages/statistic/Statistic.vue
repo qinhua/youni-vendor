@@ -1,21 +1,53 @@
 <template>
   <div class="statistic-con" v-cloak>
-    <button-tab class="btn-tab-con" v-model="curType">
-      <button-tab-item selected>订单量</button-tab-item>
-      <button-tab-item>销售量</button-tab-item>
-      <button-tab-item>浏览量</button-tab-item>
+    <button-tab class="btn-tab-con">
+      <button-tab-item selected @click.native="onItemClick(1)">订单量</button-tab-item>
+      <button-tab-item @click.native="onItemClick(2)">销售量</button-tab-item>
+      <button-tab-item @click.native="onItemClick(3)">浏览量</button-tab-item>
     </button-tab>
     <!--<tab class="statistic-tab" active-color="#f34c18">
       <tab-item selected @on-item-click="onItemClick(0)">近7天</tab-item>
       <tab-item @on-item-click="onItemClick(1)">30天</tab-item>
       <tab-item @on-item-click="onItemClick(2)">半年</tab-item>
     </tab>-->
-    <div class="echarts">
-      <div id="myChart" :style="{width: '100%', height: '250px'}"></div>
-      <!--<IEcharts ref="myChart" :option="bar" :loading="loading" @ready="onReady" @click="onClick"></IEcharts>-->
-      <!--<button @click="doRandom">生成</button>-->
-    </div>
+    <!--<div class="echarts">-->
+    <!--<div id="myChart" :style="{width: '100%', height: '250px'}"></div>-->
+    <!--<IEcharts ref="myChart" :option="bar" :loading="loading" @ready="onReady" @click="onClick"></IEcharts>-->
+    <!--<button @click="doRandom">生成</button>-->
+    <!--</div>-->
     <div class="bottom-col">
+      <ul class="blist orders-list" v-show="curType==='orders'">
+        <li v-for="itm in orders">
+          <div class="left-con">
+            <span>总订单金额：<i>{{itm.orderTotal}}</i></span>
+            <span>成交金额：<i>{{itm.orderNum}}</i></span>
+          </div>
+          <span class="time">{{itm.analysisDate}}</span>
+        </li>
+      </ul>
+      <ul class="blist sales-list" v-show="curType==='sales'">
+        <div class="item-top">
+          <button type="button" :class="['btn',curSaleIdx===2?'active':'']" @click="changeSaleType(2)">奶</button>
+          <button type="button" :class="['btn',curSaleIdx===1?'active':'']" @click="changeSaleType(1)">水</button>
+          <button type="button" :class="['btn',curSaleIdx===0?'active':'']" @click="changeSaleType(0)">全部</button>
+        </div>
+        <li v-for="itm in curSales">
+          <div class="left-con">
+            <span>销售额：<i>{{itm.saleTotal}}</i></span>
+            <span>销售数量：<i>{{itm.saleNum}}</i></span>
+          </div>
+          <span class="time">{{itm.analysisDate}}</span>
+        </li>
+      </ul>
+      <ul class="blist puv-list" v-show="curType==='puv'">
+        <li v-for="itm in puv">
+          <div class="left-con">
+            <span>PV：<i>{{itm.pv}}</i></span>
+            <span>UV：<i>{{itm.pv}}</i></span>
+          </div>
+          <span class="time">{{itm.puvDate}}</span>
+        </li>
+      </ul>
 
     </div>
   </div>
@@ -36,9 +68,13 @@
     data() {
       return {
         seller: null,
-        value: '',
-        curType: 0,
-        results: [],
+        curType: 'orders',
+        curSaleIdx: 0,
+        curSaleType: 'goods.all',
+        orders: [],
+        sales: [],
+        curSales: [],
+        puv: [],
         statistic: [],
         isPosting: false,
         onFetching: false,
@@ -78,14 +114,12 @@
       vm = this
       vm.seller = vm.$store.state.global.userInfo || (me.sessions.get('ynSellerInfo') ? JSON.parse(me.sessions.get('ynSellerInfo')) : {})
       vm.getOrderData()
-      vm.getSaleData()
-      vm.getPuvData()
 //      var myChart = vm.$refs.myChart
 //      window.onresize = function () {
 //        myChart.resize();
 //      }
-      var myChart = echarts.init(document.getElementById('myChart'));
-      myChart.setOption({
+//      var myChart = echarts.init(document.getElementById('myChart'));
+      /*myChart.setOption({
         color: vm.colors,
 
         tooltip: {
@@ -165,26 +199,48 @@
             data: [3.9, 5.9, 11.1, 18.7, 48.3, 69.2, 231.6, 46.6, 55.4, 18.4, 10.3, 0.7]
           }
         ]
-      })
+      })*/
     },
     /*computed: {},*/
     watch: {
       '$route'(to, from) {
         if (to.name === 'statistic') {
           vm.getOrderData()
-          vm.getSaleData()
-          vm.getPuvData()
         }
       }
     },
     methods: {
       onItemClick(type) {
-        vm.getOrderData(type)
-        vm.bar.xAxis.data = vm.datas[type]
+        switch (type) {
+          case 1:
+            vm.curType = 'orders'
+            !vm.orders.length ? vm.getOrderData() : null
+            break
+          case 2:
+            vm.curType = 'sales'
+            !vm.sales.length ? vm.getSaleData() : null
+            break
+          case 3:
+            vm.curType = 'puv'
+            !vm.puv.length ? vm.getPuvData() : null
+            break
+        }
+//        vm.bar.xAxis.data = vm.datas[type]
       },
-      // 向父组件传值
-      setPageStatus(data) {
-        this.$emit('listenPage', data)
+      changeSaleType(type) {
+        vm.curSaleIdx = type
+        switch (type) {
+          case 0:
+            vm.curSaleType = 'goods.all'
+            break
+          case 1:
+            vm.curSaleType = 'goods_type.1'
+            break
+          case 2:
+            vm.curSaleType = 'goods_type.2'
+            break
+        }
+        vm.getCurSale(vm.curSaleType)
       },
       getOrderData(type) {
         if (vm.onFetching) return false
@@ -192,8 +248,8 @@
         vm.onFetching = true
         vm.loadData(statisticApi.orderAnalysis, {sellerId: vm.seller.id, days: 7}, 'POST', function (res) {
           var resD = res.data.itemList
-          vm.statistic = resD
-          console.log(vm.statistic, '销售情况统计数据')
+          vm.orders = resD
+          console.log(vm.orders, '订单统计数据')
           vm.onFetching = false
           vm.processing(0, 1)
         }, function () {
@@ -201,14 +257,32 @@
           vm.processing(0, 1)
         })
       },
+      getCurSale(type) {
+        if (!type) {
+          type = 'goods.all'
+          vm.curSaleIdx = 0
+          vm.curSaleType = 'goods.all'
+        }
+        let tmp
+        if (vm.sales.length) {
+          for (var i = 0; i < vm.sales.length; i++) {
+            var cur = vm.sales[i]
+            if (cur.goodsType === type) {
+              tmp = cur.items
+            }
+          }
+        }
+        vm.curSales = tmp
+      },
       getSaleData(type) {
         if (vm.onFetching) return false
         vm.processing()
         vm.onFetching = true
         vm.loadData(statisticApi.saleAnalysis, {sellerId: vm.seller.id, days: 7}, 'POST', function (res) {
           var resD = res.data.itemList
-          vm.statistic = resD
-          console.log(vm.statistic, '销售情况统计数据')
+          vm.sales = resD
+          vm.getCurSale()
+          console.log(vm.sales, '销售统计数据')
           vm.onFetching = false
           vm.processing(0, 1)
         }, function () {
@@ -217,14 +291,13 @@
         })
       },
       getPuvData(type) {
-        vm.loading = false
         if (vm.onFetching) return false
         vm.processing()
         vm.onFetching = true
         vm.loadData(statisticApi.puvAnalysis, {sellerId: vm.seller.id, days: 7}, 'POST', function (res) {
           var resD = res.data.itemList
-          vm.statistic = resD
-          console.log(vm.statistic, '店铺流量统计数据')
+          vm.puv = resD
+          console.log(vm.puv, '流量统计数据')
           vm.onFetching = false
           vm.processing(0, 1)
         }, function () {
@@ -275,14 +348,70 @@
       width: 400px;
       height: 400px;
     }
-    .vux-button-group{
-      a.vux-button-group-current{
-        background: #e2951c;
+    .vux-button-group {
+      margin-bottom: 10/@rem;
+      .bf;
+      a {
+        &::after {
+          .cf!important;
+          border: 1px solid #ff7029 !important;
+        }
+      }
+      a.vux-button-group-current {
+        background: #ff7029;
       }
     }
-    .btn-tab-con{
+    .btn-tab-con {
       .borBox;
-      padding:20/@rem;
+      padding: 20/@rem;
+    }
+
+    .blist {
+      li {
+        .rel;
+        .borBox;
+        padding: 14/@rem 20/@rem;
+        .bf;
+        .bor-b;
+        .left-con {
+          span {
+            .block;
+            line-height: 1.5;
+            .fz(24);
+            .c3;
+            i {
+              font-style: normal;
+              .c9;
+            }
+          }
+        }
+        .time {
+          .abs-center-vertical;
+          right: 24/@rem;
+          .fz(24);
+          .c9;
+        }
+      }
+      .item-top {
+        padding: 10/@rem 0;
+        overflow: hidden;
+        background: #eaeaea;
+        .bor-t;
+        button {
+          .fr;
+          margin-right: 15/@rem;
+          padding: 2px 20/@rem;
+          .fz(22);
+          .c7;
+          .bor(1px, solid, #ccc);
+          .borR(3px);
+          &.active {
+            .cf;
+            background: #ff7029;
+            .bor(1px, solid, #ff7029);
+          }
+        }
+      }
     }
   }
 </style>

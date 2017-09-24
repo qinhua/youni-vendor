@@ -355,7 +355,7 @@
         vm.processing()
         vm.loadData(curApi, vm.params, 'POST', function (res) {
           vm.processing(0, 1)
-          vm.toast(' ')
+          vm.toast(vm.lineData.id ? '已更新' : '已添加')
           vm.$router.back()
           vm.isPosting = false
         }, function () {
@@ -417,10 +417,10 @@
         var formData = new FormData();
         formData.append('image', file)
         vm.$axios({
-            url: commonApi.uploadImg,
-            method: 'POST',
-            data: formData
-          })
+          url: commonApi.uploadImg,
+          method: 'POST',
+          data: formData
+        })
           .then(function (result) {
             var url = window.youniMall.host + '/' + result.data.imageUrl
             Editor.insertEmbed(cursorLocation, 'image', url);
