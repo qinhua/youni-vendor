@@ -73,8 +73,8 @@
       <div class="order-list" ref="orderList">
         <ul class="box">
           <li v-for="(item, index) in orders" @click="toDetail(item.orderId)" v-cloak>
-            <section class="v-items" :data-id="item.id"
-                     :data-orderNumber="item.appOrderNumber" :data-itemId="item.orderItemId">
+            <section class="v-items" :data-id="item.id" :data-orderid="item.orderId"
+                     :data-orderNumber="item.appOrderNumber">
               <h4 class="item-top"><i class="ico-avatar"
                                       :style="item.userImage?'background-image:url('+item.userImage+')':''"></i>&nbsp;{{item.userName}}&nbsp;&nbsp;<i
                 class="fa fa-angle-right cc"></i><span>{{item.statusName}}</span><span class="remind-txt"
@@ -277,7 +277,7 @@
         }, 100)
       },
       toDetail(id) {
-        // vm.$router.push({name: 'order_detail', query: {id: id}})
+         vm.$router.push({name: 'order_detail', query: {id: id}})
       },
       /* 页面数据 */
       changeType() {

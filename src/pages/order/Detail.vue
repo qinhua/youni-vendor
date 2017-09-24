@@ -1,6 +1,105 @@
 <template>
   <div class="order-detail">
-    订单详情
+    <div class="status-col">
+      <div class="left-con">
+        <span>订单派送中…<br><i>22分钟内派达</i></span>
+      </div>
+      <div class="right-con"></div>
+    </div>
+
+    <div class="address-col">
+      <div class="wrap">
+        <i class="fa fa-map-marker i-map"></i>
+        <div class="txt-con">
+          <h3>收货人：{{details.userName}}<span>{{details.phone}}</span></h3>
+          <p>地址：{{details.userAddress}}</p>
+        </div>
+        <i class="fa fa-angle-right i-right"></i>
+      </div>
+    </div>
+
+    <ul class="order-col">
+      <li>
+        <section class="v-items" :data-id="details.id" :data-orderid="details.orderId"
+                 :data-orderNumber="details.appOrderNumber">
+          <h4 class="item-top"><i class="ico-avatar"
+                                  :style="details.userImage?'background-image:url('+details.userImage+')':''"></i>&nbsp;{{details.userName}}&nbsp;&nbsp;<i
+            class="fa fa-angle-right cc"></i><span>{{details.statusName}}</span><span class="remind-txt"
+                                                                                      v-if="details.status===2&&details.remind">收到买家派送提醒</span>
+          </h4>
+          <ul>
+            <li v-for="itm in details.goodsList" v-cloak>
+              <section class="item-middle">
+                <div class="img-con"
+                     :style="itm.goodsImage?('background-image:url('+itm.goodsImage+')'):''"></div>
+                <div class="info-con">
+                  <h3><span
+                    :class="itm.goodsType==='goods_type.2'?'milk':''">{{itm.goodsType === 'goods_type.2' ? '奶' : '水'}}</span>{{itm.goodsName}}
+                  </h3>
+                  <section class="middle">
+                    <span class="unit-price">￥{{itm.goodsPrice | toFixed}}元</span>
+                    <span class="order-info">{{itm.info}}</span>
+                    <div class="dispatch-info" v-if="itm.goodsType==='goods_type.2'">
+                      <span>已送：{{itm.totalDispatcheNum}}件</span><span>待送：{{itm.waitDispatcheNum}}件</span>
+                    </div>
+                  </section>
+                  <!--<label>{{itm.label}}</label>-->
+                </div>
+                <div class="price-con">
+                  <p class="price">总价：￥{{itm.goodsAmount | toFixed}}</p>
+                  <p class="buy-count">x{{itm.goodsNum}}</p>
+                </div>
+              </section>
+            </li>
+          </ul>
+          <section class="item-bottom">
+            <!--<div class="extra-info">
+              <p v-for="(ext, idx) in item.extras">{{ext.name}}<span>￥{{ext.type ? '-' : ''}}{{ext.value}}.00</span>
+              </p>
+            </div>-->
+            <div class="total-price">
+              共{{details.totalGoodsNum}}件商品&nbsp;合计：<span>￥{{details.payAmount | toFixed}}</span>（含上楼费）
+            </div>
+            <!--<a class="btn btn-del" @click="cancelOrder(item.orderId)">取消订单</a>-->
+            <!--<a class="btn btn-del" @click="delOrder(item.orderId)">删除订单</a>-->
+            <!--<div class="btns" v-if="item.status===1">-->
+            <!--<a class="btn btn-cancel" @click="pushPay(item.orderId)">提醒支付</a>-->
+            <!--<a class="btn btn-del" @click="cancelOrder(item.orderId)">取消订单</a>-->
+            <!--</div>-->
+            <div class="btns" v-if="details.status===2">
+              <button type="button" class="btn btn-dispatch" @click="dispatch(details.orderId)">派送</button>
+            </div>
+            <div class="btns" v-if="details.status===3">
+              <div v-if="details.todayDispatch">
+                <span class="status-txt">当天已派送</span>
+                <button type="button" disabled class="btn btn-dispatch" @click="dispatch(details.orderId)">派送
+                </button>
+              </div>
+              <div v-else>
+                <span class="status-txt disabled">当天未派送</span>
+                <button type="button" class="btn btn-dispatch" @click="dispatch(details.orderId)">派送</button>
+              </div>
+            </div>
+            <div class="score-info" v-if="details.status===5">
+              <!--<span>买家评分：{{details.userScore}}星</span>-->
+              <div class="has-score" v-if="details.userScore">
+                <span>买家评分：</span>
+                <ol class="star">
+                  <li v-for="star in details.userScore">★</li>
+                </ol>
+                <span>{{details.userScore}}星</span>
+              </div>
+              <span v-else>买家未评价</span>
+            </div>
+            <span class="timestamp">{{details.createTime}}</span>
+          </section>
+        </section>
+      </li>
+    </ul>
+
+    <div class="extra-col">
+      <p>一些零散的东西</p>
+    </div>
   </div>
 </template>
 
@@ -8,111 +107,69 @@
   /* eslint-disable */
   let me
   let vm
-  import Swiper from 'swiper'
-  import {Tab, TabItem, XNumber, Group, Cell, TransferDom, Popup, XButton} from 'vux'
-  import {homeApi, nearbyApi, goodsApi} from '../../service/main.js'
+  import {Tab, TabItem, Group, Cell} from 'vux'
+  import {orderApi} from '../../service/main.js'
 
   export default {
     name: 'order-detail',
     data() {
       return {
         id: null,
-        addText: '添加购物车',
-        showPop: false,
         details: {},
-        tablist: ['商品详情', '规格', '评论'],
-        isPosting: false,
-        cartData: null,
-        curCount: 0,
-        curBuyNum: 1,
-        total: 0,
-        detailSwiper: null,
-        curIndex: 0,
-        appIdx: 0,
-        appraiseData: null,
-        appraise: [],
-        balls: [ //小球 设为3个
-          {
-            show: false
-          }, {
-            show: false
-          }, {
-            show: false
-          },
-        ],
-        dropBalls: [],
+        isPosting: false
       }
     },
-    directives: {
-      TransferDom
-    },
-    components: {Tab, TabItem, XNumber, Group, Cell, Popup, XButton},
+    components: {Tab, TabItem, Group, Cell},
     beforeMount() {
       me = window.me
     },
     mounted() {
       vm = this
-      vm.getDetail(function () {
-        vm.viewCart()
-      })
-//      vm.$nextTick(function() {
-//        vm.$refs.orderScroller.finishInfinite(true)
-//        vm.$refs.orderScroller.resize()
-//      })
+      vm.getDetail()
     },
-    /*computed: {
-     total() {
-     return vm.details.number ? vm.details.number * vm.details.price : 0
-     }
-     },*/
     watch: {
       '$route'(to, from) {
-        if (to.name === 'goods_detail') {
-          vm.getDetail(function () {
-            vm.viewCart()
-            vm.mySwiper()
-            vm.total = vm.details.number * vm.details.price
-            // vm.swiperDetail()
-            // vm.getAppraise()
-          })
+        if (to.name === 'order_detail') {
+          vm.getDetail()
         }
-      },
-      'details.number'() {
-        vm.total = vm.details.number * vm.details.price
       }
     },
     methods: {
-      // 向父组件传值
-      setPageStatus(data) {
-        this.$emit('listenPage', data)
-      },
-      refresh(done) {
-        console.log('下拉加载')
-        setTimeout(function () {
-          vm.getOrders()
-          vm.$refs.orderScroller.finishPullToRefresh()
-        }, 1200)
-      },
-      infinite(done) {
-        console.log('无限滚动')
-        setTimeout(function () {
-          vm.getOrders(true)
-          vm.$refs.orderScroller.finishInfinite(true)
-        }, 1000)
-      },
       getDetail(cb) {
         vm.id = vm.$route.query.id
         if (vm.isPosting) return false
         vm.processing()
         vm.isPosting = true
-        vm.loadData(goodsApi.view, {id: vm.id}, 'POST', function (res) {
+        vm.loadData(orderApi.view, {orderId: vm.id}, 'POST', function (res) {
           vm.isPosting = false
           vm.processing(0, 1)
           if (res.success) {
             var resD = res.data
             resD.categoryName = (resD.type === 'goods_type.1') ? '水' : '奶'
+
+//            if (resD.goodsList.length) {
+//              for (var i = 0; i < resD.goodsList.length; i++) {
+//                var cur = resD.goodsList[i]
+            switch (resD.status) {
+              case 1:
+                resD.statusName = '待支付'
+                break
+              case 2:
+                resD.statusName = '待派送'
+                break
+              case 3:
+                resD.statusName = '派送中'
+                break
+              case 4:
+                resD.statusName = '已暂停'
+                break
+              case 5:
+                resD.statusName = '已完成'
+                break
+            }
+//              }
+//            }
             vm.details = resD
-            vm.getSeller(res.data.sellerId)
             console.log(vm.details, '商品详情')
           }
           cb ? cb() : null
@@ -139,85 +196,118 @@
         }, function () {
         })
       },
-      filterAppraise(index) {
-        vm.appIdx = index
-        vm.appraise = []
-        if (vm.appraiseData) {
-          if (index === 0) {
-            vm.appraise = vm.appraiseData
-            return;
-          }
-          for (let i = 0; i < vm.appraiseData.length; i++) {
-            if (vm.appraiseData[i].type === index) {
-              vm.appraise.push(vm.appraiseData[i])
-            }
-          }
-        } else {
-          vm.getAppraise()
-        }
+
+      delOrder(id) {
+        if (vm.isPosting) return false
+        vm.confirm('确认删除？', '订单删除后不可恢复！', function () {
+          vm.isPosting = true
+          vm.loadData(orderApi.del, {id: id}, 'POST', function (res) {
+            vm.isPosting = false
+          }, function () {
+            vm.isPosting = false
+          })
+        }, function () {
+        })
       },
-      swDialog(type) {
-        vm.showPop = true
-        if (type === 1) {
-          vm.addText = '加入购物车'
-        } else {
-          vm.addText = '立即购买'
-        }
+      cancelOrder(id) {
+        if (vm.isPosting) return false
+        vm.confirm('确认取消？', '订单取消后不可恢复！', function () {
+          vm.isPosting = true
+          vm.loadData(orderApi.cancel, {id: id}, 'POST', function (res) {
+            vm.isPosting = false
+            vm.toast('已取消')
+          }, function () {
+            vm.toast('取消失败')
+            vm.isPosting = false
+          })
+        }, function () {
+          // console.log('no')
+        })
       },
-      viewCart(cb) {
-        vm.loadData(cartApi.view, null, 'POST', function (res) {
-          var resD = res.data
-          // console.log(resD, '购物车数据')
-          vm.cartData = resD
-          vm.curCount = resD.totalNum
-          vm.syncList()
-          cb ? cb() : null
+      pushPay(id) {
+        if (vm.isPosting) return false
+        vm.isPosting = true
+        vm.loadData(orderApi.remind, {id: id}, 'POST', function (res) {
+          vm.toast('提醒成功')
           vm.isPosting = false
         }, function () {
           vm.isPosting = false
         })
       },
-      changeCount(obj) {
-        if (vm.isPosting) return
+      dispatch(id) {
+        if (vm.isPosting) return false
+        vm.confirm('确认派送？', null, function () {
+          vm.isPosting = true
+          vm.loadData(orderApi.updateOrderStatus, {userType: 2, id: id, status: 3}, 'POST', function (res) {
+            vm.isPosting = false
+            vm.toast('派送成功')
+            vm.getOrders()
+          }, function () {
+            vm.isPosting = false
+          })
+        }, function () {
+        })
+      },
+      dispatchOrder(id) {
+        if (vm.isPosting) return false
         vm.isPosting = true
-        if (obj.type === 'add') {
-          if (vm.cartData.sellerId && vm.cartData.sellerId !== obj.sellerId) {
-            //vm.toast('购物车中已有其他店铺商品，请先清空')
-            vm.confirm('温馨提示', '当前购物车中已有其他店铺商品，请先清空！', function () {
-              vm.isPosting = true
-              vm.loadData(cartApi.clear, null, 'POST', function (res) {
-                vm.viewCart()
-                vm.isPosting = false
-              }, function () {
-                vm.isPosting = false
-              })
-            })
-            return
-          }
-          vm.loadData(cartApi.add, {goodsId: obj.id}, 'POST', function (res) {
+        /*var dispatchers = '<option value="">-请选择派送员-</option>'
+         vm.loadData(orderApi.dispatcher, {orderId: id}, 'POST', function (res) {
+         if (res.success) {
+         if (res.data.itemList.length) {
+         var resD = res.data.itemList
+         for (var i = 0; i < resD.length; i++) {
+         var cur = resD[i]
+         dispatchers += '<option value="' + cur.id + ',' + cur.dispatcher + '">' + cur.dispatcher + '</option>'
+         }
+         } else {
+         vm.toast('暂无派送员！')
+         return
+         }
+         }
+         vm.isPosting = false
+         }, function () {
+         vm.isPosting = false
+         })
+         vm.confirm('请选择派送员？', '<div class="despatchModal"><select name="dispatcher" id="dispatcher">' + dispatchers + '</select><!--<input id="dispatcher" type="text" placeholder="输入派送员姓名" required>--></div>', function () {
+         var curVal = window.document.getElementById('dispatcher').value
+         if (!curVal) {
+         vm.toast('请选择派送员', 'warn')
+         return false
+         }
+         vm.loadData(orderApi.dispatch, {orderId: id, dispatcher: curVal}, 'POST', function (res) {
+         vm.isPosting = false
+         if (res.success) {
+         vm.toast('派送成功')
+         } else {
+         vm.toast(res.message || '支付失败！')
+         }
+         }, function () {
+         vm.isPosting = false
+         })
+         }, function () {
+         vm.isPosting = false
+         }, '派送', null, true)*/
+
+        vm.confirm('确认派送？', '', function () {
+          vm.loadData(orderApi.dispatch, {orderId: id, dispatcher: ''}, 'POST', function (res) {
+            vm.isPosting = false
             if (res.success) {
-              vm.viewCart()
-              vm.additem(obj.event)
+              vm.toast('派送成功')
             } else {
-              vm.toast(res.message || '购物车中已有其他店铺商品，请先清空')
+              vm.toast(res.message || '派送失败！')
             }
-            vm.isPosting = false
           }, function () {
             vm.isPosting = false
           })
-        } else {
-          vm.loadData(cartApi.minus, {goodsId: obj.id}, 'POST', function (res) {
-            vm.viewCart()
-            vm.isPosting = false
-          }, function () {
-            vm.isPosting = false
-          })
-          if (!obj.value) {
-            vm.isPosting = false
-            vm.details.number = 0
-            return
-          }
-        }
+        }, function () {
+          vm.isPosting = false
+        }, '派送')
+      },
+      onItemClick(status) {
+        vm.orders = []
+        status ? vm.params.status = status : delete vm.params.status
+        vm.getOrders()
       }
     }
   }
@@ -228,8 +318,343 @@
   @import '../../../static/css/tools.less';
 
   .order-detail {
-    height: 100%;
+    min-height: 100%;
     overflow: auto;
+    .status-col {
+      height: 200/@rem;
+      .cf;
+      background: @c1;
+      &.waitPay {
+        background: #40ceca;
+      }
+      &.waitDispatch {
+        background: #ffaa50;
+      }
+      &.dispatching {
+        background: #ff7511;
+      }
+      &.paused {
+        background: #8eaac3;
+      }
+      &.finished {
+        background: #58c714;
+      }
+      .left-con {
+        .fl;
+        .rel;
+        .borBox;
+        width: 60%;
+        height: 100%;
+        padding: 24/@rem 0 24/@rem 24/@rem;
+        span {
+          .abs-center-vertical;
+          left: 24/@rem;
+          .fz(34);
+          i {
+            opacity: .8;
+            font-style: normal;
+            .fz(22);
+          }
+        }
+      }
+      .right-con {
+        .fr;
+        .rel;
+        .borBox;
+        width: 40%;
+        height: 100%;
+        padding: 24/@rem 24/@rem 24/@rem 0;
+      }
+    }
+
+    .address-col {
+      .rel;
+      margin-bottom: 10/@rem;
+      .bf;
+      .bor-b;
+      .wrap {
+        padding: 20/@rem 0;
+      }
+      .i-map {
+        .abs-center-vertical;
+        left: 0;
+        padding: 0 20/@rem;
+        .fz(36);
+        .cdiy(@c2);
+      }
+      .i-right {
+        .abs-center-vertical;
+        right: 0;
+        padding: 0 20/@rem;
+        .fz(40);
+      }
+      .txt-con {
+        .borBox;
+        padding: 0 55/@rem 0 70/@rem;
+        h3 {
+          width: 100%;
+          padding: 10/@rem 0;
+          .fz(24);
+          .c3;
+          .left;
+          .txt-normal;
+          overflow: hidden;
+          span {
+            .fr;
+          }
+        }
+        p {
+          .fz(22);
+          .c6;
+          line-height: 1.8;
+        }
+      }
+      .add-address {
+        width: 100%;
+        padding: 24/@rem;
+        .center;
+        .cf;
+        .fz(28);
+        .bdiy(@c2);
+      }
+    }
+
+    .order-col {
+      .v-items {
+        .borBox;
+        margin-bottom: 20/@rem;
+        /*padding: 0 20/@rem 20/@rem;*/
+        .bf;
+        .bsd(0, 2px, 10px, 0, #ccc);
+        .bor-t(1px, solid, #ddd);
+        .item-top {
+          padding: 14/@rem 20/@rem;
+          .txt-normal;
+          .c3;
+          .fz(24);
+          .bor-b;
+          .ico-store {
+            .fl;
+            display: inline-block;
+            margin-top: 2/@rem;
+            font-size: inherit;
+            .size(30, 30);
+            background: url(../../../static/img/ico_store.png);
+            .ele-base;
+          }
+          span {
+            .fr;
+            padding-left: 10/@rem;
+            .fz(22);
+            .cdiy(@c2);
+            &.remind-txt {
+              .cdiy(#78b933);
+              padding-right: 14/@rem;
+              .bor-r;
+              -webkit-animation: flash 4.5s ease infinite;
+              animation: flash 4.5s ease infinite;
+            }
+          }
+        }
+        .item-middle {
+          .rel;
+          padding: 14/@rem 20/@rem;
+          min-height: 160/@rem;
+          .bf8;
+          .bor-b;
+          .img-con {
+            .abs;
+            top: 14/@rem;
+            padding: 10/@rem 0;
+            .size(140, 120);
+            overflow: hidden;
+            background: #f5f5f5 url(../../../static/img/bg_nopic.jpg) no-repeat center;
+            -webkit-background-size: cover;
+            background-size: cover;
+          }
+          .info-con {
+            .borBox;
+            width: 100%;
+            padding: 0 0 0 160/@rem;
+            h3 {
+              padding-bottom: 10/@rem;
+              .txt-normal;
+              .c3;
+              .fz(26);
+              .ellipsis-clamp-2;
+              span {
+                margin-right: 4px;
+                padding: 0 2px;
+                font-weight: normal;
+                .cf;
+                .fz(22);
+                background: #2acaad;
+                .borR(2px);
+                &.milk {
+                  background: #74c361;
+                }
+              }
+            }
+            .middle {
+              .c9;
+              .fz(22);
+              .ellipsis-clamp-2;
+              .unit-price {
+                padding-right: 40/@rem;
+                .c3;
+                .fz(24);
+              }
+            }
+            label {
+              .fz(22);
+              .progress {
+                span {
+                  padding-right: 20/@rem;
+                }
+              }
+            }
+          }
+          .price-con {
+            .abs;
+            .borBox;
+            padding: 14/@rem 20/@rem;
+            height: 160/@rem;
+            top: 0;
+            right: 0;
+            .price {
+              padding-bottom: 10/@rem;
+              .c3;
+              .fz(24);
+            }
+            .buy-count {
+              .fr;
+              .right;
+              .c9;
+              .fz(22);
+            }
+          }
+          .dispatch-info {
+            padding-top: 8/@rem;
+            span {
+              padding-right: 28/@rem;
+            }
+          }
+          .score-info {
+            padding-top: 8/@rem;
+            span {
+              padding-right: 28/@rem;
+            }
+          }
+        }
+        &.grey {
+          .c9!important;
+        }
+      }
+      .item-bottom {
+        .rel;
+        .extra-info {
+          margin-top: 2px;
+          padding: 10/@rem 20/@rem;
+          .bf8;
+          p {
+            .fz(22);
+            .c3;
+            span {
+              .fr;
+            }
+            &:not(:last-child) {
+              padding-bottom: 10/@rem;
+            }
+          }
+        }
+        .total-price {
+          padding: 14/@rem 20/@rem;
+          .right;
+          .c3;
+          .fz(22);
+          span {
+            .fz(30);
+          }
+        }
+        .btns {
+          padding: 20/@rem 20/@rem;
+          overflow: hidden;
+          .bor-t;
+          button {
+            .fr;
+            padding: 4px 40/@rem;
+            margin-left: 20/@rem;
+            .c3;
+            .fz(22);
+            .bf;
+            .borR(50px);
+            &:disabled {
+              .c9!important;
+              .bor(1px, solid, #999) !important;
+            }
+            &.btn-cancel, &.btn-del {
+              .c6;
+              .bor(1px, solid, #ccc);
+            }
+            &.btn-push, &.btn-appraise, &.btn-pay, &.btn-dispatch {
+              .cdiy(@c2);
+              .bor(1px, solid, @c2);
+            }
+          }
+          .status-txt {
+            .cdiy(@c3);
+            &.disabled {
+              .c9;
+            }
+          }
+        }
+        .score-info {
+          margin-top: -20/@rem;
+          .fl;
+          overflow: hidden;
+          padding: 20/@rem 20/@rem;
+          .has-score {
+            overflow: hidden;
+            .fz(24);
+            span {
+              .fl;
+            }
+          }
+          .star {
+            .fl;
+            margin-top: -6/@rem;
+            overflow: hidden;
+            li {
+              .fl;
+              margin-right: 10/@rem;
+              .cdiy(#ff9900);
+              .rfz(16);
+              &.gray {
+                .c9;
+              }
+            }
+          }
+          .noScore {
+            padding: 0 22/@rem 20/@rem;
+            .left;
+            .cdiy(#9fb52b);
+            .fz(24);
+          }
+        }
+        .timestamp {
+          display: block;
+          padding: 0 22/@rem 20/@rem;
+          .right;
+          .c9;
+          .fz(22);
+        }
+      }
+    }
+
+    .extral-col{
+      padding-bottom: 100/@rem;
+
+    }
     .top {
       margin-bottom: 14/@rem;
       .banner-goods-detail {
