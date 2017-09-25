@@ -3,7 +3,7 @@
 
     <div class="scroll-view" ref="scrollView">
 
-      <div class="overview" v-cloak>
+      <div class="overview">
         <a href="#/user" class="top-seller-avatar">
           <img :src="seller.headimgurl" alt="店铺头像" v-if="seller.headimgurl" v-cloak>
           <i class="fa fa-user-circle-o user-center" v-else></i>

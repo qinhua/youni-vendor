@@ -39,6 +39,7 @@ var checkLogin = function (openid) {
     dataType: "JSON",
     async: false,
     cache: false,
+    timeout: 3500,
     headers: {'token': openid},
     success: function (res) {
       if (res.success && res.data.success) {
@@ -47,7 +48,9 @@ var checkLogin = function (openid) {
         me.sessions.remove('logYn')
       }
     },
-    error: function (res) {
+    error: function (xhr, textStatus) {
+      console.log('error:' + textStatus);
+      vm.$router.push({path: '/login'})
     }
   })
 }
