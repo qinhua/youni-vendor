@@ -77,7 +77,7 @@ const statisticApi = {
   top10: host + '/common/top10',
   orderAnalysis: host + '/common/orderAnalysis',
   saleAnalysis: host + '/common/saleAnalysis',
-  puvAnalysis: host + '/common/puvAnalysis',
+  puvAnalysis: host + '/common/puvAnalysis'
 }
 const commonApi = {
   wxAuth: host + '/weixin/auth',

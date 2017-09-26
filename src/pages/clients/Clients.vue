@@ -5,7 +5,7 @@
         @result-click="resultClick"
         @on-change="getResult"
         v-model="value"
-        placeholder="输入昵称搜索"
+        placeholder="输入昵称、手机号搜索"
         position="absolute"
         auto-scroll-to-top top="46px"
         @on-focus="onFocus"
@@ -29,7 +29,7 @@
                 <section class="wrap">
                   <img :src="item.headimgurl">
                   <div class="info-con">
-                    <h3>{{item.nickname}}</h3>
+                    <h3>{{item.nickname}}<a :href="'tel:'+item.phone">{{item.phone}}</a></h3>
                     <div class="nums"><span>订单数：{{item.orderCount}}</span><span>已完成：{{item.finishCount}}</span></div>
                     <!--<div class="progress">
                       <div style='width:150px;height:150px;'>
@@ -87,6 +87,8 @@
      '$route'(to, from) {
        if (to.name === 'clients') {
          vm.getClients()
+       } else {
+         vm.value = ''
        }
      }
      },
@@ -169,7 +171,7 @@
           vm.results = []
           // vm.getClients()
           for (let i = 0; i < vm.clients.length; i++) {
-            if (vm.clients[i].nickname.indexOf(val) > -1) {
+            if (vm.clients[i].nickname.indexOf(val) > -1 || vm.clients[i].phone.indexOf(val) > -1) {
               vm.results.push(vm.clients[i])
             }
           }
@@ -187,10 +189,10 @@
         vm.getClients()
       },
       onFocus() {
-        console.log('on focus')
+        // console.log('on focus')
       },
       onCancel() {
-        console.log('on cancel')
+        // console.log('on cancel')
       }
     }
   }
@@ -242,6 +244,13 @@
                 .c3;
                 .fz(26);
                 .ellipsis-clamp-2;
+                a {
+                  .iblock;
+                  padding: 0 0 10/@rem 20/@rem;
+                  .fr;
+                  .fz(24);
+                  .cdiy(#67b35a);
+                }
               }
               .nums {
                 .fz(22);

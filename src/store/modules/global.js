@@ -157,7 +157,6 @@ export default {
       }, 1000)
     },
     getData(state, key) {
-      console.log(arguments)
       if (key) {
         return state[key]
       }

@@ -62,6 +62,7 @@
       </ul>
       <ul class="blist sales-list" v-show="curType==='sales'">
         <div class="item-top">
+          <span>近七天</span>
           <button type="button" :class="['btn',curSaleIdx===2?'active':'']" @click="changeSaleType(2)">奶</button>
           <button type="button" :class="['btn',curSaleIdx===1?'active':'']" @click="changeSaleType(1)">水</button>
           <button type="button" :class="['btn',curSaleIdx===0?'active':'']" @click="changeSaleType(0)">全部</button>
@@ -75,6 +76,9 @@
         </li>
       </ul>
       <ul class="blist puv-list" v-show="curType==='puv'">
+        <div class="item-top">
+          <span>近七天</span>
+        </div>
         <li v-for="itm in puv">
           <div class="left-con">
             <span>PV：<i>{{itm.pv}}</i></span>
@@ -277,7 +281,7 @@
         }
         vm.getCurSale(vm.curSaleType)
       },
-      getOrderData(type) {
+      getOrderData() {
         if (vm.onFetching) return false
         vm.processing()
         vm.onFetching = true
@@ -309,7 +313,7 @@
         }
         vm.curSales = tmp
       },
-      getSaleData(type) {
+      getSaleData() {
         if (vm.onFetching) return false
         vm.processing()
         vm.onFetching = true
@@ -325,7 +329,7 @@
           vm.processing(0, 1)
         })
       },
-      getPuvData(type) {
+      getPuvData() {
         if (vm.onFetching) return false
         vm.processing()
         vm.onFetching = true
@@ -439,6 +443,13 @@
         overflow: hidden;
         background: #eaeaea;
         .bor-t;
+        span{
+          .fl;
+          padding: 0 20/@rem;
+          line-height: 1.8;
+          .c3;
+          .fz(24);
+        }
         button {
           .fr;
           margin-right: 15/@rem;
