@@ -138,11 +138,11 @@ export default {
     direction: 'forward'
   },
 
- /* getters: {
-    getUserInfo(state,key) {
-      return state[key]
-    }
-  },*/
+  /* getters: {
+   getUserInfo(state,key) {
+   return state[key]
+   }
+   },*/
 
   mutations: {
     getFromDict(state, type) {
@@ -165,13 +165,15 @@ export default {
     storeData(state, response) {
       state[response['key']] = response.data
     },
-    logout(state) {
-      state.wxInfo = null
-      state.userInfo = null
+    logout(state, isReal) {
       state.isLogin = false
       me.sessions.remove('logYn')
-      me.sessions.remove('ynSellerInfo')
-      me.locals.remove('ynWxUser')
+      if (isReal) {
+        state.wxInfo = null
+        state.userInfo = null
+        me.sessions.remove('ynSellerInfo')
+        me.locals.remove('ynWxUser')
+      }
     },
     /* 更新路由方向 */
     updateDirection(state, payload) {
@@ -184,14 +186,14 @@ export default {
 
   actions: {
     /*checkData ({commit, state}, id) {
-      commit('getData', { id })
-      if (!state.wxInfo) {
-        commit('storeData', {
-          key:'wxInfo'
-          data: {}
-        })
-      }
-    }*/
+     commit('getData', { id })
+     if (!state.wxInfo) {
+     commit('storeData', {
+     key:'wxInfo'
+     data: {}
+     })
+     }
+     }*/
   }
 
 }

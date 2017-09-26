@@ -32,7 +32,7 @@
                 :class="item.type==='goods_type.2'?'milk':''">{{item.type === 'goods_type.2' ? '奶' : '水'}}</span>{{item.name}}
               </h3>
               <section class="middle">
-                <span class="unit-price">售价：￥{{item.price}}元</span>
+                <span class="unit-price">售价：￥{{item.price|toFixed}}元</span>
                 <span class="order-info">已售：{{item.saleCount}}件</span>
               </section>
               <label>库存：{{item.stock}}件</label>
@@ -257,15 +257,13 @@
         }
         .item-middle {
           .rel;
-          padding: 14/@rem 20/@rem;
+          padding: 14/@rem 20/@rem 14/@rem 14/@rem;
           min-height: 140/@rem;
-          .bf8;
-          .bor-b;
+          .bf;
           .img-con {
             .abs;
             top: 14/@rem;
-            padding: 10/@rem 0;
-            .size(140, 120);
+            .size(140, 140);
             overflow: hidden;
             background: #f5f5f5 url(../../../../static/img/bg_nopic.jpg) no-repeat center;
             -webkit-background-size: cover;

@@ -48,8 +48,8 @@
         noMore: false,
         assets: {
           /*takeAmount: 0,
-          totalAmount: 0,
-          waitTakeAmount: 0*/
+           totalAmount: 0,
+           waitTakeAmount: 0*/
         }
       }
     },
@@ -104,7 +104,7 @@
       .weui-cells {
         margin-top: 10/@rem;
         padding: 0;
-        &:before{
+        &:before {
           .none;
         }
       }
@@ -129,7 +129,7 @@
           p {
             padding-top: 40/@rem;
             .fz(50) !important;
-            i{
+            i {
               padding-left: 4px;
               font-style: normal;
               .fz(24);
@@ -139,7 +139,7 @@
         .right {
           .abs-center-vertical;
           right: 24/@rem;
-          padding-right: 12px;
+          padding: 20px 12px 20px 20px;
           .fz(28);
           &:after {
             content: " ";

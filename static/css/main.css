@@ -3295,11 +3295,9 @@ body {
 .xs-plugin-pullup-container {
   line-height: 40px;
 }
-.home .inner-scroller .box {
-  padding-bottom: 120px !important;
-}
-.home .inner-scroller .xs-plugin-pullup-container {
-  display: none !important;
+.weui-input,
+.vux-cell-value {
+  color: #333 !important;
 }
 ._v-content .loading-layer {
   height: 40px !important;

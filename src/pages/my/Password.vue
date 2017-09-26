@@ -2,17 +2,18 @@
   <div class="login-con" v-cloak>
     <group>
       <x-input title="手机号：" placeholder="您的手机号" required type="tel" text-align="right" v-model="params.phone"></x-input>
-      <x-input title="发送验证码：" class="weui-vcode">
-        <x-button slot="right" type="primary" mini :text="btnText" v-model="params.code" :disabled="btnStatus"
+      <x-input title="新密码：" placeholder="请输入新密码" required type="password" text-align="right"
+               v-model="params.passwd"></x-input>
+      <x-input title="确认密码：" placeholder="请再输入一次" required type="password" text-align="right"
+               v-model="params.repasswd"></x-input>
+      <x-input title="发送验证码：" placeholder="验证码" class="weui-vcode" v-model="params.smsCode">
+        <x-button class="btn-vercode" slot="right" type="primary" mini :text="btnText"
+                  :disabled="btnStatus"
                   @click.native="getCode">发送验证码
         </x-button>
       </x-input>
-      <x-input title="旧密码：" placeholder="旧密码" required type="lastPassword" text-align="right"
-               v-model="params.lastPasswd" v-if="sellerId"></x-input>
-      <x-input title="密码：" placeholder="密码" required type="password" text-align="right"
-               v-model="params.passwd"></x-input>
     </group>
-    <div class="btn btn-login" @click="update">保存</div>
+    <div class="btn btn-login" @click="update">更新密码</div>
     <!--<a class="forgetPsw" href="#/reset_psw">忘记密码&nbsp;<i class="fa fa-question-circle"></i></a>-->
     <p class="b-txt">友你生活 | 开启崭新生活</p>
   </div>
@@ -35,9 +36,9 @@
         sellerId: null,
         params: {
           phone: null,
-          code: null,
           passwd: null,
-          lastPasswd: null
+          repasswd: null,
+          smsCode: null
         }
       }
     },
@@ -47,8 +48,6 @@
     },
     mounted() {
       vm = this
-      me.attachClick()
-      vm.sellerId = vm.$route.query.id
     },
     methods: {
       getCode() {
@@ -72,38 +71,47 @@
           vm.isPosting = false
         })
       },
+      logout() {
+        vm.loadData(commonApi.logout, null, 'POST', function (res) {
+          if (res.success) {
+            vm.$store.commit('logout')
+            vm.$router.push({path: '/login'})
+          }
+        }, function () {
+        })
+      },
       update() {
         if (vm.isPosting) return false
         if (!vm.params.phone) {
-          vm.toast('请填写手机号 ！', 'warn')
+          vm.toast('请输入手机号 ！', 'warn')
           return false
         }
         if (!vm.params.phone.match(/^(13|15|18|17)\d{9}$/)) {
-          vm.toast('请填写正确的手机号 ！', 'warn')
+          vm.toast('请输入正确的手机号 ！', 'warn')
           return false
-        }
-        if (!vm.params.code) {
-          vm.toast('请填写验证码 ！', 'warn')
-          return false
-        }
-        if (vm.sellerId) {
-          if (!vm.params.lastPasswd) {
-            vm.toast('请填写旧密码 ！', 'warn')
-            return false
-          }
         }
         if (!vm.params.passwd) {
-          vm.toast('请填写密码 ！', 'warn')
+          vm.toast('请输入新密码 ！', 'warn')
+          return false
+        }
+        if (!vm.params.repasswd) {
+          vm.toast('请再次输入密码 ！', 'warn')
+          return false
+        }
+        if (!vm.params.smsCode) {
+          vm.toast('请输入验证码 ！', 'warn')
           return false
         }
         vm.isPosting = true
-        vm.loadData(commonApi.updatePsw, vm.params, 'POST', function (res) {
-          console.log(res, '修改用户信息')
-          vm.toast('密码已更新')
-          vm.$router.back()
+        vm.processing()
+        vm.loadData(commonApi.reset, vm.params, 'POST', function (res) {
           vm.isPosting = false
+          vm.processing(0, 1)
+          vm.toast('密码已更新')
+          vm.sellerId ? vm.logout() : vm.$router.push({path: '/login'})
         }, function () {
           vm.isPosting = false
+          vm.processing(0, 1)
         })
       }
     }

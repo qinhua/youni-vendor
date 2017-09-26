@@ -2,7 +2,11 @@
   <div class="order-detail">
     <div class="status-col">
       <div class="left-con">
-        <span>订单派送中…<br><i>22分钟内派达</i></span>
+        <span v-if="details.status===1">待支付…<br><i>请尽快支付</i></span>
+        <span v-if="details.status===2">待派送…<br><i>22分钟内派达</i></span>
+        <span v-if="details.status===3">派送中…<br><i>商品正在途中</i></span>
+        <span v-if="details.status===4">暂停中…<br><i>奶类订单已暂停派送</i></span>
+        <span v-if="details.status===5">已完成…<br><i>交易完成</i></span>
       </div>
       <div class="right-con"></div>
     </div>
@@ -19,86 +23,98 @@
     </div>
 
     <ul class="order-col">
-      <li>
-        <section class="v-items" :data-id="details.id" :data-orderid="details.orderId"
-                 :data-orderNumber="details.appOrderNumber">
-          <h4 class="item-top"><i class="ico-avatar"
-                                  :style="details.userImage?'background-image:url('+details.userImage+')':''"></i>&nbsp;{{details.userName}}&nbsp;&nbsp;<i
-            class="fa fa-angle-right cc"></i><span>{{details.statusName}}</span><span class="remind-txt"
-                                                                                      v-if="details.status===2&&details.remind">收到买家派送提醒</span>
-          </h4>
-          <ul>
-            <li v-for="itm in details.goodsList" v-cloak>
-              <section class="item-middle">
-                <div class="img-con"
-                     :style="itm.goodsImage?('background-image:url('+itm.goodsImage+')'):''"></div>
-                <div class="info-con">
-                  <h3><span
-                    :class="itm.goodsType==='goods_type.2'?'milk':''">{{itm.goodsType === 'goods_type.2' ? '奶' : '水'}}</span>{{itm.goodsName}}
-                  </h3>
-                  <section class="middle">
-                    <span class="unit-price">￥{{itm.goodsPrice | toFixed}}元</span>
-                    <span class="order-info">{{itm.info}}</span>
-                    <div class="dispatch-info" v-if="itm.goodsType==='goods_type.2'">
-                      <span>已送：{{itm.totalDispatcheNum}}件</span><span>待送：{{itm.waitDispatcheNum}}件</span>
-                    </div>
-                  </section>
-                  <!--<label>{{itm.label}}</label>-->
-                </div>
-                <div class="price-con">
-                  <p class="price">总价：￥{{itm.goodsAmount | toFixed}}</p>
-                  <p class="buy-count">x{{itm.goodsNum}}</p>
-                </div>
-              </section>
-            </li>
-          </ul>
-          <section class="item-bottom">
-            <!--<div class="extra-info">
-              <p v-for="(ext, idx) in item.extras">{{ext.name}}<span>￥{{ext.type ? '-' : ''}}{{ext.value}}.00</span>
-              </p>
-            </div>-->
-            <div class="total-price">
-              共{{details.totalGoodsNum}}件商品&nbsp;合计：<span>￥{{details.payAmount | toFixed}}</span>（含上楼费）
+      <li class="v-items" :data-id="details.id" :data-orderid="details.orderId"
+          :data-orderNumber="details.appOrderNumber">
+        <h4 class="item-top"><i class="ico-avatar"
+                                :style="details.userImage?'background-image:url('+details.userImage+')':''"></i>&nbsp;{{details.userName}}&nbsp;&nbsp;<i
+          class="fa fa-angle-right cc"></i><span>{{details.statusName}}</span><span class="remind-txt"
+                                                                                    v-if="details.status===2&&details.remind">收到买家派送提醒</span>
+        </h4>
+        <ul>
+          <li v-for="itm in details.goodsList" v-cloak>
+            <section class="item-middle">
+              <div class="img-con"
+                   :style="itm.goodsImage?('background-image:url('+itm.goodsImage+')'):''"></div>
+              <div class="info-con">
+                <h3><span
+                  :class="itm.goodsType==='goods_type.2'?'milk':''">{{itm.goodsType === 'goods_type.2' ? '奶' : '水'}}</span>{{itm.goodsName}}
+                </h3>
+                <section class="middle">
+                  <span class="unit-price">￥{{itm.goodsPrice | toFixed}}元</span>
+                  <span class="order-info">{{itm.info}}</span>
+                  <div class="dispatch-info" v-if="itm.goodsType==='goods_type.2'">
+                    <span>已送：{{itm.totalDispatcheNum}}件</span><span>待送：{{itm.waitDispatcheNum}}件</span>
+                  </div>
+                </section>
+                <!--<label>{{itm.label}}</label>-->
+              </div>
+              <div class="price-con">
+                <p class="price">总价：￥{{itm.goodsAmount | toFixed}}</p>
+                <p class="buy-count">x{{itm.goodsNum}}</p>
+              </div>
+            </section>
+          </li>
+        </ul>
+        <section class="item-bottom">
+          <!--<div class="extra-info">
+            <p v-for="(ext, idx) in item.extras">{{ext.name}}<span>￥{{ext.type ? '-' : ''}}{{ext.value}}.00</span>
+            </p>
+          </div>-->
+          <div class="total-price">
+            共{{details.totalGoodsNum}}件商品&nbsp;合计：<span>￥{{details.payAmount | toFixed}}</span>（含上楼费）
+          </div>
+          <!--<a class="btn btn-del" @click="cancelOrder(item.orderId)">取消订单</a>-->
+          <!--<a class="btn btn-del" @click="delOrder(item.orderId)">删除订单</a>-->
+          <!--<div class="btns" v-if="item.status===1">-->
+          <!--<a class="btn btn-cancel" @click="pushPay(item.orderId)">提醒支付</a>-->
+          <!--<a class="btn btn-del" @click="cancelOrder(item.orderId)">取消订单</a>-->
+          <!--</div>-->
+          <div class="btns" v-if="details.status===2">
+            <button type="button" class="btn btn-dispatch" @click="dispatch(details.orderId)">派送</button>
+          </div>
+          <div class="btns" v-if="details.status===3">
+            <div v-if="details.todayDispatch">
+              <span class="status-txt">当天已派送</span>
+              <button type="button" disabled class="btn btn-dispatch" @click="dispatch(details.orderId)">派送
+              </button>
             </div>
-            <!--<a class="btn btn-del" @click="cancelOrder(item.orderId)">取消订单</a>-->
-            <!--<a class="btn btn-del" @click="delOrder(item.orderId)">删除订单</a>-->
-            <!--<div class="btns" v-if="item.status===1">-->
-            <!--<a class="btn btn-cancel" @click="pushPay(item.orderId)">提醒支付</a>-->
-            <!--<a class="btn btn-del" @click="cancelOrder(item.orderId)">取消订单</a>-->
-            <!--</div>-->
-            <div class="btns" v-if="details.status===2">
+            <div v-else>
+              <span class="status-txt disabled">当天未派送</span>
               <button type="button" class="btn btn-dispatch" @click="dispatch(details.orderId)">派送</button>
             </div>
-            <div class="btns" v-if="details.status===3">
-              <div v-if="details.todayDispatch">
-                <span class="status-txt">当天已派送</span>
-                <button type="button" disabled class="btn btn-dispatch" @click="dispatch(details.orderId)">派送
-                </button>
-              </div>
-              <div v-else>
-                <span class="status-txt disabled">当天未派送</span>
-                <button type="button" class="btn btn-dispatch" @click="dispatch(details.orderId)">派送</button>
-              </div>
+          </div>
+          <div class="score-info" v-if="details.status===5">
+            <!--<span>买家评分：{{details.userScore}}星</span>-->
+            <div class="has-score" v-if="details.userScore">
+              <span>买家评分：</span>
+              <ol class="star">
+                <li v-for="star in details.userScore">★</li>
+              </ol>
+              <span>{{details.userScore}}星</span>
             </div>
-            <div class="score-info" v-if="details.status===5">
-              <!--<span>买家评分：{{details.userScore}}星</span>-->
-              <div class="has-score" v-if="details.userScore">
-                <span>买家评分：</span>
-                <ol class="star">
-                  <li v-for="star in details.userScore">★</li>
-                </ol>
-                <span>{{details.userScore}}星</span>
-              </div>
-              <span v-else>买家未评价</span>
-            </div>
-            <span class="timestamp">{{details.createTime}}</span>
-          </section>
+            <span v-else>买家未评价</span>
+          </div>
+          <span class="timestamp">{{details.createTime}}</span>
         </section>
       </li>
     </ul>
 
+    <div class="operate-col">
+      <group class="list-modal">
+        <cell title="查看收支明细" link="/income_list">
+          <!--<i slot="icon" width="20" style="margin-right:5px;" class="fa fa-credit-card"></i>-->
+        </cell>
+      </group>
+      <a class="btn btn-dial" :href="'tel:'+details.phone">联系买家</a>
+      <a class="btn btn-dial" :href="'tel:'+details.sellerPhone">联系卖家</a>
+    </div>
+
     <div class="extra-col">
-      <p>一些零散的东西</p>
+      <p>订单编号：{{details.appOrderNumber}}</p>
+      <p>创建时间：{{details.createTime}}</p>
+      <!--<p>付款时间：{{details.createTime}}</p>
+      <p>派送时间：{{details.createTime}}</p>
+      <p>成交时间：{{details.createTime}}</p>-->
     </div>
   </div>
 </template>
@@ -129,9 +145,9 @@
     },
     watch: {
       '$route'(to, from) {
-        if (to.name === 'order_detail') {
+//        if (to.name === 'order_detail') {
           vm.getDetail()
-        }
+//        }
       }
     },
     methods: {
@@ -318,12 +334,12 @@
   @import '../../../static/css/tools.less';
 
   .order-detail {
-    min-height: 100%;
-    overflow: auto;
+    padding-bottom: 100/@rem;
     .status-col {
       height: 200/@rem;
       .cf;
-      background: @c1;
+      background: linear-gradient(left, #ffc369, #ff5800);
+      background: -webkit-linear-gradient(left, #ffc369, #ff5800);
       &.waitPay {
         background: #40ceca;
       }
@@ -422,13 +438,11 @@
     .order-col {
       .v-items {
         .borBox;
-        margin-bottom: 20/@rem;
-        /*padding: 0 20/@rem 20/@rem;*/
+        margin-bottom: 14/@rem;
         .bf;
-        .bsd(0, 2px, 10px, 0, #ccc);
         .bor-t(1px, solid, #ddd);
         .item-top {
-          padding: 14/@rem 20/@rem;
+          padding: 14/@rem 20/@rem 14/@rem 14/@rem;
           .txt-normal;
           .c3;
           .fz(24);
@@ -458,15 +472,14 @@
         }
         .item-middle {
           .rel;
-          padding: 14/@rem 20/@rem;
-          min-height: 160/@rem;
+          padding: 14/@rem 20/@rem 14/@rem 14/@rem;
+          min-height: 140/@rem;
           .bf8;
           .bor-b;
           .img-con {
             .abs;
             top: 14/@rem;
-            padding: 10/@rem 0;
-            .size(140, 120);
+            .size(140, 140);
             overflow: hidden;
             background: #f5f5f5 url(../../../static/img/bg_nopic.jpg) no-repeat center;
             -webkit-background-size: cover;
@@ -477,7 +490,7 @@
             width: 100%;
             padding: 0 0 0 160/@rem;
             h3 {
-              padding-bottom: 10/@rem;
+              padding: 0 160/@rem 10/@rem 0;
               .txt-normal;
               .c3;
               .fz(26);
@@ -651,10 +664,37 @@
       }
     }
 
-    .extral-col{
-      padding-bottom: 100/@rem;
-
+    .operate-col {
+      .borBox;
+      margin-bottom: 14/@rem;
+      padding-bottom: 1px;
+      /*padding: 20/@rem;*/
+      .bf;
+      .weui-cell {
+        padding: 24/@rem !important;
+        .fz(26) !important;
+      }
+      .btn-dial {
+        .block;
+        width: 96%;
+        padding: 20/@rem 0;
+        margin: 16/@rem auto;
+        .cdiy(#47bd85);
+        .fz(24);
+        .borR(4px);
+        .bor(1px, solid, #47bd85);
+      }
     }
+    .extra-col {
+      .borBox;
+      margin-bottom: 14/@rem;
+      padding: 20/@rem;
+      line-height: 1.6;
+      .fz(22);
+      .c7;
+      .bf;
+    }
+
     .top {
       margin-bottom: 14/@rem;
       .banner-goods-detail {

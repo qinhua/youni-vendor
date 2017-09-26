@@ -25,13 +25,11 @@
           <!--<h4 class="item-top"><i class="ico-store"></i>&nbsp;{{item.sellerName}}&nbsp;&nbsp;<i
             class="fa fa-angle-right cc"></i><span>{{item.statusName}}</span></h4>-->
           <section class="item-middle">
-            <div class="img-con">
-              <img :src="item.imgurl">
-            </div>
+            <div class="img-con" :style="item.imgurl?('background-image:url('+item.imgurl+')'):''"></div>
             <div class="info-con">
               <h3>{{item.name}}</h3>
               <section class="middle">
-                <span class="unit-price">售价：￥{{item.price}}元</span>
+                <span class="unit-price">售价：￥{{item.price|toFixed}}元</span>
                 <span class="order-info">已售：{{item.saleCount}}件</span>
               </section>
               <label><i class="fa fa-tag"></i>&nbsp;{{item.waterNote}}</label>
@@ -99,7 +97,7 @@
      }, */
     watch: {
       '$route'(to, from) {
-        if(to.name==='tickets'){
+        if (to.name === 'tickets') {
           vm.getTickets()
         }
       }
@@ -253,20 +251,23 @@
           }
         }
         .item-middle {
-          padding: 14/@rem 20/@rem;
-          .flex;
+          .rel;
+          padding: 14/@rem 20/@rem 14/@rem 14/@rem;
+          min-height: 140/@rem;
+          .bf;
           .img-con {
-            .rel;
-            .size(130, 130);
+            .abs;
+            top: 14/@rem;
+            .size(140, 140);
             overflow: hidden;
-            img {
-              width: 100%;
-              .abs-center-vh;
-            }
+            background: #f5f5f5 url(../../../../static/img/bg_nopic.jpg) no-repeat center;
+            -webkit-background-size: cover;
+            background-size: cover;
           }
           .info-con {
-            .flex-r(2);
-            padding: 0 14/@rem;
+            .borBox;
+            width: 100%;
+            padding: 0 0 0 160/@rem;
             h3 {
               padding-bottom: 10/@rem;
               .txt-normal;
@@ -288,7 +289,7 @@
             }
             label {
               .fz(20);
-              i{
+              i {
                 .cdiy(#FFC107);
               }
             }

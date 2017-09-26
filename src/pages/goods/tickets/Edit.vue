@@ -288,22 +288,22 @@
           vm.tmpCat = []
         }
         /*if (vm.isPosting) return false
-        vm.isPosting = true
-        vm.loadData(ticketApi.list, {id: vm.params.id}, 'POST', function (res) {
-          if (res) {
-            let resD = res.data.itemList
-            /!*此处转换一些字段类型*!/
-            // a.比如把type和goodsCategory转换成数组
-            vm.switchData(vm.types, vm.params.ticketType, 'tmpType')
-            vm.switchData(vm.categories, vm.params.category, 'tmpCat')
-            vm.renderTags(resD.label)
-            vm.goods = resD
-            console.log(vm.goods)
-          }
-          vm.isPosting = false
-        }, function () {
-          vm.isPosting = false
-        })*/
+         vm.isPosting = true
+         vm.loadData(ticketApi.list, {id: vm.params.id}, 'POST', function (res) {
+         if (res) {
+         let resD = res.data.itemList
+         /!*此处转换一些字段类型*!/
+         // a.比如把type和goodsCategory转换成数组
+         vm.switchData(vm.types, vm.params.ticketType, 'tmpType')
+         vm.switchData(vm.categories, vm.params.category, 'tmpCat')
+         vm.renderTags(resD.label)
+         vm.goods = resD
+         console.log(vm.goods)
+         }
+         vm.isPosting = false
+         }, function () {
+         vm.isPosting = false
+         })*/
       },
       validate() {
         if (vm.params.goodsId === '') {
@@ -323,21 +323,21 @@
           return false
         }
         /*if (!vm.params.stock) {
-          vm.toast('请输入库存！', 'warn')
-          return false
-        }*/
+         vm.toast('请输入库存！', 'warn')
+         return false
+         }*/
         if (!vm.params.ticketType) {
           vm.toast('请选择水票类型！', 'warn')
           return false
         }
-        /*if (!vm.params.imgurl) {
+        if (!vm.params.imgurl) {
           vm.toast('请上传水票图片！', 'warn')
           return false
-        }*/
+        }
         /*if (!vm.params.note) {
-          vm.toast('请填写详情！', 'warn')
-          return false
-        }*/
+         vm.toast('请填写详情！', 'warn')
+         return false
+         }*/
         return true
       },
       updateTicket() {
@@ -417,10 +417,10 @@
         var formData = new FormData();
         formData.append('image', file)
         vm.$axios({
-          url: commonApi.uploadImg,
-          method: 'POST',
-          data: formData
-        })
+            url: commonApi.uploadImg,
+            method: 'POST',
+            data: formData
+          })
           .then(function (result) {
             var url = window.youniMall.host + '/' + result.data.imageUrl
             Editor.insertEmbed(cursorLocation, 'image', url);

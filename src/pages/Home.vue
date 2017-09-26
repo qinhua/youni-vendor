@@ -164,6 +164,7 @@
   /* eslint-disable */
   let me
   let vm
+  import throttle from 'lodash.throttle'
   import Swiper from '../components/Swiper'
   import {
     Group,
@@ -248,7 +249,7 @@
       /*滚动检测*/
       onScroll() {
         // 监听dom的scroll事件
-        _.debounce(vm.scrollHandler, 1000)
+        throttle(vm.scrollHandler, 250)
       },
       scrollHandler() {
         // 滚动中的真正的操作
@@ -262,7 +263,7 @@
         if (scrollTop >= vm.filterOffset) {
           target.classList.add('fixed')
         }
-         else {
+        else {
           target.classList.remove('fixed')
         }
         if (scrollTop >= (docH - winH) - 44) {
@@ -277,7 +278,7 @@
         }, 100)
       },
       toDetail(id) {
-         vm.$router.push({name: 'order_detail', query: {id: id}})
+        vm.$router.push({name: 'order_detail', query: {id: id}})
       },
       /* 页面数据 */
       changeType() {
@@ -334,11 +335,11 @@
       getOrders(isLoadMore) {
         if (vm.onFecthing) return false
         !isLoadMore ? vm.params.pageNo = 1 : vm.params.pageNo++
-        // vm.processing()
+        vm.processing()
         vm.onFecthing = true
         vm.loadData(orderApi.list, vm.params, 'POST', function (res) {
             vm.onFecthing = false
-            // vm.processing(0, 1)
+            vm.processing(0, 1)
             var resD = res.data.pager
             if (resD.itemList.length) {
               for (var i = 0; i < resD.itemList.length; i++) {
@@ -599,7 +600,7 @@
 
     .bar-chamer {
       min-height: 44px;
-      .bar-wrap{
+      .bar-wrap {
         .rel;
         height: 44px;
         z-index: 10;

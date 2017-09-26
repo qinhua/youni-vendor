@@ -75,7 +75,7 @@
     mounted() {
       vm = this
       vm.getGoods()
-      vm.$nextTick(() => {
+      vm.$nextTick(function() {
         vm.$refs.goodsScroller.finishInfinite(true)
         vm.$refs.goodsScroller.resize()
       })
@@ -214,15 +214,14 @@
           }
           .item-middle {
             .rel;
-            padding: 14/@rem 20/@rem;
+            padding: 14/@rem 20/@rem 14/@rem 14/@rem;
             min-height: 140/@rem;
-            .bf8;
+            .bf;
             .bor-b;
             .img-con {
               .abs;
               top: 14/@rem;
-              padding: 10/@rem 0;
-              .size(140, 120);
+              .size(140, 140);
               overflow: hidden;
               background: #f5f5f5 url(../../static/img/bg_nopic.jpg) no-repeat center;
               -webkit-background-size: cover;

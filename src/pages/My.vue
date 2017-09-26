@@ -26,6 +26,9 @@
       <!--<cell title="修改密码" style="color:#666" @click.native="modPassword"><i slot="icon" width="20"
                                                                            style="margin-right:5px;"
                                                                            class="fa fa-wrench"></i></cell>-->
+      <cell title="修改密码" style="color:#666" @click.native="modPassword">
+        <!--<i slot="icon" width="20" style="margin-right:5px;" class="fa fa-sign-out"></i>-->
+      </cell>
       <cell title="退出登录" style="color:#666" @click.native="logout">
         <!--<i slot="icon" width="20" style="margin-right:5px;" class="fa fa-sign-out"></i>-->
       </cell>
@@ -52,17 +55,9 @@
       me = window.me
     },
     mounted() {
-      // me.attachClick()
       vm = this
       vm.getSeller()
     },
-    /*watch: {
-      '$route'(to, from) {
-        if (to.name === 'user') {
-          vm.getSeller()
-        }
-      }
-    },*/
     // computed: {},
     methods: {
       getSeller() {
@@ -72,15 +67,15 @@
         vm.confirm('退出登录？', '', function () {
           vm.loadData(commonApi.logout, null, 'POST', function (res) {
             if (res.success) {
-              vm.$store.commit('logout')
-              vm.$router.push({path:'/login'})
+              vm.$store.commit('logout', true)
+              vm.$router.push({path: '/login'})
             }
           }, function () {
           })
         })
       },
       modPassword() {
-        this.$router.push({name: 'password', query: {id: vm.sellerId}})
+        this.$router.push({name: 'password', query: {sellerId: vm.seller.id}})
       }
     }
   }

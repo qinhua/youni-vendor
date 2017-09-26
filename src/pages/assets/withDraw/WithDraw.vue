@@ -3,7 +3,7 @@
     <label class="tips"><i class="fa fa-smile-o"></i>&nbsp;当前可提现金额￥{{assets.waitTakeAmount}}元</label>
     <group>
       <cell title="金额(元)：" primary="content">
-        <x-input placeholder="请输入提现金额" required text-align="right" type="number" v-model="params.amount"
+        <x-input placeholder="请输入提现金额" required text-align="right" type="number" v-model.number="params.amount"
                  @on-change="changeAmount"></x-input>
       </cell>
     </group>
@@ -68,6 +68,10 @@
           vm.toast('请输入提现金额', 'warn')
           return false
         }
+        if (vm.params.amount > vm.assets.waitTakeAmount) {
+          vm.toast('最多可提现' + vm.assets.waitTakeAmount + '元', 'warn')
+          return false
+        }
         if (vm.isPosting) return false
         vm.processing()
         vm.isPosting = true
@@ -88,11 +92,7 @@
       changeAmount(val) {
         if (val && val > vm.assets.waitTakeAmount) {
           vm.toast('最多可提现' + vm.assets.waitTakeAmount + '元', 'warn')
-          vm.params.amount = vm.assets.waitTakeAmount
         }
-        /*else {
-          vm.toast('提现金额必须大于0', 'warn')
-        }*/
       }
     }
   }
@@ -105,6 +105,7 @@
   .draw-con {
     .rel;
     height: 100%;
+    overflow: hidden;
     .bottom {
       margin-top: 10/@rem;
     }
@@ -132,7 +133,7 @@
       }
     }
     .btn-save {
-      .fix;
+      .abs;
       bottom: 0;
       z-index: 20;
       width: 100%;

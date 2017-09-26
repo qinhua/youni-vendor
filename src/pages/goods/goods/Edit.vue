@@ -93,6 +93,7 @@
         isPosting: false,
         lineData: null,
         isEdit: false,
+        isMilk: false,
         editPriceTag: false,
         priceStatusText: '去设置',
         fileApi: commonApi.uploadImg,
@@ -264,6 +265,11 @@
              discountNote: '',*/
             note: vm.lineData.note
           }
+          if (vm.params.type === 'goods_type.2') {
+            vm.isMilk = true
+          } else {
+            vm.isMilk = false
+          }
           vm.switchData(vm.brands, vm.lineData.brandId, 'tmpBrand', 1)
           vm.switchData(vm.types, vm.lineData.type, 'tmpType', 1)
           vm.switchData(vm.categories, vm.lineData.category, 'tmpCat', 1)
@@ -332,10 +338,10 @@
           vm.toast('请指定价格！', 'warn')
           return false
         }
-        /*if (!vm.params.imgurl) {
-         vm.toast('请上传商品图片！', 'warn')
-         return false
-         }*/
+        if (!vm.params.imgurl) {
+          vm.toast('请上传商品图片！', 'warn')
+          return false
+        }
         /*if (!vm.params.note) {
          vm.toast('请填写商品详情！', 'warn')
          return false
@@ -360,15 +366,15 @@
           vm.processing(0, 1)
           vm.isPosting = false
           if (res.success) {
-            if(res.data){
-              if (!isMilk) {
+            if (res.data) {
+              if (!vm.isMilk) {
                 vm.toast('已添加')
                 vm.jump('goods')
               } else {
                 vm.params.id = res.data.id
                 vm.editPriceTag = true
               }
-            }else{
+            } else {
               vm.toast('已更新')
               vm.jump('goods')
             }
@@ -395,8 +401,10 @@
         console.log(val, vm.params.type)
         if (vm.params.type === 'goods_type.2') {
           vm.params.price = 1
+          vm.isMilk = true
         } else {
           vm.params.price = 0
+          vm.isMilk = false
         }
       },
       changeStatus(value, disabled) {
@@ -472,7 +480,6 @@
   @import '../../../../static/css/tools.less';
 
   .goods-edit-con {
-    padding-bottom: 50px;
     .bottom {
       margin-top: 10/@rem;
     }
