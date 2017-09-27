@@ -17,6 +17,8 @@ import MyAddress from '@/pages/my/Address'
 import MyFavorite from '@/pages/my/Favorite'
 import Help from '@/pages/my/Help'
 import About from '@/pages/my/About'
+import Rules from '@/pages/my/Rules'
+import Audit from '@/pages/my/Audit'
 import GoodsDetail from '@/pages/goods/Detail'
 import GoodsSearch from '@/components/GoodsSearch'
 
@@ -25,11 +27,12 @@ import Topic from '@/pages/store/topic/Topic'
 import Coupons from '@/pages/store/coupons/Coupons'
 import EditCoupon from '@/pages/store/coupons/Edit'
 import FloorFee from '@/pages/store/floor/FloorFee'
+import DispatchTime from '@/pages/store/dispatch/time'
 import GuaranteeFee from '@/pages/store/guarantee/GuaranteeFee'
 
 import GoodsItems from '@/pages/goods/Items'
 import Goods from '@/pages/goods/goods/Goods'
-import OrderDetail from '@/pages/order/Detail'
+import OrderDetail from '@/pages/orders/Detail'
 import EditGoods from '@/pages/goods/goods/Edit'
 import EditSubPrice from '@/components/EditSubPrice'
 import Tickets from '@/pages/goods/tickets/Tickets'
@@ -192,7 +195,7 @@ export default new Router({
     },
     {
       path: '/coupons',
-      name: 'Coupons',
+      name: 'coupons',
       component: Coupons,
       meta: {
         title: '优惠管理',
@@ -223,6 +226,15 @@ export default new Router({
       component: GuaranteeFee,
       meta: {
         title: '保证金',
+        keepAlive: false
+      }
+    },
+    {
+      path: '/dispatch_time',
+      name: 'dispatch_time',
+      component: DispatchTime,
+      meta: {
+        title: '派送时间',
         keepAlive: false
       }
     },
@@ -403,6 +415,24 @@ export default new Router({
       component: About,
       meta: {
         title: '关于友你',
+        keepAlive: false
+      }
+    },
+    {
+      path: '/rules',
+      name: 'rules',
+      component: Rules,
+      meta: {
+        title: '入驻协议',
+        keepAlive: false
+      }
+    },
+    {
+      path: '/audit',
+      name: 'audit',
+      component: Audit,
+      meta: {
+        title: '审核中',
         keepAlive: false
       }
     },

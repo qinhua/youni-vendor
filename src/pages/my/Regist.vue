@@ -1,6 +1,6 @@
 <template>
   <div class="regist-con" v-cloak>
-    <div class="f-wrap" v-if="!showMap">
+    <div class="f-wrap" v-show="!showMap&&!showMsg">
       <group>
         <x-input title="商家名称：" placeholder="商家名称" text-align="right" required v-model="params.name"></x-input>
         <x-input title="商家电话：" placeholder="您的手机号" text-align="right" type="tel" required
@@ -14,7 +14,6 @@
                       @on-hide="" @on-change="changeType"></popup-picker>
         <popup-picker title="业务分类" :data="serTypes" :columns="1" v-model="tmpSerType" @on-show=""
                       @on-hide="" @on-change="changeSerType"></popup-picker>
-        <!--<x-textarea title="店铺公告：" :max="20" placeholder="店铺公告" @on-blur="" v-model="topic" show-clear></x-textarea>-->
         <x-address class="address-area" title="所在地区" @on-hide="onHide" @on-shadow-change="changeArea"
                    :list="addressData"
                    placeholder="请选择地区">
@@ -26,23 +25,42 @@
         </x-address>
         <x-input title="详细地址：" placeholder="输入详细地址" required readonly text-align="right" v-model="tmpAddress.detail"
                  @click.native="choosePoint"></x-input>
-        <!--<div class="upload-group-row">
+      </group>
+      <group class="bottom">
+        <div class="upload-group-row">
           <img-uploader ref="imgPicker01" title="店铺头像" :api="fileApi" :limit="1"
-                        @on-uploaded="getImgUrl(1)"></img-uploader>-->
-        <img-uploader ref="imgPicker02" title="营业执照" :api="fileApi" :limit="1"
-                      @on-uploaded="getImgUrl"></img-uploader>
-        <!--</div>-->
+                        @on-uploaded="getImgUrl(1)"></img-uploader>
+          <img-uploader ref="imgPicker02" title="营业执照" :api="fileApi" :limit="1"
+                        @on-uploaded="getImgUrl"></img-uploader>
+        </div>
+        <div class="upload-group-row">
+          <img-uploader ref="imgPicker01" title="身份证正面" :api="fileApi" :limit="1"
+                        @on-uploaded="getImgUrl(1)"></img-uploader>
+          <img-uploader ref="imgPicker02" title="身份证背面" :api="fileApi" :limit="1"
+                        @on-uploaded="getImgUrl"></img-uploader>
+        </div>
+      </group>
+      <group class="bottom">
         <x-input title="登录密码：" placeholder="登录密码" type="password" text-align="right" required
                  v-model="params.passwd"></x-input>
         <x-input title="验证码：" class="weui-vcode" v-model="params.smsCode">
-          <x-button class="btn-vercode" slot="right" type="primary" mini :disabled="btnStatus" @click.native="getCode">
+          <x-button class="btn-vercode" slot="right" type="primary" mini :disabled="btnStatus"
+                    @click.native="getCode">
             {{btnText}}
           </x-button>
         </x-input>
       </group>
-      <div class="btn btn-save" @click="register"><i class="fa fa-save"></i>&nbsp;提交申请</div>
+      <div class="last-con">
+        <div class="agree-rule">
+          <input type="checkbox" id="agree" checked v-model="isAgree">
+          <label for="agree">同意<a class="the-rule" href="#/rules">《友你入驻协议》</a></label>
+        </div>
+      </div>
+      <button type="button" class="btn btn-save" @click.enter="register" v-show="!showMap"><i class="fa fa-save"></i>&nbsp;提交申请
+      </button>
     </div>
-    <amap @on-receive-data="getMap" v-if="showMap"></amap>
+    <amap @on-receive-data="getMap" v-show="showMap"></amap>
+    <msg title="提交成功！" description="您已成功提交入驻申请，管理员将尽快审核！" :buttons="buttons" :icon="icon" v-if="showMsg"></msg>
   </div>
 </template>
 
@@ -50,7 +68,7 @@
   /* eslint-disable no-unused-vars */
   let me
   let vm
-  import {Group, Cell, XInput, XButton, PopupPicker, XTextarea, XAddress, ChinaAddressV3Data} from 'vux'
+  import {Group, Cell, XInput, XButton, Msg ,PopupPicker, XTextarea, XAddress, ChinaAddressV3Data} from 'vux'
   import imgUploader from '../../components/ImgUploader.vue'
   import Amap from '../../components/Amap.vue'
   import {userApi, commonApi} from '../../service/main.js'
@@ -84,6 +102,7 @@
         tmpAddress: {province: '', city: '', detail: ''},
         btnText: '发送验证码',
         btnStatus: false,
+        isAgree: true,
         params: {
           name: '',
           phone: '',
@@ -98,19 +117,48 @@
           authLevel: '',
           businessLicense: '',
           smsCode: ''
-        }
+        },
+        /*msg*/
+        showMsg: false,
+        description: 'msg description',
+        icon: 'success',
+        buttons: [{
+          type: 'primary',
+          text: '确定',
+          onClick: function () {
+          }
+        }]
       }
     },
-    components: {Group, Cell, XInput, XButton, PopupPicker, XTextarea, XAddress, ChinaAddressV3Data, imgUploader, Amap},
+    components: {
+      Group,
+      Cell,
+      XInput,
+      XButton,
+      Msg,
+      PopupPicker,
+      XTextarea,
+      XAddress,
+      ChinaAddressV3Data,
+      imgUploader,
+      Amap
+    },
     beforeMount() {
       me = window.me
     },
     mounted() {
       vm = this
     },
+    watch: {
+      '$route'(to, from) {
+        if (to.name !== 'regist') {
+          vm.showMap = false
+        }
+      }
+    },
     methods: {
       getMap(data) {
-        vm.showMap = false;
+        vm.showMap = false
         console.log(data, 'home amap info')
         if (data) {
           vm.params.lon = data.lng
@@ -119,7 +167,7 @@
         }
       },
       choosePoint() {
-        vm.showMap = true;
+        vm.showMap = true
       },
       onHide() {
 //        console.log(vm.$refs.typ)
@@ -164,12 +212,12 @@
         vm.isPosting = true
         vm.loadData(commonApi.sendSms, {phone: vm.params.phone, useType: 1}, 'POST', function (res) {
           /*vm.toast('已发送，请注意查收！')
-          vm.btnText = '60s后再次获取'
-          vm.btnStatus = true
-          setTimeout(function () {
-            vm.btnText = '发送验证码'
-            vm.btnStatus = false
-          }, 60000)*/
+           vm.btnText = '60s后再次获取'
+           vm.btnStatus = true
+           setTimeout(function () {
+           vm.btnText = '发送验证码'
+           vm.btnStatus = false
+           }, 60000)*/
           vm.btnStatus = true
           me.verCodeBtn(60, '.btn-vercode', function () {
             vm.btnStatus = false
@@ -201,7 +249,7 @@
       },
       validate() {
         if (!vm.params.name) {
-          vm.toast('请填写商家名！', 'warn')
+          vm.toast('请填写商家名称！', 'warn')
           return false
         }
         if (!vm.params.phone) {
@@ -212,20 +260,8 @@
           vm.toast('请填写正确的手机号！', 'warn')
           return false
         }
-        if (!vm.params.passwd) {
-          vm.toast('请填写登录密码！')
-          return false
-        }
         if (!vm.params.companyName) {
           vm.toast('请填写公司名！', 'warn')
-          return false
-        }
-        if (!vm.tmpAddress.province) {
-          vm.toast('请选择地区！', 'warn')
-          return false
-        }
-        if (!vm.tmpAddress.detail) {
-          vm.toast('请选择详细地址！', 'warn')
           return false
         }
         if (!vm.params.authLevel) {
@@ -240,16 +276,40 @@
           vm.toast('请选择业务分类！', 'warn')
           return false
         }
-        if (vm.params.authLevel === '') {
-          vm.toast('请选择认证级别！', 'warn')
+        if (!vm.tmpAddress.province) {
+          vm.toast('请选择地区！', 'warn')
+          return false
+        }
+        if (!vm.tmpAddress.detail) {
+          vm.toast('请选择详细地址！', 'warn')
+          return false
+        }
+        if (!vm.params.headimgurl) {
+          vm.toast('请上传店铺头像！', 'warn')
           return false
         }
         if (!vm.params.businessLicense) {
           vm.toast('请上传营业执照！', 'warn')
           return false
         }
+        if (!vm.params.idCardFace) {
+          vm.toast('请上传身份证正面！', 'warn')
+          return false
+        }
+        if (!vm.params.idCardBack) {
+          vm.toast('请上传身份证背面！', 'warn')
+          return false
+        }
+        if (!vm.params.passwd) {
+          vm.toast('请填写登录密码！')
+          return false
+        }
         if (!vm.params.smsCode) {
           vm.toast('请填写验证码！', 'warn')
+          return false
+        }
+        if (!vm.isAgree) {
+          vm.toast('请填写同意入驻协议！', 'warn')
           return false
         }
         return true
@@ -268,10 +328,11 @@
           vm.loadData(commonApi.regist, vm.params, 'POST', function (res) {
             vm.processing(0, 1)
             if (res.success) {
-              vm.toast('入驻成功！')
-              vm.jump('login', {phone: vm.params.phone, psw: vm.params.phone.substr(-6)})
+              /*vm.toast('申请成功！,管理员将尽快审核')
+               vm.jump('login', {phone: vm.params.phone, psw: vm.params.phone.substr(-6)})*/
+              vm.showMsg = true
             } else {
-              vm.toast(res.message, 'warn')
+              vm.toast(res.message || '提交失败！', 'warn')
             }
             vm.isPosting = false
           }, function () {
@@ -310,6 +371,7 @@
   @import '../../../static/css/tools.less';
 
   .regist-con {
+    .rel;
     height: 100%;
     overflow-x: hidden;
     .f-wrap {
@@ -318,6 +380,9 @@
     }
     .bottom {
       margin-top: 10/@rem;
+    }
+    .last-con {
+      padding: 10/@rem 20/@rem 150/@rem;
     }
     .upload-group-row {
       .borBox;
@@ -341,6 +406,54 @@
         .fz(26);
       }
     }
+
+    /*同意协议部分*/
+    .agree-rule {
+      .rel;
+      padding-top: 8/@rem;
+      label {
+        .rel;
+        .iblock;
+        //float: left;
+        line-height: 1.2;
+        .fz(24);
+        //margin-left: 10/@rem;
+        padding-left: 40/@rem;
+        &:before {
+          .abs;
+          left: 0;
+          //top:2/@rem;
+          content: '';
+          .size(28, 28);
+          margin-right: 10/@rem;
+          .bor(1px, solid, #886215);
+          .borR(2px);
+        }
+      }
+      input {
+        width: 0;
+        height: 0;
+        visibility: hidden;
+      }
+      input[type="checkbox"]:checked + label {
+        &:before {
+          background: url("../../../static/img/gou.png") no-repeat center;
+          .bg-size(20, 14);
+        }
+        //&:after{
+        //  .block;
+        //}
+      }
+      p {
+        padding-left: 10/@rem;
+        line-height: 42/@rem;
+        font-size: 22/@rem;
+        color: #fff;
+      }
+      a {
+        color: #ef6248;
+      }
+    }
     .btn-save {
       .fix;
       bottom: 0;
@@ -353,7 +466,7 @@
       .center;
       .cf;
       .fz(28);
-      .bdiy(@c2);
+      .bdiy(#09BB07);
     }
   }
 

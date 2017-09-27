@@ -3,8 +3,12 @@
     <div class="f-wrap" v-if="!showMap">
       <group>
         <x-input title="店铺名称：" placeholder="店铺名称" required text-align="right" v-model="params.name"></x-input>
-        <datetime title="营业时间" format="HH:mm" minute-row :min-hour="6" :max-hour="23" v-model="params.businessTime"
-                  @on-change="changeTime"></datetime>
+        <div class="time-group">
+          <h3>营业时间<span>*不填为24小时营业</span></h3>
+          <datetime title="从：" format="HH:mm" minute-row v-model="startTime"></datetime>
+          <datetime title="至：" format="HH:mm" minute-row v-model="endTime"></datetime>
+        </div>
+
         <img-uploader title="店铺头像" :api="fileApi" :limit="1" @on-uploaded="getImgUrl"></img-uploader>
       </group>
       <group class="bottom">
@@ -45,6 +49,8 @@
         isPosting: false,
         addressData: ChinaAddressV3Data,
         tmpAddress: {province: '', city: '', detail: ''},
+        startTime: null,
+        endTime: null,
         params: {}
       }
     },
@@ -69,9 +75,6 @@
       choosePoint() {
         vm.showMap = true;
       },
-      onHide() {
-//        console.log(vm.$refs.type)
-      },
       getImgUrl(data) {
         if (me.isArray(data)) {
           vm.params.headimgurl = data.join(',')
@@ -82,6 +85,10 @@
       validate() {
         if (!vm.params.name) {
           vm.toast('请填写店铺名！')
+          return false
+        }
+        if (!vm.params.headimgurl) {
+          vm.toast('请选择头像！')
           return false
         }
         if (!vm.tmpAddress.province) {
@@ -99,12 +106,6 @@
         return true
       },
       getSeller(needSave) {
-        /*try {
-         vm.params = vm.$route.params.userinfo ? JSON.parse(window.decodeURIComponent(vm.$route.params.userinfo)) : {}
-         console.log(vm.params, '带过来的数据')
-         } catch (e) {
-         // console.log(e)
-         }*/
         if (vm.isPosting) return false
         vm.isPosting = true
         vm.loadData(userApi.get, null, 'POST', function (res) {
@@ -128,39 +129,46 @@
       },
       updateSeller() {
         if (vm.isPosting) return false
-        if (vm.validate()) {
-          vm.isPosting = true
-          vm.processing()
-          if (vm.tmpAddress.detail.indexOf('省') === -1 && vm.tmpAddress.detail.indexOf('市') === -1) {
-            vm.params.address = vm.tmpAddress.province + vm.tmpAddress.city + vm.tmpAddress.detail
-          } else {
-            vm.params.address = vm.tmpAddress.detail
-          }
-          vm.loadData(userApi.update, vm.params, 'POST', function (res) {
-            vm.isPosting = false
-            vm.processing(0, 1)
-            if (res.success) {
-              vm.toast('资料更新成功')
-              vm.getSeller(true)
-              vm.$router.back()
-            } else {
-              vm.toast('设置失败！')
-            }
-          }, function () {
-            vm.isPosting = false
-            vm.processing(0, 1)
-          }, true)
+        /*if (vm.validate()) {*/
+        vm.isPosting = true
+        vm.processing()
+        if (vm.tmpAddress.detail.indexOf('省') === -1 && vm.tmpAddress.detail.indexOf('市') === -1) {
+          vm.params.address = vm.tmpAddress.province + vm.tmpAddress.city + vm.tmpAddress.detail
+        } else {
+          vm.params.address = vm.tmpAddress.detail
         }
+        if (vm.startTime && vm.endTime) {
+          vm.params.businessTime = vm.startTime + '-' + vm.endTime
+        }
+
+        vm.loadData(userApi.update, vm.params, 'POST', function (res) {
+          vm.isPosting = false
+          vm.processing(0, 1)
+          if (res.success) {
+            vm.toast('信息更新成功')
+            vm.$router.back()
+            vm.getSeller(true)
+          } else {
+            vm.toast('设置失败！')
+          }
+        }, function () {
+          vm.isPosting = false
+          vm.processing(0, 1)
+        }, true)
+        /*} else {
+         vm.toast('无需更新')
+         vm.$router.back()
+         }*/
       },
       changeArea(ids, names) {
-        console.log(ids, names)
+        // console.log(ids, names)
         vm.params.province = ids[0]
         vm.params.city = ids[1]
         vm.tmpAddress.province = names[0]
         vm.tmpAddress.city = names[1].indexOf('市辖区') === -1 ? names[1] : ''
         vm.area = names[0] + (names[1].indexOf('市辖区') === -1 ? names[1] : '') + names[2]
         // vm.params.area = names[0] + (names[1].indexOf('市辖区') === -1 ? names[1] : '') + names[2]
-      },
+      }
     }
   }
 </script>
@@ -177,6 +185,27 @@
       .vux-x-input {
         padding: 24/@rem 30/@rem;
         .fz(26);
+      }
+    }
+    .time-group {
+      .borBox;
+      .bor-t;
+      h3 {
+        padding: 14/@rem 24/@rem;
+        .bf5;
+        .fz(26);
+        font-weight: normal;
+        span {
+          .fr;
+          .fz(22);
+          .c9;
+        }
+      }
+      a {
+        padding: 20/@rem 24/@rem;
+      }
+      a:first-of-type:before {
+        .none;
       }
     }
     .bottom {

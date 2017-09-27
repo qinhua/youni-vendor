@@ -210,10 +210,10 @@
     },
     methods: {
       chooseGoods() {
-        vm.showGoodsList = true;
+        vm.showGoodsList = true
       },
       getGoodsData(data) {
-        vm.showGoodsList = false;
+        vm.showGoodsList = false
         vm.selGoodsName = data.name || ''
         vm.params.goodsId = data.id || null
       },

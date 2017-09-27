@@ -72,7 +72,7 @@
       <!--订单列表-->
       <div class="order-list" ref="orderList">
         <ul class="box">
-          <li v-for="(item, index) in orders" @click="toDetail(item.orderId)" v-cloak>
+          <li v-for="(item, index) in orders" v-cloak>
             <section class="v-items" :data-id="item.id" :data-orderid="item.orderId"
                      :data-orderNumber="item.appOrderNumber">
               <h4 class="item-top"><i class="ico-avatar"
@@ -80,7 +80,7 @@
                 class="fa fa-angle-right cc"></i><span>{{item.statusName}}</span><span class="remind-txt"
                                                                                        v-if="item.status===2&&item.remind">收到买家派送提醒</span>
               </h4>
-              <ul>
+              <ul @click="toDetail(item.orderId)">
                 <li v-for="itm in item.goodsList" v-cloak>
                   <section class="item-middle">
                     <div class="img-con"
@@ -373,10 +373,10 @@
             } else {
               resD.itemList.length ? vm.orders.concat(resD.itemList) : vm.noMore = true
             }
-            console.log(vm.orders, '订单数据')
+            // console.log(vm.orders, '订单数据')
           }, function () {
             vm.onFecthing = false
-            // vm.processing(0, 1)
+            vm.processing(0, 1)
           }
         )
       },
@@ -390,6 +390,7 @@
             vm.isPosting = false
           })
         }, function () {
+          vm.isPosting = false
         })
       },
       cancelOrder(id) {
@@ -404,7 +405,7 @@
             vm.isPosting = false
           })
         }, function () {
-          // console.log('no')
+          vm.isPosting = false
         })
       },
       pushPay(id) {

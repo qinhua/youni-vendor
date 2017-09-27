@@ -3,10 +3,10 @@
     <div class="status-col">
       <div class="left-con">
         <span v-if="details.status===1">待支付…<br><i>请尽快支付</i></span>
-        <span v-if="details.status===2">待派送…<br><i>22分钟内派达</i></span>
+        <span v-if="details.status===2">待派送…<br><i>等待商家派达中</i></span>
         <span v-if="details.status===3">派送中…<br><i>商品正在途中</i></span>
         <span v-if="details.status===4">暂停中…<br><i>奶类订单已暂停派送</i></span>
-        <span v-if="details.status===5">已完成…<br><i>交易完成</i></span>
+        <span v-if="details.status===5">已完成…<br><i>交易已完成</i></span>
       </div>
       <div class="right-con"></div>
     </div>
@@ -100,13 +100,18 @@
     </ul>
 
     <div class="operate-col">
-      <group class="list-modal">
+      <!--<group class="list-modal">
         <cell title="查看收支明细" link="/income_list">
-          <!--<i slot="icon" width="20" style="margin-right:5px;" class="fa fa-credit-card"></i>-->
+          &lt;!&ndash;<i slot="icon" width="20" style="margin-right:5px;" class="fa fa-credit-card"></i>&ndash;&gt;
         </cell>
-      </group>
-      <a class="btn btn-dial" :href="'tel:'+details.phone">联系买家</a>
-      <a class="btn btn-dial" :href="'tel:'+details.sellerPhone">联系卖家</a>
+        <cell title="投诉商家" link="/complain">
+          &lt;!&ndash;<i slot="icon" width="20" style="margin-right:5px;" class="fa fa-credit-card"></i>&ndash;&gt;
+        </cell>
+      </group>-->
+      <div class="btns">
+        <a class="btn btn-dial" :href="'tel:'+details.phone"><i class="fa fa-phone"></i>&nbsp;联系买家</a>
+        <!--<a class="btn btn-dial" :href="'tel:'+details.sellerPhone"><i class="fa fa-phone"></i>&nbsp;联系卖家</a>-->
+      </div>
     </div>
 
     <div class="extra-col">
@@ -123,7 +128,7 @@
   /* eslint-disable */
   let me
   let vm
-  import {Tab, TabItem, Group, Cell} from 'vux'
+  import {Group, Cell} from 'vux'
   import {orderApi} from '../../service/main.js'
 
   export default {
@@ -135,7 +140,7 @@
         isPosting: false
       }
     },
-    components: {Tab, TabItem, Group, Cell},
+    components: {Group, Cell},
     beforeMount() {
       me = window.me
     },
@@ -145,9 +150,9 @@
     },
     watch: {
       '$route'(to, from) {
-//        if (to.name === 'order_detail') {
+        if (to.name === 'order_detail') {
           vm.getDetail()
-//        }
+        }
       }
     },
     methods: {
@@ -162,10 +167,6 @@
           if (res.success) {
             var resD = res.data
             resD.categoryName = (resD.type === 'goods_type.1') ? '水' : '奶'
-
-//            if (resD.goodsList.length) {
-//              for (var i = 0; i < resD.goodsList.length; i++) {
-//                var cur = resD.goodsList[i]
             switch (resD.status) {
               case 1:
                 resD.statusName = '待支付'
@@ -183,26 +184,14 @@
                 resD.statusName = '已完成'
                 break
             }
-//              }
-//            }
             vm.details = resD
-            console.log(vm.details, '商品详情')
+            // console.log(vm.details, '商品详情')
           }
           cb ? cb() : null
         }, function () {
           vm.isPosting = false
           vm.processing(0, 1)
         })
-      },
-      getSeller(id) {
-        vm.loadData(nearbyApi.sellerDetail, {id: id}, 'POST', function (res) {
-          if (res.data) {
-            vm.details.sellerName = res.data.name
-          }
-        })
-      },
-      chooseCol(index) {
-        vm.detailSwiper.slideTo(index)
       },
       getAppraise(index) {
         vm.loadData(orderApi.appraise, {type: index || 0}, 'POST', function (res) {
@@ -212,7 +201,6 @@
         }, function () {
         })
       },
-
       delOrder(id) {
         if (vm.isPosting) return false
         vm.confirm('确认删除？', '订单删除后不可恢复！', function () {
@@ -257,73 +245,12 @@
           vm.loadData(orderApi.updateOrderStatus, {userType: 2, id: id, status: 3}, 'POST', function (res) {
             vm.isPosting = false
             vm.toast('派送成功')
-            vm.getOrders()
+            vm.getDetail()
           }, function () {
             vm.isPosting = false
           })
         }, function () {
         })
-      },
-      dispatchOrder(id) {
-        if (vm.isPosting) return false
-        vm.isPosting = true
-        /*var dispatchers = '<option value="">-请选择派送员-</option>'
-         vm.loadData(orderApi.dispatcher, {orderId: id}, 'POST', function (res) {
-         if (res.success) {
-         if (res.data.itemList.length) {
-         var resD = res.data.itemList
-         for (var i = 0; i < resD.length; i++) {
-         var cur = resD[i]
-         dispatchers += '<option value="' + cur.id + ',' + cur.dispatcher + '">' + cur.dispatcher + '</option>'
-         }
-         } else {
-         vm.toast('暂无派送员！')
-         return
-         }
-         }
-         vm.isPosting = false
-         }, function () {
-         vm.isPosting = false
-         })
-         vm.confirm('请选择派送员？', '<div class="despatchModal"><select name="dispatcher" id="dispatcher">' + dispatchers + '</select><!--<input id="dispatcher" type="text" placeholder="输入派送员姓名" required>--></div>', function () {
-         var curVal = window.document.getElementById('dispatcher').value
-         if (!curVal) {
-         vm.toast('请选择派送员', 'warn')
-         return false
-         }
-         vm.loadData(orderApi.dispatch, {orderId: id, dispatcher: curVal}, 'POST', function (res) {
-         vm.isPosting = false
-         if (res.success) {
-         vm.toast('派送成功')
-         } else {
-         vm.toast(res.message || '支付失败！')
-         }
-         }, function () {
-         vm.isPosting = false
-         })
-         }, function () {
-         vm.isPosting = false
-         }, '派送', null, true)*/
-
-        vm.confirm('确认派送？', '', function () {
-          vm.loadData(orderApi.dispatch, {orderId: id, dispatcher: ''}, 'POST', function (res) {
-            vm.isPosting = false
-            if (res.success) {
-              vm.toast('派送成功')
-            } else {
-              vm.toast(res.message || '派送失败！')
-            }
-          }, function () {
-            vm.isPosting = false
-          })
-        }, function () {
-          vm.isPosting = false
-        }, '派送')
-      },
-      onItemClick(status) {
-        vm.orders = []
-        status ? vm.params.status = status : delete vm.params.status
-        vm.getOrders()
       }
     }
   }
@@ -667,24 +594,26 @@
     .operate-col {
       .borBox;
       margin-bottom: 14/@rem;
-      padding-bottom: 1px;
-      /*padding: 20/@rem;*/
       .bf;
       .weui-cell {
         padding: 24/@rem !important;
         .fz(26) !important;
       }
+      .btns {
+        padding: 12/@rem 20/@rem;
+      }
       .btn-dial {
         .block;
-        width: 96%;
+        width: 100%;
         padding: 20/@rem 0;
-        margin: 16/@rem auto;
+        margin: 10/@rem auto;
         .cdiy(#47bd85);
         .fz(24);
         .borR(4px);
         .bor(1px, solid, #47bd85);
       }
     }
+
     .extra-col {
       .borBox;
       margin-bottom: 14/@rem;
@@ -693,277 +622,6 @@
       .fz(22);
       .c7;
       .bf;
-    }
-
-    .top {
-      margin-bottom: 14/@rem;
-      .banner-goods-detail {
-        margin-bottom: 10/@rem;
-        height: 440/@rem !important;
-        overflow: hidden;
-
-        .swiper-container {
-          height: 440/@rem !important;
-          .swiper-slide {
-            height: 100%;
-            background-position: top center;
-            -webkit-background-size: cover;
-            background-size: cover;
-          }
-          .swiper-pagination {
-            bottom: 5px;
-          }
-          .swiper-pagination-bullet {
-            background: rgba(255, 255, 255, .5);
-          }
-          .swiper-pagination-bullet-active {
-            opacity: 1;
-            background: #fff !important;
-          }
-        }
-
-      }
-      .buy-con {
-        padding: 20/@rem;
-        .bf;
-        .bor-t;
-        .wrap {
-          .rel;
-        }
-        .title {
-          .fz(26);
-          .c3;
-          margin-bottom: 8/@rem;
-          .ellipsis-clamp-2;
-          span {
-            margin-right: 4px;
-            padding: 0 2px;
-            font-weight: normal;
-            .cf;
-            .fz(22);
-            background: #2acaad;
-            .borR(2px);
-            &.milk {
-              background: #74c361;
-            }
-          }
-        }
-      }
-      .txt-con {
-        .borBox;
-        padding-right: 200/@rem;
-        .middle {
-          padding: 10/@rem 0;
-          .fz(24);
-          .c9;
-          .price {
-            .fz(30);
-            .cdiy(@c2);
-          }
-          .stock {
-            padding-right: 10/@rem;
-            .fr;
-          }
-          sub {
-            .fz(24);
-            padding-left: 20/@rem;
-          }
-        }
-        .tags {
-          .cdiy(#f34c18);
-          overflow: hidden;
-          li {
-            .fl;
-            margin: 0 10/@rem 5/@rem 0;
-            padding: 1px 8px;
-            line-height: 1.8;
-            .cf;
-            .fz(18);
-            .borR(2px);
-            background: orange;
-          }
-        }
-      }
-      .right-con {
-        .abs;
-        top: 0;
-        right: 0;
-        width: 200/@rem;
-        height: 100%;
-        .inner {
-          .rel;
-          width: 100%;
-          height: 100%;
-          button {
-            .abs-center-vh;
-            padding: 18/@rem 14/@rem 18/@rem 50/@rem;
-            line-height: 1;
-            .fz(22);
-            .cf;
-            .borR(4px);
-            .bdiy(@c3);
-            &:before {
-              position: absolute;
-              margin-left: -30/@rem;
-              content: '';
-              display: block;
-              font-size: inherit;
-              .size(24, 24);
-              background: url(../../../static/img/ico_cart.png) no-repeat center;
-              -webkit-background-size: 100% 100%;
-              background-size: 100% 100%;
-            }
-          }
-        }
-      }
-    }
-    .bottom {
-      .title {
-        .borBox;
-        padding: 10/@rem 20/@rem;
-        .fz(24);
-        background: #fff;
-        .bor-l(3px, solid, red);
-        .bor-b;
-      }
-      .swiper-goods-detail {
-        width: 100%;
-        padding-bottom: 120/@rem;
-        .bf;
-        .swiper-slide {
-          padding-bottom: 20px;
-          .bf;
-        }
-        .detail-con {
-          .borBox;
-          padding: 20/@rem;
-          ul, ol {
-            list-style: decimal;
-            list-style-position: inside;
-          }
-        }
-        .goods-param {
-          .borBox;
-          padding: 20/@rem;
-          overflow: hidden;
-          li {
-            .fl;
-            padding: 4px 0;
-            .fz(22);
-          }
-        }
-        .appraise {
-          .borBox;
-          padding: 20/@rem 0;
-          .appraise-nav {
-            .borBox;
-            width: 96%;
-            .ma;
-            overflow: hidden;
-            padding: 20/@rem 0;
-            .bor-b;
-            > li {
-              margin-right: 6px;
-              padding: 4px 8px;
-              line-height: 1;
-              opacity: .5;
-              .fl;
-              .rfz(13);
-              .cf;
-              .bdiy(#ddd);
-              .transi(.2s);
-              &[selected='selected'] {
-                padding: 4px 10px;
-                opacity: 1;
-                .cf;
-                .bdiy(@c2);
-              }
-              &.good {
-                .bdiy(@c2);
-              }
-              &.middle {
-                .bdiy(orange);
-              }
-              &.bad {
-                .bdiy(#999);
-              }
-            }
-          }
-          .appraise-content {
-            width: 100%;
-            .bf5;
-            li {
-              margin-top: 10/@rem;
-              padding: 16/@rem;
-              .bf;
-            }
-            .wrap {
-              .rel;
-            }
-            .buyer {
-              .abs;
-              top: 0;
-              left: 0;
-              width: 120/@rem;
-              .center;
-              img {
-                .block;
-                .size(80, 80);
-                .ma;
-                .borR(50%);
-              }
-              span {
-                padding: 5px 0;
-                .rfz(12);
-                .c6;
-              }
-            }
-            .mtxt-con {
-              .borBox;
-              width: 100%;
-              min-height: 130/@rem;
-              padding-left: 140/@rem;
-              .score-con {
-                overflow: hidden;
-                .cdiy(#f37f18);
-                .u-stars {
-                  .fl;
-                  overflow: hidden;
-                  li {
-                    padding: 0;
-                    margin-top: 0;
-                    .fl;
-                    .rfz(16);
-                    .no-bor;
-                  }
-                }
-                span {
-                  .fl;
-                  .rfz(14);
-                  margin: 2px 0 0 10px;
-                }
-                &.grey {
-                  .c9;
-                }
-              }
-              p {
-                clear: both;
-                padding: 10/@rem 0;
-                .fz(22);
-                .c3;
-              }
-            }
-            .time {
-              .abs;
-              top: 0;
-              right: 0;
-              .c9;
-              .rfz(10);
-            }
-
-          }
-        }
-      }
     }
   }
 

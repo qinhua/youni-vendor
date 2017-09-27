@@ -43,6 +43,10 @@ var checkLogin = function (openid) {
     headers: {'token': openid},
     success: function (res) {
       if (res.success && res.data.success) {
+        /*if(res.data){
+         vm.$router.push({path: '/audit'})
+         return
+         }   */
         me.sessions.set('logYn', true)
       } else {
         me.sessions.remove('logYn')
@@ -141,6 +145,7 @@ router.beforeEach((to, from, next) => {
 Vue.prototype.weui = weui
 Vue.prototype.$axios = Axios
 Vue.prototype.loadData = function (url, params, type, sucCb, errCb, noAuthInfo) {
+  if (!url) return
   params = params || {}
   var winAuth = window.youniMall.userAuth || (me.locals.get('ynWxUser') ? JSON.parse(me.locals.get('ynWxUser')).data : null)
   var localGeo = me.sessions.get('cur5656Geo') ? JSON.parse(me.sessions.get('cur5656Geo')) : {}
@@ -164,12 +169,12 @@ Vue.prototype.loadData = function (url, params, type, sucCb, errCb, noAuthInfo) 
       success: function (res) {
         // 检测是否登录
         /*if (res.message.indexOf('登录') > -1) {
-          if (vm.$route.name === 'regist') return
-          // vm.processing(0, 1)
-          // vm.confirm('温馨提示','请先登录！',function(){
-          vm.$router.push({path: '/login'})
-          // })
-        }*/
+         if (vm.$route.name === 'regist') return
+         // vm.processing(0, 1)
+         // vm.confirm('温馨提示','请先登录！',function(){
+         vm.$router.push({path: '/login'})
+         // })
+         }*/
         try {
           sucCb ? sucCb(res) : console.log(res, '接口的res')
         } catch (e) {

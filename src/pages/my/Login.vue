@@ -104,7 +104,7 @@
             // vm.goBeforePage()
             vm.jump('home')
           } else {
-            vm.toast('手机号或密码错误 ！')
+            vm.toast(res.message || '手机号或密码错误 ！')
           }
         }, function () {
           vm.isPosting = false
@@ -170,7 +170,7 @@
       .c6;
       .fz(24);
       .fr;
-      padding: 10/@rem;
+      padding: 10/@rem 20/@rem 10/@rem;
     }
     .b-txt {
       .abs;
