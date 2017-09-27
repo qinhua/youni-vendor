@@ -26,7 +26,7 @@
         <x-input title="详细地址：" placeholder="输入详细地址" required readonly text-align="right" v-model="tmpAddress.detail"
                  @click.native="choosePoint"></x-input>
       </group>
-      <group class="bottom">
+      <!--<group class="bottom">
         <div class="upload-group-row">
           <img-uploader ref="imgPicker01" title="店铺头像" :api="fileApi" :limit="1"
                         @on-uploaded="getImgUrl(1)"></img-uploader>
@@ -37,6 +37,14 @@
           <img-uploader ref="imgPicker01" title="身份证正面" :api="fileApi" :limit="1"
                         @on-uploaded="getImgUrl(1)"></img-uploader>
           <img-uploader ref="imgPicker02" title="身份证背面" :api="fileApi" :limit="1"
+                        @on-uploaded="getImgUrl"></img-uploader>
+        </div>
+      </group>-->
+      <group class="bottom">
+        <div class="upload-group-row">
+          <img-uploader ref="imgPicker01" curKey="sellerImage" title="店铺头像" :api="fileApi" :limit="1"
+                        @on-uploaded="getImgUrl(1)"></img-uploader>
+          <img-uploader ref="imgPicker02" curKey="businessLicense" title="营业执照" :api="fileApi" :limit="1"
                         @on-uploaded="getImgUrl"></img-uploader>
         </div>
       </group>
@@ -69,7 +77,7 @@
   let me
   let vm
   import {Group, Cell, XInput, XButton, Msg ,PopupPicker, XTextarea, XAddress, ChinaAddressV3Data} from 'vux'
-  import imgUploader from '../../components/ImgUploader.vue'
+  import imgUploader from '../../components/ImgUploader2.vue'
   import Amap from '../../components/Amap.vue'
   import {userApi, commonApi} from '../../service/main.js'
 

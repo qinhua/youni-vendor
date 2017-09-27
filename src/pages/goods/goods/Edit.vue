@@ -576,9 +576,8 @@
           padding: 8px 0;
         }
         .ql-editor {
-          /*-webkit-user-select:text;*/
-          /*user-select:text;*/
-
+          -webkit-user-select:text;
+          user-select:text;
         }
       }
       .vux-x-input, .address-area, .vux-selector, .vux-cell-box, .vux-x-textarea {

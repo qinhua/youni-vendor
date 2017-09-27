@@ -1,15 +1,16 @@
 <template>
   <div class="upload-group">
-    <div class="weui-cells weui-cells_form" id="uploader">
+    <div class="weui-cells weui-cells_form" :id="'uploader'+suffix">
       <div class="weui-cell">
         <div class="weui-cell__bd">
           <div class="weui-uploader">
             <div class="weui-uploader__hd"><p class="weui-uploader__title">{{title}}</p>
-              <div class="weui-uploader__info" v-show="limit>1"><span id="uploadCount">1</span>/{{limit}}</div>
+              <div class="weui-uploader__info" v-show="limit>1"><span :id="'uploadCount'+suffix">1</span>/{{limit}}
+              </div>
             </div>
             <div class="weui-uploader__bd">
-              <ul class="weui-uploader__files" id="uploaderFiles"></ul>
-              <div class="weui-uploader__input-box" v-show="showAdd"><input id="uploaderInput"
+              <ul :class="'weui-uploader__files'+suffix" :id="'uploaderFiles'+suffix"></ul>
+              <div class="weui-uploader__input-box" v-show="showAdd"><input :id="'uploaderInput'+suffix"
                                                                             class="weui-uploader__input"
                                                                             type="file" accept="image/*" multiple="">
               </div>
@@ -29,10 +30,25 @@
     data() {
       return {
         showAdd: true,
-        imgArr: [] // 已上传的图片
+        suffix: '',
+        imgArr: [], // 已上传的图片
+        imgData: {
+          sellerImage: {
+            imgArr: [],
+            count: 0
+          },
+          businessLicense: {
+            imgArr: [],
+            count: 0
+          }
+        }
       }
     },
     props: {
+      curKey: {
+        type: String,
+        default: ''
+      },
       title: {
         type: String,
         default: '图片上传'
@@ -51,6 +67,7 @@
     mounted() {
       vm = this
       vm.initImgPicker()
+      vm.suffix = this.curKey ? ('-' + this.curKey) : ''
       /*vm.$nextTick(function () {})*/
     },
     /*watch: {},*/
@@ -61,9 +78,9 @@
       },
       initImgPicker() {
         /* 图片自动上传 */
-        var uploadCount = 0, limit = vm.limit, uploadList = []
-        var uploadCountDom = document.getElementById("uploadCount")
-        vm.weui.uploader('#uploader', {
+        var uploadCount = 0, limit = vm.limit, uploadList = {}
+        var uploadCountDom = document.getElementById("uploadCount" + vm.suffix)
+        vm.weui.uploader('#uploader' + vm.suffix, {
           url: vm.api,
           auto: true,
           type: 'file',
@@ -89,15 +106,15 @@
             if (files.length === limit) {
               vm.showAdd = false
             }
-            if (uploadCount + 1 > limit) {
+            if (vm.imgData[vm.curKey].count + 1 > limit) {
               vm.weui.alert('最多只能上传' + limit + '张图片')
               return false
             }
-            ++uploadCount
-            uploadCountDom.innerHTML = uploadCount
+            ++vm.imgData[vm.curKey].count
+            uploadCountDom.innerHTML = vm.imgData[vm.curKey].count
           },
           onQueued: function () {
-            uploadList.push(this)
+            vm.imgData[vm.curKey].imgArr.push(this)
             // console.log(this)
           },
           onBeforeSend: function (data, headers) {
@@ -122,9 +139,9 @@
           }
         })
         // 缩略图预览
-        document.querySelector('#uploaderFiles').addEventListener('click', function (e) {
+        document.querySelector('#uploaderFiles' + vm.suffix).addEventListener('click', function (e) {
           var target = e.target
-          while (!target.classList.contains('weui-uploader__file') && target) {
+          while (!target.classList.contains('weui-uploader__file' + vm.suffix) && target) {
             target = target.parentNode
           }
           if (!target) return
@@ -138,10 +155,10 @@
             className: 'custom-name',
             onDelete: function () {
               vm.weui.confirm('确定删除该图片？', function () {
-                --uploadCount
-                uploadCountDom.innerHTML = (uploadCount >= 0) ? uploadCount : 0
-                for (var i = 0, len = uploadList.length; i < len; ++i) {
-                  var file = uploadList[i]
+                --vm.imgData[vm.curKey + 'uploadCount']
+                uploadCountDom.innerHTML = (vm.imgData[vm.curKey].count >= 0) ? vm.imgData[vm.curKey].count : 0
+                for (var i = 0, len = vm.imgData[vm.curKey].imgArr.length; i < len; ++i) {
+                  var file = vvm.imgData[vm.curKey].imgArr
                   if (file.id == id) {
                     file.stop()
                     vm.showAdd = true
