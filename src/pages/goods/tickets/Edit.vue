@@ -36,10 +36,16 @@
         </div>-->
         <div class="editor-group">
           <label>详情</label>
+          <<<<<<< Updated upstream
           <!--<textarea id="editor"></textarea>-->
           <vue-editor class="needsclick" v-model="params.note" placeholder="我是示例文字…" useCustomImageHandler
                       @imageAdded="handleImageAdded"
                       :editorToolbar="customToolbar"></vue-editor>
+          =======
+          <textarea id="editor"></textarea>
+          <!--<vue-editor class="needsclick" v-model="params.note" placeholder="我是示例文字…" useCustomImageHandler @imageAdded="handleImageAdded"
+                      :editorToolbar="customToolbar"></vue-editor>-->
+          >>>>>>> Stashed changes
         </div>
       </group>
       <div class="btn btn-save" @click="updateTicket"><i class="fa fa-save"></i>&nbsp;保存</div>
@@ -185,7 +191,7 @@
       XTextarea,
       XAddress,
       ChinaAddressV3Data,
-      VueEditor,
+      // VueEditor,
       goodsSearch,
       ImgUploader,
       'tags-input': require('vue-tagsinput/src/input.vue')

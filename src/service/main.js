@@ -82,6 +82,7 @@ const statisticApi = {
 const commonApi = {
   wxAuth: host + '/weixin/auth',
   login: host + '/seller/login',
+  check: host + '/seller/checkLogin',
   logout: host + '/seller/logout',
   check: host + '/seller/checkLogin',
   regist: host + '/seller/applySeller',

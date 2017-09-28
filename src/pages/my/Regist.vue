@@ -27,7 +27,6 @@
                  @click.native="choosePoint"></x-input>
       </group>
       <group class="bottom">
-       <!-- <div class="upload-group-row">
          <!-- <img-uploader ref="imgPicker01" title="店铺头像" :api="fileApi" :limit="1"
                         @on-uploaded="getImgUrl(1)"></img-uploader>-->
           <img-uploader ref="imgPicker02" title="营业执照" :api="fileApi" :limit="1"

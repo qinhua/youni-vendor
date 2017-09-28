@@ -51,7 +51,8 @@
         <div class="editor-group">
           <label>详情</label>
           <!--<textarea id="editor"></textarea>-->
-          <vue-editor class="needsclick" v-model="params.note" placeholder="我是示例文字…" useCustomImageHandler @imageAdded="handleImageAdded"
+          <vue-editor class="needsclick" v-model="params.note" placeholder="我是示例文字…" useCustomImageHandler
+                      @imageAdded="handleImageAdded"
                       :editorToolbar="customToolbar"></vue-editor>
         </div>
       </group>
@@ -86,7 +87,7 @@
   import {VueEditor} from 'vue2-editor'
   /*import $ from 'jquery'
    import 'simditor/styles/simditor.css'
-  import Simditor from 'simditor'*/
+   import Simditor from 'simditor'*/
   import {goodsApi, commonApi} from '../../../service/main.js'
 
   export default {
@@ -191,7 +192,7 @@
       XTextarea,
       XAddress,
       ChinaAddressV3Data,
-      VueEditor,
+      // VueEditor,
       EditSubPrice,
       ImgUploader,
       'tags-input': require('vue-tagsinput/src/input.vue')
@@ -224,18 +225,14 @@
         vm.myEditor = new Simditor({
           textarea: $('#editor'),
           placeholder: '我是示例文字…',
-          defaultImage: false,
+          defaultImage: 'images/image.png/,image.jpg',
           params: {},
           upload: {
             url: commonApi.uploadImg,
-            method: 'POST',
             params: null,
             fileKey: 'image',
-            connectionCount: 3,
-            leaveConfirm: '正在上传…'
-          },
-          success: function (data) {
-            console.log(data)
+            connectionCount: 1,
+            leaveConfirm: ''
           },
           tabIndent: true,
           toolbar: true,
@@ -243,7 +240,8 @@
           toolbarFloatOffset: 0,
           toolbarHidden: false,
           pasteImage: false,
-          cleanPaste: false
+          cleanPaste: false,
+
         })
         /*vm.myEditor.on( 'valuechanged', function(e, src){
          console.log(vm.myEditor.getValue())
@@ -620,7 +618,6 @@
             height: auto !important;
           }
         }
-
         .ql-editor {
           -webkit-user-select: text;
           user-select: text;
