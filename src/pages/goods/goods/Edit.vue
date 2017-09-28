@@ -192,7 +192,7 @@
       XTextarea,
       XAddress,
       ChinaAddressV3Data,
-      // VueEditor,
+      VueEditor,
       EditSubPrice,
       ImgUploader,
       'tags-input': require('vue-tagsinput/src/input.vue')
