@@ -16,8 +16,9 @@ import VueScroller from 'vue-scroller'
 import {AlertPlugin, ConfirmPlugin, ToastPlugin, LoadingPlugin} from 'vux'
 
 const FastClick = require('fastclick')
-FastClick.attach(document.body)
-
+if (location.href.indexOf('edit_ticket') === -1 && location.href.indexOf('edit_goods') === -1) {
+  FastClick.attach(document.body)
+}
 Vue.use(require('vue-wechat-title'))
 Vue.use(ConfirmPlugin)
 Vue.use(AlertPlugin)
@@ -33,7 +34,7 @@ let vm
 // 检测是否登录
 var checkLogin = function (openid) {
   $.ajax({
-    url: commonApi.login,
+    url: commonApi.check,
     type: 'POST',
     data: {'requestapp': '{}'},
     dataType: "JSON",

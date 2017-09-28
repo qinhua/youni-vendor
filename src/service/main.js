@@ -83,6 +83,7 @@ const commonApi = {
   wxAuth: host + '/weixin/auth',
   login: host + '/seller/login',
   logout: host + '/seller/logout',
+  check: host + '/seller/checkLogin',
   regist: host + '/seller/applySeller',
   reset: host + '/seller/setPasswd',
   dict: host + '/common/dictList',

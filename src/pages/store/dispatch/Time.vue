@@ -1,6 +1,6 @@
 <template>
   <div class="dispatch-time-con" v-cloak>
-    <label class="tips"><i class="fa fa-smile-o"></i>&nbsp;将会展示在店铺列表和详情中</label>
+    <label class="tips"><i class="fa fa-smile-o"></i>&nbsp;将展示在店铺列表和详情中(单位：分钟)</label>
     <group>
       <cell title="派送时长：" primary="content">
         <datetime format="mm" minute-row v-model="label"></datetime>

@@ -61,7 +61,7 @@
           me.locals.set('beforeLoginUrl', '/login')
           vm.jump('author')
         }
-        vm.loadData(commonApi.login, null, 'POST', function (res) {
+        vm.loadData(commonApi.check, null, 'POST', function (res) {
           vm.processing()
           if (res.data.success) {
             vm.processing(0, 1)
@@ -95,7 +95,7 @@
         vm.loadData(commonApi.login, vm.params, 'POST', function (res) {
           vm.isPosting = false
           vm.processing(0, 1)
-          if (res.data.success) {
+          if (res.success) {
             vm.isPosting = false
             vm.toast('登录成功 ！')
             /* 保存用户信息 */

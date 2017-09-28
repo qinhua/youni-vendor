@@ -1,5 +1,5 @@
 <template>
-  <div class="goods-edit-con" v-cloak>
+  <div class="goods-edit-con needsclick" v-cloak>
     <div class="edit-con" v-if="!editPriceTag">
       <group>
         <popup-picker title="品牌" :data="brands" :columns="1" v-model="tmpBrand" ref="picker1" @on-show=""
@@ -50,7 +50,8 @@
         </div>
         <div class="editor-group">
           <label>详情</label>
-          <vue-editor v-model="params.note" placeholder="我是示例文字…" useCustomImageHandler @imageAdded="handleImageAdded"
+          <!--<textarea id="editor"></textarea>-->
+          <vue-editor class="needsclick" v-model="params.note" placeholder="我是示例文字…" useCustomImageHandler @imageAdded="handleImageAdded"
                       :editorToolbar="customToolbar"></vue-editor>
         </div>
       </group>
@@ -83,6 +84,9 @@
   import ImgUploader from '../../../components/ImgUploader.vue'
   import EditSubPrice from '../../../components/EditSubPrice.vue'
   import {VueEditor} from 'vue2-editor'
+  /*import $ from 'jquery'
+   import 'simditor/styles/simditor.css'
+  import Simditor from 'simditor'*/
   import {goodsApi, commonApi} from '../../../service/main.js'
 
   export default {
@@ -166,16 +170,14 @@
         tmpBrand: [],
         tmpType: [],
         tmpCat: [],
+        myEditor: null,
         customToolbar: [
           ['bold', 'italic', 'underline', 'strike'],
           [{'header': [1, 2, 3, 4, 5, 6, false]}],
           [{'color': []}, {'background': []}],
           [{'align': []}, {'list': 'ordered'}, {'list': 'bullet'}],
           ['image']
-        ],
-        editorOption: {
-          // some quill options
-        },
+        ]
       }
     },
     components: {
@@ -201,14 +203,12 @@
       vm = this
       vm.getGoods()
     },
-    computed: {
-      editor() {
-        return this.$refs.myQuillEditor.quill
-      }
-    },
+    /*computed: {},*/
     watch: {
       '$route'(to, from) {
-        vm.getGoods()
+        if (to.name === 'edit_goods') {
+          vm.getGoods()
+        }
       }
     },
     methods: {
@@ -219,6 +219,38 @@
           vm.params.imgurl = ''
         }
         console.log(vm.params.imgurl)
+      },
+      initEditor(){
+        vm.myEditor = new Simditor({
+          textarea: $('#editor'),
+          placeholder: '我是示例文字…',
+          defaultImage: false,
+          params: {},
+          upload: {
+            url: commonApi.uploadImg,
+            method: 'POST',
+            params: null,
+            fileKey: 'image',
+            connectionCount: 3,
+            leaveConfirm: '正在上传…'
+          },
+          success: function (data) {
+            console.log(data)
+          },
+          tabIndent: true,
+          toolbar: true,
+          toolbarFloat: true,
+          toolbarFloatOffset: 0,
+          toolbarHidden: false,
+          pasteImage: false,
+          cleanPaste: false
+        })
+        /*vm.myEditor.on( 'valuechanged', function(e, src){
+         console.log(vm.myEditor.getValue())
+         })*/
+        vm.myEditor.on('blur', function (e, src) {
+          vm.params.note = vm.myEditor.getValue()
+        })
       },
       switchData(data, value, target, isUpdate) {
         let tmp
@@ -245,6 +277,7 @@
         vm.priceStatusText = data.message
       },
       getGoods() {
+//        vm.initEditor()
         vm.editPriceTag = false
         vm.lineData = vm.$route.query.linedata ? JSON.parse(decodeURIComponent(vm.$route.query.linedata)) : ''
         vm.isEdit = vm.lineData.id ? true : false
@@ -275,6 +308,7 @@
           vm.switchData(vm.categories, vm.lineData.category, 'tmpCat', 1)
           vm.renderTags('label', vm.lineData.label)
           vm.renderTags('flavourLabel', vm.lineData.flavourLabel)
+//          vm.myEditor.setValue(vm.lineData.note)
         } else {
           vm.params = {
             brandId: '',
@@ -294,6 +328,7 @@
           vm.tmpBrand = []
           vm.tmpType = ['水']
           vm.tmpCat = []
+//          vm.myEditor.setValue('')
         }
         /*if (vm.onFetching) return false
          vm.onFetching = true
@@ -564,7 +599,7 @@
       }
       .editor-group {
         .rel;
-        padding: 24/@rem 10/@rem;
+        padding: 24/@rem 10/@rem 140/@rem;
         .fz(26);
         .bor-t;
         label {
@@ -572,12 +607,29 @@
           width: 100%;
           padding-bottom: 18/@rem;
         }
-        .ql-toolbar {
-          padding: 8px 0;
+        .simditor-placeholder {
+          padding: 20/@rem !important;
         }
+        .simditor-body {
+          padding: 20/@rem;
+          -webkit-user-select: text;
+          user-select: text;
+          img {
+            .block;
+            max-width: 100% !important;
+            height: auto !important;
+          }
+        }
+
         .ql-editor {
-          -webkit-user-select:text;
-          user-select:text;
+          -webkit-user-select: text;
+          user-select: text;
+          img {
+            max-width: 100%;
+          }
+          .ql-toolbar {
+            padding: 8px 0;
+          }
         }
       }
       .vux-x-input, .address-area, .vux-selector, .vux-cell-box, .vux-x-textarea {

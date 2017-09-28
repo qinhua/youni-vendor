@@ -120,7 +120,7 @@
                 <!--<a class="btn btn-del" @click="cancelOrder(item.orderId)">取消订单</a>-->
                 <!--</div>-->
                 <div class="btns" v-if="item.status===2">
-                  <button type="button" class="btn btn-dispatch" @click="dispatch(item.orderId)">派送</button>
+                  <button type="button" class="btn btn-dispatch" @click="dispatchOrder(item.orderId)">派送</button>
                 </div>
                 <div class="btns" v-if="item.status===3">
                   <div v-if="item.todayDispatch">
@@ -335,7 +335,7 @@
       getOrders(isLoadMore) {
         if (vm.onFecthing) return false
         !isLoadMore ? vm.params.pageNo = 1 : vm.params.pageNo++
-        vm.processing()
+        // vm.processing()
         vm.onFecthing = true
         vm.loadData(orderApi.list, vm.params, 'POST', function (res) {
             vm.onFecthing = false
@@ -418,7 +418,7 @@
           vm.isPosting = false
         })
       },
-      dispatch(id) {
+      dispatchOrder(id) {
         if (vm.isPosting) return false
         vm.confirm('确认派送？', null, function () {
           vm.isPosting = true
@@ -432,7 +432,7 @@
         }, function () {
         })
       },
-      dispatchOrder(id) {
+      dispatch(id) {
         if (vm.isPosting) return false
         vm.isPosting = true
         /*var dispatchers = '<option value="">-请选择派送员-</option>'
@@ -478,6 +478,7 @@
             vm.isPosting = false
             if (res.success) {
               vm.toast('派送成功')
+              vm.getOrders()
             } else {
               vm.toast(res.message || '派送失败！')
             }
@@ -529,7 +530,7 @@
         .cf;
       }
       .top {
-        padding: 40/@rem 0;
+        padding: 20/@rem 0 40/@rem 0;
         .center;
         .bor-b(1px, solid, rgba(255, 255, 255, .2));
         h2 {

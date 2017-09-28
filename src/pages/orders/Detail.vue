@@ -70,7 +70,7 @@
           <!--<a class="btn btn-del" @click="cancelOrder(item.orderId)">取消订单</a>-->
           <!--</div>-->
           <div class="btns" v-if="details.status===2">
-            <button type="button" class="btn btn-dispatch" @click="dispatch(details.orderId)">派送</button>
+            <button type="button" class="btn btn-dispatch" @click="dispatchOrder(details.orderId)">派送</button>
           </div>
           <div class="btns" v-if="details.status===3">
             <div v-if="details.todayDispatch">
@@ -238,7 +238,7 @@
           vm.isPosting = false
         })
       },
-      dispatch(id) {
+      dispatchOrder(id) {
         if (vm.isPosting) return false
         vm.confirm('确认派送？', null, function () {
           vm.isPosting = true
@@ -251,7 +251,64 @@
           })
         }, function () {
         })
-      }
+      },
+      dispatch(id) {
+        if (vm.isPosting) return false
+        vm.isPosting = true
+        /*var dispatchers = '<option value="">-请选择派送员-</option>'
+         vm.loadData(orderApi.dispatcher, {orderId: id}, 'POST', function (res) {
+         if (res.success) {
+         if (res.data.itemList.length) {
+         var resD = res.data.itemList
+         for (var i = 0; i < resD.length; i++) {
+         var cur = resD[i]
+         dispatchers += '<option value="' + cur.id + ',' + cur.dispatcher + '">' + cur.dispatcher + '</option>'
+         }
+         } else {
+         vm.toast('暂无派送员！')
+         return
+         }
+         }
+         vm.isPosting = false
+         }, function () {
+         vm.isPosting = false
+         })
+         vm.confirm('请选择派送员？', '<div class="despatchModal"><select name="dispatcher" id="dispatcher">' + dispatchers + '</select><!--<input id="dispatcher" type="text" placeholder="输入派送员姓名" required>--></div>', function () {
+         var curVal = window.document.getElementById('dispatcher').value
+         if (!curVal) {
+         vm.toast('请选择派送员', 'warn')
+         return false
+         }
+         vm.loadData(orderApi.dispatch, {orderId: id, dispatcher: curVal}, 'POST', function (res) {
+         vm.isPosting = false
+         if (res.success) {
+         vm.toast('派送成功')
+         } else {
+         vm.toast(res.message || '支付失败！')
+         }
+         }, function () {
+         vm.isPosting = false
+         })
+         }, function () {
+         vm.isPosting = false
+         }, '派送', null, true)*/
+
+        vm.confirm('确认派送？', '', function () {
+          vm.loadData(orderApi.dispatch, {orderId: id, dispatcher: ''}, 'POST', function (res) {
+            vm.isPosting = false
+            if (res.success) {
+              vm.toast('派送成功')
+              vm.getDetail()
+            } else {
+              vm.toast(res.message || '派送失败！')
+            }
+          }, function () {
+            vm.isPosting = false
+          })
+        }, function () {
+          vm.isPosting = false
+        }, '派送')
+      },
     }
   }
 </script>

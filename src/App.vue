@@ -40,14 +40,14 @@
     <!--这里是被缓存的视图组件，比如 Home！-->
     <!--<transition :name="'vux-pop-' + (direction === 'forward' ? 'in' : 'out')">-->
     <transition>
-      <keep-alive v-if="$route.meta.keepAlive">
+      <keep-alive v-if="$route.meta.keepAlive" v-cloak>
         <router-view v-wechat-title="$route.meta.title" v-on:listenPage="getPageStatus"></router-view>
       </keep-alive>
     </transition>
     <!-- 这里是不被缓存的视图组件，比如 Edit！ -->
     <!--<transition :name="'vux-pop-' + (direction === 'forward' ? 'in' : 'out')">-->
     <transition>
-      <keep-alive v-if="!$route.meta.keepAlive">
+      <keep-alive v-if="!$route.meta.keepAlive" v-cloak>
         <router-view v-wechat-title="$route.meta.title" v-on:listenPage="getPageStatus"></router-view>
       </keep-alive>
     </transition>

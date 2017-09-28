@@ -1,5 +1,5 @@
 <template>
-  <div class="goods-edit-con" v-cloak>
+  <div class="goods-edit-con needsclick" v-cloak>
     <div class="wrap-con" v-show="!showGoodsList">
       <group>
         <x-input title="关联商品：" placeholder="关联商品" required readonly text-align="right" v-model="selGoodsName"
@@ -36,18 +36,11 @@
         </div>-->
         <div class="editor-group">
           <label>详情</label>
-          <vue-editor v-model="params.note" placeholder="我是示例文字…" useCustomImageHandler @imageAdded="handleImageAdded"
+          <!--<textarea id="editor"></textarea>-->
+          <vue-editor class="needsclick" v-model="params.note" placeholder="我是示例文字…" useCustomImageHandler
+                      @imageAdded="handleImageAdded"
                       :editorToolbar="customToolbar"></vue-editor>
         </div>
-        <!--<x-textarea title="详情：" :max="20" placeholder="详情" @on-blur="" v-model="params.note" show-clear></x-textarea>-->
-        <!--<x-address class="address-area" title="所在地区" @on-hide="logHide" @on-shadow-change="changeArea" :list="addressData"
-                   placeholder="请选择地区">
-          <template slot="title" scope="props">
-          <span :class="props.labelClass" :style="props.labelStyle" style="height:24px;">
-            <span style="vertical-align:middle;">所在地区：</span>
-          </span>
-          </template>
-        </x-address>-->
       </group>
       <div class="btn btn-save" @click="updateTicket"><i class="fa fa-save"></i>&nbsp;保存</div>
     </div>
@@ -74,6 +67,9 @@
   import ImgUploader from '../../../components/ImgUploader.vue'
   import goodsSearch from '../../../components/GoodsSearch.vue'
   import {VueEditor} from 'vue2-editor'
+  /*import $ from 'jquery'
+   import 'simditor/styles/simditor.css'
+   import Simditor from 'simditor'*/
   import {ticketApi, commonApi} from '../../../service/main.js'
 
   export default {
@@ -165,6 +161,7 @@
           note: ''
         },
         tags: ['标签一'],
+        myEditor: null,
         tmpBrand: [],
         tmpType: [],
         tmpCat: [],
@@ -198,14 +195,15 @@
     },
     mounted() {
       vm = this
-      // me.attachClick()
       // vm.params.sellerId = vm.$store.state.global.sellerId
       vm.getTicket()
     },
-    computed: {},
+    /*computed: {},*/
     watch: {
       '$route'(to, from) {
-        vm.getTicket()
+        if (to.name === 'edit_goods') {
+          vm.getTicket()
+        }
       }
     },
     methods: {
@@ -223,6 +221,35 @@
         } else {
           vm.params.imgurl = ''
         }
+      },
+      initEditor(){
+        vm.myEditor = new Simditor({
+          textarea: $('#editor'),
+          placeholder: '我是示例文字…',
+          defaultImage: 'images/image.png/,image.jpg',
+          params: {},
+          upload: {
+            url: commonApi.uploadImg,
+            params: null,
+            fileKey: 'image',
+            connectionCount: 1,
+            leaveConfirm: ''
+          },
+          tabIndent: true,
+          toolbar: true,
+          toolbarFloat: true,
+          toolbarFloatOffset: 0,
+          toolbarHidden: false,
+          pasteImage: false,
+          cleanPaste: false,
+
+        })
+        /*vm.myEditor.on( 'valuechanged', function(e, src){
+         console.log(vm.myEditor.getValue())
+         })*/
+        vm.myEditor.on('blur', function (e, src) {
+          vm.params.note = vm.myEditor.getValue()
+        })
       },
       switchData(data, value, target, isUpdate) {
         let tmp
@@ -245,8 +272,9 @@
         }
       },
       getTicket() {
+//        vm.initEditor()
         vm.lineData = vm.$route.query.linedata ? JSON.parse(decodeURIComponent(vm.$route.query.linedata)) : ''
-        console.log(vm.lineData)
+        // console.log(vm.lineData)
         if (vm.lineData && vm.lineData.id) {
           vm.params = {
             id: vm.lineData.id,
@@ -268,6 +296,7 @@
           vm.switchData(vm.types, vm.tmpType, 'ticketType')
           // vm.switchData(vm.categories, vm.lineData.category, 'tmpCat', 1)
           // vm.renderTags(vm.lineData.label)
+//          vm.myEditor.setValue(vm.lineData.note)
         } else {
           vm.params = {
             ticketType: 1,
@@ -282,10 +311,11 @@
             waterNote: '',
             note: ''
           }
-          vm.tags = ['标签一']
+          vm.tags = []
           vm.tmpBrand = []
           vm.tmpType = []
           vm.tmpCat = []
+//          vm.myEditor.setValue('')
         }
         /*if (vm.isPosting) return false
          vm.isPosting = true
@@ -397,6 +427,9 @@
         } else {
           this.tags.splice(index, 1)
         }
+      },
+      changeTextArea(){
+        vm.params.note = vm.myEditor.getValue()
       },
       handleFocus(index) {
         // console.log(`input actived in the index ${index}`)
@@ -519,7 +552,7 @@
       }
       .editor-group {
         .rel;
-        padding: 24/@rem 10/@rem;
+        padding: 24/@rem 10/@rem 140/@rem;
         .fz(26);
         .bor-t;
         label {
@@ -527,12 +560,29 @@
           width: 100%;
           padding-bottom: 18/@rem;
         }
-        .ql-toolbar {
-          padding: 8px 0;
+        .simditor-placeholder {
+          padding: 20/@rem !important;
         }
+        .simditor-body {
+          padding: 20/@rem;
+          -webkit-user-select: text;
+          user-select: text;
+          img {
+            .block;
+            max-width: 100% !important;
+            height: auto !important;
+          }
+        }
+
         .ql-editor {
-          -webkit-user-select:text;
-          user-select:text;
+          -webkit-user-select: text;
+          user-select: text;
+          img {
+            max-width: 100%;
+          }
+          .ql-toolbar {
+            padding: 8px 0;
+          }
         }
       }
       .vux-x-input, .address-area, .vux-selector, .vux-cell-box, .vux-x-textarea {
