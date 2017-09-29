@@ -47,7 +47,7 @@
         isPosting: false,
         onFetching: false,
         noMore: false,
-        showPop: true,
+        showPop: false,
         assets: {},
         params: {
           amount: 0

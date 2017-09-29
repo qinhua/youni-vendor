@@ -138,7 +138,7 @@
           vm.params.address = vm.tmpAddress.detail
         }
         if (vm.startTime && vm.endTime) {
-          vm.params.businessTime = vm.startTime + '-' + vm.endTime
+          vm.params.businessTime = vm.startTime + '~' + vm.endTime
         }
 
         vm.loadData(userApi.update, vm.params, 'POST', function (res) {

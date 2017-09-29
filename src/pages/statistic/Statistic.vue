@@ -410,7 +410,7 @@
     }
     .bottom-col {
       margin-top: 120/@rem;
-      padding-bottom: 40px;
+      padding-bottom: 24px;
     }
     .blist {
       li {
