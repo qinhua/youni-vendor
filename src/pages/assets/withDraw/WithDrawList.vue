@@ -67,7 +67,7 @@
         params: {
           status: 5,
           userType: 2,
-          pagerSize: 10,
+          pageSize: 10,
           pageNo: 1
         },
       }

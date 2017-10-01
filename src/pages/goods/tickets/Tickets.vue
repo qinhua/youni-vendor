@@ -71,7 +71,7 @@
       return {
         goods: [],
         params: {
-          pagerSize: 10,
+          pageSize: 10,
           pageNo: 1,
         },
         noMore: false,

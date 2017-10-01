@@ -61,7 +61,7 @@
         onFetching: false,
         noMore: false,
         params: {
-          pagerSize: 10,
+          pageSize: 10,
           pageNo: 1
         }
       }

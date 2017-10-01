@@ -18,6 +18,9 @@
       <cell title="使用帮助" link="/help">
         <!--<i slot="icon" width="20" style="margin-right:5px;" class="fa fa-question-circle"></i>-->
       </cell>
+      <cell title="商家协议" link="/rules">
+        <!--<i slot="icon" width="20" style="margin-right:5px;" class="fa fa-info-circle"></i>-->
+      </cell>
       <cell title="关于友你" link="/aboutus">
         <!--<i slot="icon" width="20" style="margin-right:5px;" class="fa fa-info-circle"></i>-->
       </cell>

@@ -209,7 +209,7 @@
           status: 1,
           userType: 2,
           goodsType: 'goods_type.1',
-          pagerSize: 10,
+          pageSize: 10,
           pageNo: 1
         }
       }

@@ -16,8 +16,8 @@ import MyGuarantee from '@/pages/my/Guarantee'
 import MyAddress from '@/pages/my/Address'
 import MyFavorite from '@/pages/my/Favorite'
 import Help from '@/pages/my/Help'
-import About from '@/pages/my/About'
 import Rules from '@/pages/my/Rules'
+import About from '@/pages/my/About'
 import Audit from '@/pages/my/Audit'
 import GoodsDetail from '@/pages/goods/Detail'
 import GoodsSearch from '@/components/GoodsSearch'
@@ -423,7 +423,7 @@ export default new Router({
       name: 'rules',
       component: Rules,
       meta: {
-        title: '入驻协议',
+        title: '商家协议',
         keepAlive: false
       }
     },
