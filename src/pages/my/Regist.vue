@@ -51,7 +51,7 @@
       <div class="last-con">
         <div class="agree-rule">
           <input type="checkbox" id="agree" checked v-model="isAgree">
-          <label for="agree">同意<a class="the-rule" href="#/rules">《友你入驻协议》</a></label>
+          <label for="agree">同意<a class="the-rule" href="#/rules">《友你商家入驻协议》</a></label>
         </div>
       </div>
       <button type="button" class="btn btn-save" @click.enter="register" v-show="!showMap"><i class="fa fa-save"></i>&nbsp;提交申请
