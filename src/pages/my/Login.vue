@@ -104,6 +104,10 @@
             // vm.goBeforePage()
             vm.jump('home')
           } else {
+            /*if(res.data){
+             vm.$router.push({path: '/audit'})
+             return
+             }   */
             vm.toast(res.message || '手机号或密码错误 ！')
           }
         }, function () {
