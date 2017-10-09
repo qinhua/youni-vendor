@@ -1,16 +1,15 @@
 <template>
   <div class="upload-group">
-    <div class="weui-cells weui-cells_form" :id="'uploader'+suffix">
+    <div class="weui-cells weui-cells_form" id="uploader-avatar">
       <div class="weui-cell">
         <div class="weui-cell__bd">
           <div class="weui-uploader">
             <div class="weui-uploader__hd"><p class="weui-uploader__title">{{title}}</p>
-              <div class="weui-uploader__info" v-show="limit>1"><span :id="'uploadCount'+suffix">1</span>/{{limit}}
-              </div>
+              <div class="weui-uploader__info" v-show="limit>1"><span id="uploadCount-avatar">1</span>/{{limit}}</div>
             </div>
             <div class="weui-uploader__bd">
-              <ul :class="'weui-uploader__files'+suffix" :id="'uploaderFiles'+suffix"></ul>
-              <div class="weui-uploader__input-box" v-show="showAdd"><input :id="'uploaderInput'+suffix"
+              <ul class="weui-uploader__files" id="uploaderFiles-avatar"></ul>
+              <div class="weui-uploader__input-box" v-show="showAdd"><input id="uploaderInput-avatar"
                                                                             class="weui-uploader__input"
                                                                             type="file" accept="image/*" multiple="">
               </div>
@@ -30,25 +29,10 @@
     data() {
       return {
         showAdd: true,
-        suffix: '',
-        imgArr: [], // 已上传的图片
-        imgData: {
-          sellerImage: {
-            imgArr: [],
-            count: 0
-          },
-          businessLicense: {
-            imgArr: [],
-            count: 0
-          }
-        }
+        imgArr: [] // 已上传的图片
       }
     },
     props: {
-      curKey: {
-        type: String,
-        default: ''
-      },
       title: {
         type: String,
         default: '图片上传'
@@ -67,7 +51,6 @@
     mounted() {
       vm = this
       vm.initImgPicker()
-      vm.suffix = this.curKey ? ('-' + this.curKey) : ''
       /*vm.$nextTick(function () {})*/
     },
     /*watch: {},*/
@@ -78,9 +61,9 @@
       },
       initImgPicker() {
         /* 图片自动上传 */
-        var uploadCount = 0, limit = vm.limit, uploadList = {}
-        var uploadCountDom = document.getElementById("uploadCount" + vm.suffix)
-        vm.weui.uploader('#uploader' + vm.suffix, {
+        var uploadCount = 0, limit = vm.limit, uploadList = []
+        var uploadCountDom = document.getElementById("uploadCount-avatar")
+        vm.weui.uploader('#uploader-avatar', {
           url: vm.api,
           auto: true,
           type: 'file',
@@ -106,15 +89,15 @@
             if (files.length === limit) {
               vm.showAdd = false
             }
-            if (vm.imgData[vm.curKey].count + 1 > limit) {
+            if (uploadCount + 1 > limit) {
               vm.weui.alert('最多只能上传' + limit + '张图片')
               return false
             }
-            ++vm.imgData[vm.curKey].count
-            uploadCountDom.innerHTML = vm.imgData[vm.curKey].count
+            ++uploadCount
+            uploadCountDom.innerHTML = uploadCount
           },
           onQueued: function () {
-            vm.imgData[vm.curKey].imgArr.push(this)
+            uploadList.push(this)
             // console.log(this)
           },
           onBeforeSend: function (data, headers) {
@@ -131,17 +114,17 @@
               vm.imgArr = []
             }
             vm.imgArr.push(window.youniMall.host + '/' + ret.imageUrl)
-            vm.$emit('on-uploaded', vm.imgArr)
+            vm.$emit('on-uploaded', {name: 'headimgurl', data: vm.imgArr})
           },
           onError: function (err) {
             console.log(this, err)
-            vm.$emit('on-uploaded', err)
+            vm.$emit('on-uploaded', {name: 'headimgurl', data: err})
           }
         })
         // 缩略图预览
-        document.querySelector('#uploaderFiles' + vm.suffix).addEventListener('click', function (e) {
+        document.querySelector('#uploaderFiles-avatar').addEventListener('click', function (e) {
           var target = e.target
-          while (!target.classList.contains('weui-uploader__file' + vm.suffix) && target) {
+          while (!target.classList.contains('weui-uploader__file') && target) {
             target = target.parentNode
           }
           if (!target) return
@@ -155,16 +138,16 @@
             className: 'custom-name',
             onDelete: function () {
               vm.weui.confirm('确定删除该图片？', function () {
-                --vm.imgData[vm.curKey + 'uploadCount']
-                uploadCountDom.innerHTML = (vm.imgData[vm.curKey].count >= 0) ? vm.imgData[vm.curKey].count : 0
-                for (var i = 0, len = vm.imgData[vm.curKey].imgArr.length; i < len; ++i) {
-                  var file = vvm.imgData[vm.curKey].imgArr
+                --uploadCount
+                uploadCountDom.innerHTML = (uploadCount >= 0) ? uploadCount : 0
+                for (var i = 0, len = uploadList.length; i < len; ++i) {
+                  var file = uploadList[i]
                   if (file.id == id) {
                     file.stop()
                     vm.showAdd = true
                     vm.imgArr.splice(id - 1, 1)
                     // console.log(vm.imgArr)
-                    vm.$emit('on-uploaded', vm.imgArr)
+                    vm.$emit('on-uploaded', {name: 'headimgurl', data: vm.imgArr})
                     break
                   }
                 }
@@ -187,7 +170,7 @@
     .rel;
     padding: 0 30/@rem;
     .fz(26);
-    #uploader {
+    #uploader-avatar {
       margin-top: 0;
       .weui-cell {
         padding: 10px 0;
@@ -195,7 +178,7 @@
       &:after {
         .none;
       }
-      #uploaderFiles {
+      #uploaderFiles-avatar {
         .weui-uploader__file {
           .rsize(60, 60);
         }

@@ -1,6 +1,6 @@
 <template>
   <div class="regist-con" v-cloak>
-    <div class="f-wrap" v-show="!showMap">
+    <div class="f-wrap" v-show="!showMap&&!showMsg">
       <group>
         <x-input title="商家名称：" placeholder="商家名称" text-align="right" required v-model="params.name"></x-input>
         <x-input title="商家电话：" placeholder="您的手机号" text-align="right" type="tel" required
@@ -27,16 +27,18 @@
                  @click.native="choosePoint"></x-input>
       </group>
       <group class="bottom">
-         <!-- <img-uploader ref="imgPicker01" title="店铺头像" :api="fileApi" :limit="1"
-                        @on-uploaded="getImgUrl(1)"></img-uploader>-->
-          <img-uploader ref="imgPicker02" title="营业执照" :api="fileApi" :limit="1"
-                        @on-uploaded="getImgUrl"></img-uploader>
-        <!--<div class="upload-group-row">
-          <img-uploader ref="imgPicker01" title="身份证正面" :api="fileApi" :limit="1"
-                        @on-uploaded="getImgUrl(1)"></img-uploader>
-          <img-uploader ref="imgPicker02" title="身份证背面" :api="fileApi" :limit="1"
-                        @on-uploaded="getImgUrl"></img-uploader>
-        </div>-->
+        <div class="upload-group-row">
+          <up-avatar ref="imgPicker01" title="店铺头像" :api="fileApi" :limit="1"
+                     @on-uploaded="getImgUrl"></up-avatar>
+          <up-license ref="imgPicker02" title="营业执照" :api="fileApi" :limit="1"
+                      @on-uploaded="getImgUrl"></up-license>
+        </div>
+        <div class="upload-group-row">
+          <up-id-front ref="imgPicker03" title="身份证正面" :api="fileApi" :limit="1"
+                       @on-uploaded="getImgUrl"></up-id-front>
+          <up-id-back ref="imgPicker04" title="身份证背面" :api="fileApi" :limit="1"
+                      @on-uploaded="getImgUrl"></up-id-back>
+        </div>
       </group>
       <group class="bottom">
         <x-input title="登录密码：" placeholder="登录密码" type="password" text-align="right" required
@@ -58,6 +60,7 @@
       </button>
     </div>
     <amap @on-receive-data="getMap" v-show="showMap"></amap>
+    <msg title="提交成功！" description="您已成功提交入驻申请，管理员将尽快审核！" :buttons="buttons" :icon="icon" v-if="showMsg"></msg>
   </div>
 </template>
 
@@ -65,8 +68,11 @@
   /* eslint-disable no-unused-vars */
   let me
   let vm
-  import {Group, Cell, XInput, XButton, Msg ,PopupPicker, XTextarea, XAddress, ChinaAddressV3Data} from 'vux'
-  import imgUploader from '../../components/ImgUploader.vue'
+  import {Group, Cell, XInput, XButton, Msg, PopupPicker, XTextarea, XAddress, ChinaAddressV3Data} from 'vux'
+  import UpAvatar from '../../components/UpAvatar.vue'
+  import UpLicense from '../../components/UpLicense.vue'
+  import UpIdFront from '../../components/UpIdFront.vue'
+  import UpIdBack from '../../components/UpIdBack.vue'
   import Amap from '../../components/Amap.vue'
   import {userApi, commonApi} from '../../service/main.js'
 
@@ -137,7 +143,10 @@
       XTextarea,
       XAddress,
       ChinaAddressV3Data,
-      imgUploader,
+      UpAvatar,
+      UpLicense,
+      UpIdFront,
+      UpIdBack,
       Amap
     },
     beforeMount() {
@@ -167,14 +176,11 @@
         vm.showMap = true
       },
       onHide() {
-//        console.log(vm.$refs.typ)
       },
       getImgUrl(data) {
-        if (me.isArray(data)) {
-          vm.params.businessLicense = data.join(',')
-        } else {
-          vm.params.businessLicense = ''
-        }
+        // console.log(data)
+        me.isArray(data.data) ? vm.params[data.name] = data.data.join(',') : vm.params[data.name] = ''
+        console.log(JSON.stringify(vm.params, null, 2))
       },
       switchData(data, value, target) {
         let tmp
@@ -281,22 +287,22 @@
           vm.toast('请选择详细地址！', 'warn')
           return false
         }
-        /*if (!vm.params.headimgurl) {
+        if (!vm.params.headimgurl) {
           vm.toast('请上传店铺头像！', 'warn')
           return false
-        }*/
+        }
         if (!vm.params.businessLicense) {
           vm.toast('请上传营业执照！', 'warn')
           return false
         }
-        /*if (!vm.params.idCardFace) {
+        if (!vm.params.idCardFace) {
           vm.toast('请上传身份证正面！', 'warn')
           return false
         }
         if (!vm.params.idCardBack) {
           vm.toast('请上传身份证背面！', 'warn')
           return false
-        }*/
+        }
         if (!vm.params.passwd) {
           vm.toast('请填写登录密码！')
           return false
@@ -319,7 +325,7 @@
           } else {
             vm.params.address = vm.tmpAddress.detail
           }
-          console.log(vm.params)
+          // console.log(vm.params)
           vm.isPosting = true
           vm.processing()
           vm.loadData(commonApi.regist, vm.params, 'POST', function (res) {
@@ -335,7 +341,7 @@
           }, function () {
             vm.isPosting = false
             vm.processing(0, 1)
-          })
+          }, true)
         }
       },
       changeArea(ids, names) {
