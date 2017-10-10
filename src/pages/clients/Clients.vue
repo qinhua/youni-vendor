@@ -19,7 +19,7 @@
         <!-- content goes here -->
         <swipeout>
           <swipeout-item @on-close="" @on-open="" transition-mode="follow" v-for="(item, index) in results"
-                         :data-id="item.id" key="index">
+                         :data-id="item.id" key="index" disabled>
             <div slot="right-menu">
               <swipeout-button @click.native="onButtonClick('block',item.id)" type="primary">拉黑</swipeout-button>
               <swipeout-button @click.native="onButtonClick('delete',item.id)" type="warn">删除</swipeout-button>

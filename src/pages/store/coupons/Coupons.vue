@@ -5,16 +5,16 @@
       <tab-item :selected="params.type==1?true:false" @on-item-click="onItemClick(1)">优惠券</tab-item>
       <tab-item :selected="params.type==1?true:false" @on-item-click="onItemClick(2)">满减</tab-item>
     </tab>-->
-    <div class="coupon-list">
+    <div class="coupon-list" v-if="coupons.id" v-cloak>
       <!--<scroller class="inner-scroller" ref="couponScroller" :on-refresh="refresh" :on-infinite="infinite"
                 refreshText="下拉刷新" noDataText="没有更多数据" snapping>-->
       <!-- content goes here -->
       <swipeout>
-        <swipeout-item disabled @on-close="" @on-open="" transition-mode="follow" :data-id="coupons.id||0" key="index">
+        <swipeout-item disabled @on-close="" @on-open="" transition-mode="follow" :data-id="coupons.id" key="index">
           <div slot="right-menu">
-            <swipeout-button @click.native="onButtonClick('edit',coupons.id||0)" background-color="orange">编辑
+            <swipeout-button @click.native="onButtonClick('edit',coupons.id)" background-color="orange">编辑
             </swipeout-button>
-            <swipeout-button @click.native="onButtonClick('delete',coupons.id||0)" type="warn">删除</swipeout-button>
+            <swipeout-button @click.native="onButtonClick('delete',coupons.id)" type="warn">删除</swipeout-button>
           </div>
           <div slot="content" class="demo-content vux-1px-t">
             <section class="v-items">
@@ -261,7 +261,7 @@
           .rel;
           z-index: 5;
           padding: 30/@rem;
-          .fz(32);
+          .fz(26);
           .center;
           color: rgb(255, 255, 255);
           .exp {
