@@ -11,8 +11,8 @@
                       @on-hide="" @on-change="changeType"></popup-picker>
         <popup-picker title="商品类目" :data="categories" :columns="1" v-model="tmpCat" ref="picker3" @on-show=""
                       @on-hide="" @on-change="changeCategory"></popup-picker>
-        <x-input title="库存：" placeholder="库存" required text-align="right" type="number"
-                 v-model="params.stock"></x-input>
+        <!--<x-input title="库存：" placeholder="库存" required text-align="right" type="number"
+                 v-model="params.stock"></x-input>-->
         <x-input title="价格：" placeholder="价格" required text-align="right" type="number" v-model="params.price"
                  v-if="params.type==='goods_type.1'"></x-input>
         <x-input title="价格标签" v-model="priceStatusText" text-align="right" readonly disabled
@@ -363,10 +363,10 @@
           vm.toast('请选择商品类目！', 'warn')
           return false
         }
-        if (!vm.params.stock) {
+        /*if (!vm.params.stock) {
           vm.toast('请输入库存！', 'warn')
           return false
-        }
+        }*/
         if (!vm.params.price) {
           vm.toast('请指定价格！', 'warn')
           return false

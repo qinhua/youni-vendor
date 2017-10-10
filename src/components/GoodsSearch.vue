@@ -31,7 +31,7 @@
                 <span class="unit-price">售价：￥{{item.price}}</span>
                 <span class="order-info">已售：{{item.saleCount}}</span>
               </section>
-              <label>库存：{{item.stock}}件</label>
+              <!--<label>库存：{{item.stock}}件</label>-->
             </div>
             <!-- <div class="price-con">
              <p class="price">￥{{item.price}}</p>
