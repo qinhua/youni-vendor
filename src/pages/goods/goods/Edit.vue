@@ -198,6 +198,7 @@
       'tags-input': require('vue-tagsinput/src/input.vue')
     },
     beforeMount() {
+      // this.$destroy()
       me = window.me
     },
     mounted() {
@@ -219,7 +220,7 @@
         } else {
           vm.params.imgurl = ''
         }
-        console.log(vm.params.imgurl)
+        // console.log(vm.params.imgurl)
       },
       initEditor(){
         vm.myEditor = new Simditor({
@@ -240,8 +241,7 @@
           toolbarFloatOffset: 0,
           toolbarHidden: false,
           pasteImage: false,
-          cleanPaste: false,
-
+          cleanPaste: false
         })
         /*vm.myEditor.on( 'valuechanged', function(e, src){
          console.log(vm.myEditor.getValue())
@@ -280,6 +280,16 @@
         vm.lineData = vm.$route.query.linedata ? JSON.parse(decodeURIComponent(vm.$route.query.linedata)) : ''
         vm.isEdit = vm.lineData.id ? true : false
         if (vm.lineData && vm.lineData.id) {
+          if (vm.lineData.type === 'goods_type.2') {
+            vm.isMilk = true
+          } else {
+            vm.isMilk = false
+          }
+          vm.switchData(vm.brands, vm.lineData.brandId, 'tmpBrand', 1)
+          vm.switchData(vm.types, vm.lineData.type, 'tmpType', 1)
+          vm.switchData(vm.categories, vm.lineData.category, 'tmpCat', 1)
+          vm.renderTags('label', vm.lineData.label)
+          vm.renderTags('flavourLabel', vm.lineData.flavourLabel)
           vm.params = {
             id: vm.lineData.id,
             brandId: vm.lineData.brandId,
@@ -296,16 +306,6 @@
              discountNote: '',*/
             note: vm.lineData.note
           }
-          if (vm.params.type === 'goods_type.2') {
-            vm.isMilk = true
-          } else {
-            vm.isMilk = false
-          }
-          vm.switchData(vm.brands, vm.lineData.brandId, 'tmpBrand', 1)
-          vm.switchData(vm.types, vm.lineData.type, 'tmpType', 1)
-          vm.switchData(vm.categories, vm.lineData.category, 'tmpCat', 1)
-          vm.renderTags('label', vm.lineData.label)
-          vm.renderTags('flavourLabel', vm.lineData.flavourLabel)
 //          vm.myEditor.setValue(vm.lineData.note)
         } else {
           vm.params = {
@@ -364,9 +364,9 @@
           return false
         }
         /*if (!vm.params.stock) {
-          vm.toast('请输入库存！', 'warn')
-          return false
-        }*/
+         vm.toast('请输入库存！', 'warn')
+         return false
+         }*/
         if (!vm.params.price) {
           vm.toast('请指定价格！', 'warn')
           return false

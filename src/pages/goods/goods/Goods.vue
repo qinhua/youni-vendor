@@ -28,9 +28,7 @@
             <div class="img-con"
                  :style="item.imgurl?('background-image:url('+item.imgurl+')'):''"></div>
             <div class="info-con">
-              <h3><span
-                :class="item.type==='goods_type.2'?'milk':''">{{item.type === 'goods_type.2' ? '奶' : '水'}}</span>{{item.name}}
-              </h3>
+              <h3><span :class="item.type==='goods_type.2'?'milk':''">{{item.type === 'goods_type.2' ? '奶' : '水'}}</span>{{item.name}}</h3>
               <section class="middle">
                 <span class="unit-price">售价：￥{{item.price|toFixed}}元</span>
                 <span class="order-info">已售：{{item.saleCount}}件</span>

@@ -47,6 +47,7 @@
       }
     },
     beforeMount() {
+      // this.$destroy()
     },
     mounted() {
       vm = this

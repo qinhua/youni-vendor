@@ -191,6 +191,7 @@
       'tags-input': require('vue-tagsinput/src/input.vue')
     },
     beforeMount() {
+      this.$destroy()
       me = window.me
     },
     mounted() {
