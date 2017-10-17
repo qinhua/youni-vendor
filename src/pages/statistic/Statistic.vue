@@ -17,41 +17,9 @@
     <!--</div>-->
     <div class="bottom-col">
       <ul class="blist orders-list" v-show="curType==='orders'">
-        <li v-for="itm in orders">
-          <div class="left-con">
-            <span>总订单金额：<i>{{itm.orderTotal}}</i></span>
-            <span>成交金额：<i>{{itm.orderNum}}</i></span>
-          </div>
-          <span class="time">{{itm.analysisDate}}</span>
-        </li>
-        <li v-for="itm in orders">
-          <div class="left-con">
-            <span>总订单金额：<i>{{itm.orderTotal}}</i></span>
-            <span>成交金额：<i>{{itm.orderNum}}</i></span>
-          </div>
-          <span class="time">{{itm.analysisDate}}</span>
-        </li>
-        <li v-for="itm in orders">
-          <div class="left-con">
-            <span>总订单金额：<i>{{itm.orderTotal}}</i></span>
-            <span>成交金额：<i>{{itm.orderNum}}</i></span>
-          </div>
-          <span class="time">{{itm.analysisDate}}</span>
-        </li>
-        <li v-for="itm in orders">
-          <div class="left-con">
-            <span>总订单金额：<i>{{itm.orderTotal}}</i></span>
-            <span>成交金额：<i>{{itm.orderNum}}</i></span>
-          </div>
-          <span class="time">{{itm.analysisDate}}</span>
-        </li>
-        <li v-for="itm in orders">
-          <div class="left-con">
-            <span>总订单金额：<i>{{itm.orderTotal}}</i></span>
-            <span>成交金额：<i>{{itm.orderNum}}</i></span>
-          </div>
-          <span class="time">{{itm.analysisDate}}</span>
-        </li>
+        <div class="item-top">
+          <span>近七天</span>
+        </div>
         <li v-for="itm in orders">
           <div class="left-con">
             <span>总订单金额：<i>{{itm.orderTotal}}</i></span>

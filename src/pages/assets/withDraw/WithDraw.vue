@@ -50,7 +50,7 @@
         showPop: false,
         assets: {},
         params: {
-          amount: 0
+          amount: null
         }
       }
     },

@@ -2,17 +2,17 @@
   <div class="goods-edit-price-con" v-cloak>
     <div class="top-con">
       <group v-if="isEdit" v-cloak>
-        <x-input title="标签名称：" placeholder="标签名称" required text-align="right" v-model="params.note"></x-input>
+        <x-input title="订奶月份：" placeholder="如：订1个月" required text-align="right" v-model="params.note"></x-input>
         <x-input title="商品原价：" placeholder="商品原价(元)" required text-align="right" type="number"
-                 v-model="params.originPrice"></x-input>
+                 v-model="params.originPrice" @on-focus="onFocus"></x-input>
         <x-input title="销售数量：" placeholder="销售数量(件)" required text-align="right" type="number"
-                 v-model="params.saleNum"></x-input>
+                 v-model="params.saleNum" @on-focus="onFocus"></x-input>
         <x-input title="销售价格：" placeholder="销售价格(元)" required text-align="right" type="number"
-                 v-model="params.salePrice"></x-input>
+                 v-model="params.salePrice" @on-focus="onFocus"></x-input>
       </group>
       <div class="btn-group">
         <div v-if="!isEdit" v-cloak>
-          <button type="button" class="btn btn-add" @click="add"><i class="fa fa-plus"></i>&nbsp;标签</button>
+          <button type="button" class="btn btn-add" @click="add"><i class="fa fa-plus"></i>&nbsp;配置订购数量</button>
         </div>
         <div class="flex-con" v-else>
           <button type="button" class="btn btn-col btn-cancel" @click="clear(true)">取消</button>
@@ -74,9 +74,9 @@
         params: {
           goodsId: null,
           note: '',
-          saleNum: 0,
-          originPrice: 0,
-          salePrice: 0
+          saleNum: null,
+          originPrice: null,
+          salePrice: null
         }
       }
     },
@@ -102,6 +102,9 @@
       }
     },
     methods: {
+      onFocus(val){
+        // console.log(val)
+      },
       add() {
         if (vm.tags.length > vm.limit) {
           vm.toast('最多' + vm.limit + '个标签！', 'warn')
@@ -113,9 +116,9 @@
         vm.params = {
           gooodsId: vm.goodsId,
           note: '',
-          saleNum: 0,
-          originPrice: 0,
-          salePrice: 0
+          saleNum: null,
+          originPrice: null,
+          salePrice: null
         }
         vm.isEdit = !isCancel
       },

@@ -6,7 +6,7 @@
                  @click.native="chooseGoods"></x-input>
         <x-input title="水票名称：" placeholder="水票名称" required text-align="right" v-model="params.name"></x-input>
         <x-input title="水票价格：" placeholder="水票价格" required text-align="right" type="number"
-                 v-model="params.price"></x-input>
+                 v-model="params.price" @on-focus="onFocus"></x-input>
         <x-input title="水票容量：" placeholder="可买几桶水" required text-align="right" type="number"
                  v-model="params.waterNum"></x-input>
         <popup-picker title="水票类型" :data="types" :columns="1" v-model="tmpType" ref="picker2" @on-show=""
@@ -22,7 +22,7 @@
             </checker-item>
           </checker>
         </div>
-        <img-uploader title="水票图片" :api="fileApi" :limit="1" @on-uploaded="getImgUrl"></img-uploader>
+        <img-uploader title="水票图片（300*300）" :api="fileApi" :limit="1" @on-uploaded="getImgUrl"></img-uploader>
         <x-textarea title="水票说明：" :max="15" placeholder="水票说明(如买10桶送2桶)" @on-blur="" v-model="params.waterNote"
                     show-clear></x-textarea>
       </group>
@@ -118,6 +118,10 @@
           key: 9,
           value: '昆仑山',
           name: '昆仑山'
+        }, {
+          key: -1,
+          value: '其它',
+          name: '其它'
         }],
         types: [{
           'key': 'water_ticket_type.1',
@@ -251,6 +255,9 @@
         vm.myEditor.on('blur', function (e, src) {
           vm.params.note = vm.myEditor.getValue()
         })
+      },
+      onFocus(val){
+        // console.log(val)
       },
       switchData(data, value, target, isUpdate) {
         let tmp

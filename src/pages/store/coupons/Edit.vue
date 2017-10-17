@@ -5,11 +5,11 @@
                     @on-hide="" @on-change="changeType"></popup-picker>-->
       <!--<x-input title="优惠名称：" placeholder="优惠名称" required text-align="right" v-model="params.name"></x-input>-->
       <x-input title="优惠条件：" placeholder="满多少元减免" required text-align="right" type="number"
-               v-model="params.upAmount"></x-input>
+               v-model="params.upAmount" @on-focus="onFocus"></x-input>
       <x-input title="优惠金额：" placeholder="抵扣的金额" required text-align="right" type="number"
-               v-model="params.discountAmount"></x-input>
+               v-model="params.discountAmount" @on-focus="onFocus"></x-input>
       <x-input title="最大优惠：" placeholder="最高优惠金额" required text-align="right" type="number"
-               v-model="params.maxDiscountAmount"></x-input>
+               v-model="params.maxDiscountAmount" @on-focus="onFocus"></x-input>
       <!--<datetime title="开始时间" required v-model="params.beginTime" @on-change="onChange"></datetime>-->
       <x-switch title="是否过期" v-model="needExpire"></x-switch>
       <datetime title="过期时间：" v-model="params.expireTime" @on-change="onChange" v-show="needExpire"></datetime>
@@ -67,9 +67,9 @@
         params: {
           expireTime: '',
           couponNote: '',
-          upAmount: '',
-          discountAmount: '',
-          maxDiscountAmount: '',
+          upAmount: null,
+          discountAmount: null,
+          maxDiscountAmount: null,
           // goodsType: ''
         },
       }
@@ -87,7 +87,6 @@
     },
     mounted() {
       vm = this
-      // me.attachClick()
       vm.getData()
     },
     watch: {
@@ -103,6 +102,9 @@
         if (cmonth < 10) cmonth = '0' + cmonth
         if (day < 10) day = '0' + day
         vm.params.beginTime = now.getFullYear() + '-' + cmonth + '-' + day
+      },
+      onFocus(val){
+        // console.log(val)
       },
       switchData(data, value, target,) {
         let tmp
@@ -127,7 +129,7 @@
       getData() {
         try {
           vm.params = vm.$route.query.linedata ? JSON.parse(window.decodeURIComponent(vm.$route.query.linedata)) : {}
-          console.log(vm.params, '带过来的数据')
+          // console.log(vm.params, '带过来的数据')
           // vm.switchData(vm.coupons, vm.tmpCoupon, 'couponId')
         } catch (e) {
           // console.log(e)

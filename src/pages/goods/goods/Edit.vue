@@ -2,26 +2,29 @@
   <div class="goods-edit-con needsclick" v-cloak>
     <div class="edit-con" v-if="!editPriceTag">
       <group>
+        <popup-picker title="商品分类" :data="types" :columns="1" v-model="tmpType" ref="picker2" @on-show=""
+                      @on-hide="" @on-change="changeType"></popup-picker>
+        <popup-picker title="商品规格" :data="categories" :columns="1" v-model="tmpCat" ref="picker3" @on-show=""
+                      @on-hide="" @on-change="changeCategory"></popup-picker>
         <popup-picker title="品牌" :data="brands" :columns="1" v-model="tmpBrand" ref="picker1" @on-show=""
                       @on-hide="" @on-change="changeBrand"></popup-picker>
         <x-input title="商品名称：" placeholder="商品名称" required text-align="right" v-model="params.name"></x-input>
         <!--<selector placeholder="商品分类" v-model="params.goodsType" title="商品分类" name="goodsType" :options="types"-->
         <!--@on-change="changeType"></selector>-->
-        <popup-picker title="商品分类" :data="types" :columns="1" v-model="tmpType" ref="picker2" @on-show=""
-                      @on-hide="" @on-change="changeType"></popup-picker>
-        <popup-picker title="商品类目" :data="categories" :columns="1" v-model="tmpCat" ref="picker3" @on-show=""
-                      @on-hide="" @on-change="changeCategory"></popup-picker>
         <!--<x-input title="库存：" placeholder="库存" required text-align="right" type="number"
                  v-model="params.stock"></x-input>-->
         <x-input title="价格：" placeholder="价格" required text-align="right" type="number" v-model="params.price"
-                 v-if="params.type==='goods_type.1'"></x-input>
+                 v-if="params.type==='goods_type.1'" @on-focus="onFocus"></x-input>
+        <x-input title="空桶押金：" placeholder="每个桶的押金" required text-align="right" type="number"
+                 v-model="params.bucketAmount"
+                 v-if="params.type==='goods_type.1'" @on-focus="onFocus"></x-input>
         <x-input title="价格标签" v-model="priceStatusText" text-align="right" readonly disabled
                  v-if="isEdit && params.type==='goods_type.2'"
                  @click.native="editSubPrice(params.priceTags)"></x-input>
         <div class="tags-group favor-group" v-if="params.type==='goods_type.2'">
           <label>口味标签：</label>
           <div class="tags-cons">
-            <tags-input :tags="flavourLabel" placeholder="口味标签（3~5字最佳,最多5个）" @focus="handleFocus" @blur="handleBlur"
+            <tags-input :tags="flavourLabel" placeholder="3~5字最佳,可多个" @focus="handleFocus" @blur="handleBlur"
                         @tags-change="changeFavorTags"></tags-input>
           </div>
         </div>
@@ -35,16 +38,17 @@
             </checker-item>
           </checker>
         </div>
-        <img-uploader ref="imgPicker" title="商品头图" :api="fileApi" :limit="1" @on-uploaded="getImgUrl"></img-uploader>
+        <img-uploader ref="imgPicker" title="商品照片（尺寸640*640）" :api="fileApi" :limit="1"
+                      @on-uploaded="getImgUrl"></img-uploader>
         <!--<x-input title="折扣价：" placeholder="折扣价" text-align="right" v-model="params.discountPrice"></x-input>
         <x-textarea title="折扣说明：" :max="20" placeholder="折扣说明" @on-blur="" v-model="params.discountNote"
                     show-clear></x-textarea>-->
       </group>
       <group class="bottom">
         <div class="tags-group">
-          <label>标签</label>
+          <label>{{params.type==='goods_type.2'?'类别/规格':'标签'}}</label>
           <div class="tags-cons">
-            <tags-input :tags="label" placeholder="商品标签（3~5字最佳,最多3个）" @focus="handleFocus" @blur="handleBlur"
+            <tags-input :tags="label" placeholder="3~5字最佳,最多3个" @focus="handleFocus" @blur="handleBlur"
                         @tags-change="changeTags"></tags-input>
           </div>
         </div>
@@ -96,6 +100,7 @@
       return {
         onFetching: false,
         isPosting: false,
+        seller: null,
         lineData: null,
         isEdit: false,
         isMilk: false,
@@ -139,6 +144,10 @@
           key: 9,
           value: '昆仑山',
           name: '昆仑山'
+        }, {
+          key: -1,
+          value: '其它',
+          name: '其它'
         }],
         types: [{key: 'goods_type.1', value: '水', name: '水'}, {
           key: 'goods_type.2',
@@ -157,7 +166,7 @@
           type: 'goods_type.1',
           category: '',
           stock: 0,
-          price: 0,
+          price: null,
           imgurl: '',
           saleStatus: 1,
           label: '',
@@ -203,6 +212,7 @@
     },
     mounted() {
       vm = this
+      vm.getSeller()
       vm.getGoods()
     },
     /*computed: {},*/
@@ -214,6 +224,30 @@
       }
     },
     methods: {
+      getSeller() {
+        vm.seller = vm.$store.state.global.userInfo || (me.sessions.get('ynSellerInfo') ? JSON.parse(me.sessions.get('ynSellerInfo')) : {})
+        if (vm.seller.serviceType === 'seller_service_type.1') {
+          vm.types = [{key: 'goods_type.1', value: '水'}]
+        }
+        if (vm.seller.serviceType === 'seller_service_type.2') {
+          vm.types = [{
+            key: 'goods_type.2',
+            value: '奶',
+            name: '奶'
+          }]
+        }
+        if (vm.seller.serviceType === 'seller_service_type.3') {
+          vm.types = [{
+            key: 'goods_type.1',
+            value: '水',
+            name: '水'
+          },{
+              key: 'goods_type.2',
+              value: '奶',
+              name: '奶'
+          }]
+        }
+      },
       getImgUrl(data) {
         if (me.isArray(data) && data.length) {
           vm.params.imgurl = data.join(',')
@@ -249,6 +283,9 @@
         vm.myEditor.on('blur', function (e, src) {
           vm.params.note = vm.myEditor.getValue()
         })
+      },
+      onFocus(val){
+        // console.log(val)
       },
       switchData(data, value, target, isUpdate) {
         let tmp
@@ -314,7 +351,7 @@
             type: 'goods_type.1',
             category: '',
             stock: 0,
-            price: 0,
+            price: null,
             imgurl: '',
             saleStatus: 1,
             label: '',
@@ -461,10 +498,10 @@
       },
       changeFavorTags(index, text) {
         console.log(index, text)
-        if (index === 5) {
-          vm.toast('最多5个标签！', 'warn')
-          return
-        }
+        /*if (index === 5) {
+         vm.toast('最多5个标签！', 'warn')
+         return
+         }*/
         if (text) {
           this.flavourLabel.splice(index, 0, text)
         } else {

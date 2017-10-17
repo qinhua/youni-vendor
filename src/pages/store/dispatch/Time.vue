@@ -3,7 +3,7 @@
     <label class="tips"><i class="fa fa-smile-o"></i>&nbsp;将展示在店铺列表和详情中(单位：分钟)</label>
     <group>
       <cell title="派送时长：" primary="content">
-        <datetime format="mm" minute-row v-model="label"></datetime>
+        <datetime format="mm" :display-format="formatValueFunction" minute-row v-model="label" @on-change="onchange"></datetime>
       </cell>
     </group>
     <div class="btn btn-save" @click="update"><i class="fa fa-save"></i>&nbsp;保存</div>
@@ -28,7 +28,10 @@
       return {
         isPosting: false,
         sellerId: null,
-        label: ''
+        label: '',
+        formatValueFunction (val) {
+          return val.replace(/^0/, '')
+        }
       }
     },
     components: {
@@ -58,6 +61,9 @@
         }, function () {
           vm.isPosting = false
         })
+      },
+      onchange(val) {
+        console.log(arguments)
       },
       validate() {
         if (!vm.label) {
