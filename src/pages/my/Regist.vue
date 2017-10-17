@@ -129,6 +129,7 @@
           type: 'primary',
           text: '确定',
           onClick: function () {
+            me.jumpTo('http://www.youni.club/yn/youni-mall/#/home')
           }
         }]
       }
@@ -334,6 +335,7 @@
               /*vm.toast('申请成功！,管理员将尽快审核')
                vm.jump('login', {phone: vm.params.phone, psw: vm.params.phone.substr(-6)})*/
               vm.showMsg = true
+              me.locals.set('isAudit', vm.$store.state.global.wxInfo.openid)
             } else {
               vm.toast(res.message || '提交失败！', 'warn')
             }
@@ -345,7 +347,7 @@
         }
       },
       changeArea(ids, names) {
-        console.log(ids, names)
+        // console.log(ids, names)
         vm.params.province = ids[0]
         vm.params.city = ids[1]
         vm.tmpAddress.province = names[0]

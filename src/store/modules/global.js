@@ -171,6 +171,7 @@ export default {
         state.wxInfo = null
         state.userInfo = null
         me.sessions.remove('ynSellerInfo')
+        me.locals.remove('isAudit')
         me.locals.remove('ynWxUser')
       }
     },

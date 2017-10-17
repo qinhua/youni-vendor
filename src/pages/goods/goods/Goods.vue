@@ -49,7 +49,7 @@
               <a class="btn btn-del" @click="editGoods(item)">编辑</a>
               <a class="btn btn-del" @click="setState(item.id,2)" v-if="item.saleStatus===1">下架</a>
               <a class="btn btn-del" @click="setState(item.id,1)" v-else>上架</a>
-              <!--<a class="btn btn-del" @click="delGoods(item.id||2)">删除</a>-->
+              <a class="btn btn-del" @click="delGoods(item.id||2)">删除</a>
             </div>
           </section>
         </section>

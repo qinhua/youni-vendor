@@ -3,7 +3,8 @@
     <label class="tips"><i class="fa fa-smile-o"></i>&nbsp;买家可在店铺详情看到您设置的押金数量</label>
     <group>
       <cell title="押金：" primary="content">
-        <x-input placeholder="请输入押金（元/桶）" required text-align="right" type="number" v-model="guarantee"></x-input>
+        <x-input placeholder="请输入押金（元/桶）" required text-align="right" type="number" v-model="guarantee"
+                 @on-focus="onFocus"></x-input>
       </cell>
     </group>
     <div class="btn btn-save" @click="update"><i class="fa fa-save"></i>&nbsp;保存</div>
@@ -27,7 +28,7 @@
       return {
         isPosting: false,
         sellerId: null,
-        guarantee: 0
+        guarantee: null
       }
     },
     components: {
@@ -57,8 +58,11 @@
           vm.isPosting = false
         })
       },
+      onFocus(val){
+        // console.log(val)
+      },
       validate() {
-        if (vm.guarantee === '') {
+        if (vm.guarantee === null || vm.guarantee === '') {
           vm.toast('请输入押金！')
           return false
         }
@@ -102,7 +106,7 @@
       .fz(22);
       .c6;
       background: #f9ecc6;
-      i{
+      i {
         .cdiy(#1db314);
       }
     }

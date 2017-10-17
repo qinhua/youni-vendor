@@ -61,6 +61,10 @@
           me.locals.set('beforeLoginUrl', '/login')
           vm.jump('author')
         }
+        if (me.locals.get('isAudit') === vm.$store.state.global.wxInfo.openid) {
+          vm.jump('audit')
+          return
+        }
         vm.loadData(commonApi.check, null, 'POST', function (res) {
           vm.processing()
           if (res.data.success) {
@@ -102,6 +106,7 @@
             vm.$store.commit('storeData', {key: 'isLogin', data: true})
             me.sessions.set('logYn', true)
             // vm.goBeforePage()
+            me.locals.remove('isAudit')
             vm.jump('home')
           } else {
             /*if(res.data){
