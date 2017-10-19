@@ -21,6 +21,7 @@ const goodsApi = {
   list: host + '/goods/list',
   add: host + '/goods/add',
   update: host + '/goods/update',
+  del: host + '/goods/del',
   saleConfigList: host + '/goods/listSaleConfig',
   setSaleConfig: host + '/goods/setSaleConfig',
   delSaleConfig: host + '/goods/delSaleConfig',

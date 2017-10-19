@@ -17,6 +17,7 @@
         <div class="txt-con">
           <h3>收货人：{{details.userName}}<span>{{details.phone}}</span></h3>
           <p>地址：{{details.userAddress}}</p>
+          <p>门牌号：{{details.houseCode}}</p>
         </div>
         <i class="fa fa-angle-right i-right"></i>
       </div>

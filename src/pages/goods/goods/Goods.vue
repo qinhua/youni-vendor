@@ -28,12 +28,17 @@
             <div class="img-con"
                  :style="item.imgurl?('background-image:url('+item.imgurl+')'):''"></div>
             <div class="info-con">
-              <h3><span :class="item.type==='goods_type.2'?'milk':''">{{item.type === 'goods_type.2' ? '奶' : '水'}}</span>{{item.name}}</h3>
+              <h3><span
+                :class="item.type==='goods_type.2'?'milk':''">{{item.type === 'goods_type.2' ? '奶' : '水'}}</span>{{item.name}}
+              </h3>
               <section class="middle">
                 <span class="unit-price">售价：￥{{item.price|toFixed}}元</span>
                 <span class="order-info">已售：{{item.saleCount}}件</span>
               </section>
               <!--<label>库存：{{item.stock}}件</label>-->
+              <ol class="labels" v-if="item.label">
+                <li v-for="itm in item.label.split(',')">{{itm}}</li>
+              </ol>
             </div>
             <!--<div class="price-con">-->
             <!--<p class="price">￥{{item.price}}</p>-->
@@ -77,7 +82,7 @@
           pageNo: 1,
           saleStatus: 0
         },
-        noMore:false,
+        noMore: false,
         isPosting: false
       }
     },
@@ -88,7 +93,7 @@
     mounted() {
       vm = this
       vm.getGoods()
-      vm.$nextTick(function() {
+      vm.$nextTick(function () {
         vm.$refs.goodsScroller.finishInfinite(true)
         vm.$refs.goodsScroller.resize()
       })
@@ -100,7 +105,7 @@
      }, */
     watch: {
       '$route'(to, from) {
-        if(to.name==='goods'){
+        if (to.name === 'goods') {
           vm.getGoods()
         }
       }
@@ -121,7 +126,7 @@
         vm.processing()
         vm.loadData(goodsApi.list, vm.params, 'POST', function (res) {
           vm.isPosting = false
-          vm.processing(0,1)
+          vm.processing(0, 1)
           var resD = res.data.pager
           if (!isLoadMore) {
             vm.goods = res.data.itemList
@@ -168,8 +173,13 @@
         if (vm.isPosting) return false
         vm.confirm('确认删除？', '商品删除后不可恢复！', function () {
           vm.isPosting = true
-          vm.loadData(goodsApi.delOrder, {id:id}, 'POST', function (res) {
+          vm.loadData(goodsApi.del, {id: id}, 'POST', function (res) {
             vm.isPosting = false
+            if (res.success) {
+              vm.getGoods()
+            } else {
+              vm.toast('删除失败')
+            }
           }, function () {
             vm.isPosting = false
           })
@@ -298,12 +308,28 @@
                 padding-right: 40/@rem;
                 .cdiy(@c2);
               }
-              .order-info{
+              .order-info {
                 .fr;
               }
             }
             label {
               .fz(20);
+            }
+            .labels{
+              padding-top:10/@rem;
+              .cdiy(#f34c18);
+              .fz(22);
+              overflow: hidden;
+              li {
+                .fl;
+                margin: 0 10/@rem 10/@rem 0;
+                padding: 1px 6px;
+                line-height: 1.8;
+                .cf;
+                .fz(16);
+                .borR(4px);
+                background: orange;
+              }
             }
           }
           .price-con {
