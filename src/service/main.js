@@ -62,6 +62,11 @@ const userApi = {
   getFloor: host + '/floorCost/get',
   addFloor: host + '/floorCost/add'
 }
+const depositApi = {
+  list: host + '/userDeposit/sellerDepositList',
+  audit: host + '/userDeposit/confirmRefund'
+}
+
 const couponApi = {
   get: host + '/sellerCoupon/get',
   add: host + '/sellerCoupon/add',
@@ -85,7 +90,6 @@ const commonApi = {
   login: host + '/seller/login',
   check: host + '/seller/checkLogin',
   logout: host + '/seller/logout',
-  check: host + '/seller/checkLogin',
   regist: host + '/seller/applySeller',
   reset: host + '/seller/setPasswd',
   dict: host + '/common/dictList',
@@ -95,4 +99,4 @@ const commonApi = {
 }
 // console.log('当前域名：%c' + host, 'color:red;font-size:14px;font-weight:bold')
 // console.log('当前API：%c' + JSON.stringify(homeApi, null, 2), 'color:orange;font-size:14px')
-export {commonApi, homeApi, nearbyApi, ticketApi, orderApi, clientApi, couponApi, userApi, goodsApi, assetsApi,statisticApi}
+export {commonApi, homeApi, nearbyApi, ticketApi, orderApi, clientApi, couponApi, userApi,depositApi, goodsApi, assetsApi,statisticApi}

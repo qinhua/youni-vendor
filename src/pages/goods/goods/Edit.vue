@@ -16,8 +16,7 @@
         <x-input title="价格：" placeholder="价格" required text-align="right" type="number" v-model="params.price"
                  v-if="params.type==='goods_type.1'" @on-focus="onFocus"></x-input>
         <x-input title="空桶押金：" placeholder="每个桶的押金" required text-align="right" type="number"
-                 v-model="params.bucketAmount"
-                 v-if="params.type==='goods_type.1'" @on-focus="onFocus"></x-input>
+                 v-model="params.mortgage" v-if="params.type==='goods_type.1'" @on-focus="onFocus"></x-input>
         <x-input title="价格标签" v-model="priceStatusText" text-align="right" readonly disabled
                  v-if="isEdit && params.type==='goods_type.2'"
                  @click.native="editSubPrice(params.priceTags)"></x-input>
@@ -165,8 +164,9 @@
           name: '',
           type: 'goods_type.1',
           category: '',
-          stock: 0,
+          //stock: 0,
           price: null,
+          mortgage: null,
           imgurl: '',
           saleStatus: 1,
           label: '',
@@ -241,10 +241,10 @@
             key: 'goods_type.1',
             value: '水',
             name: '水'
-          },{
-              key: 'goods_type.2',
-              value: '奶',
-              name: '奶'
+          }, {
+            key: 'goods_type.2',
+            value: '奶',
+            name: '奶'
           }]
         }
       },
@@ -333,8 +333,9 @@
             name: vm.lineData.name,
             type: vm.lineData.type,
             category: vm.lineData.category,
-            stock: vm.lineData.stock,
+            // stock: vm.lineData.stock,
             price: vm.lineData.price,
+            mortgage: vm.lineData.mortgage,
             imgurl: vm.lineData.imgurl,
             saleStatus: vm.lineData.saleStatus,
             label: '',
@@ -350,8 +351,9 @@
             name: '',
             type: 'goods_type.1',
             category: '',
-            stock: 0,
+            // stock: 0,
             price: null,
+            mortgage: null,
             imgurl: '',
             saleStatus: 1,
             label: '',
@@ -470,10 +472,11 @@
         vm.switchData(vm.types, vm.tmpType, 'type')
         console.log(val, vm.params.type)
         if (vm.params.type === 'goods_type.2') {
+          delete vm.params.mortgage
           vm.params.price = 1
           vm.isMilk = true
         } else {
-          vm.params.price = 0
+          vm.params.price = null
           vm.isMilk = false
         }
       },

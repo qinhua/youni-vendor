@@ -15,7 +15,7 @@
       <cell title="优惠管理" link="/coupons"></cell>
       <!--<cell title="上楼费用" link="/floor_fee"></cell>-->
       <cell title="派送时长" link="/dispatch_time"></cell>
-      <cell title="店铺押金" link="/guarantee_fee"></cell>
+      <!--<cell title="店铺押金" link="/guarantee_fee"></cell>-->
       <cell title="押金列表" link="/myguarantee"></cell>
     </group>
   </div>
