@@ -12,7 +12,7 @@
                       @on-hide="" @on-change="changeLevel"></popup-picker>
         <popup-picker title="平台分类" :data="types" :columns="1" v-model="tmpType" @on-show=""
                       @on-hide="" @on-change="changeType"></popup-picker>
-        <popup-picker title="业务分类" :data="serTypes" :columns="1" v-model="tmpSerType" @on-show=""
+        <popup-picker title="经营范围" :data="serTypes" :columns="1" v-model="tmpSerType" @on-show=""
                       @on-hide="" @on-change="changeSerType"></popup-picker>
         <x-address class="address-area" title="所在地区" @on-hide="onHide" @on-shadow-change="changeArea"
                    :list="addressData"
@@ -168,7 +168,7 @@
     methods: {
       getMap(data) {
         vm.showMap = false
-        console.log(data, 'home amap info')
+        // console.log(data, 'home amap info')
         if (data) {
           vm.params.lon = data.lng
           vm.params.lat = data.lat
@@ -183,7 +183,6 @@
       getImgUrl(data) {
         // console.log(data)
         me.isArray(data.data) ? vm.params[data.name] = data.data.join(',') : vm.params[data.name] = ''
-        console.log(JSON.stringify(vm.params, null, 2))
       },
       switchData(data, value, target) {
         let tmp

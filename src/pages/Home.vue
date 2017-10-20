@@ -91,7 +91,7 @@
                       </h3>
                       <section class="middle">
                         <span class="unit-price">￥{{itm.goodsPrice | toFixed}}元</span>
-                        <span class="order-info">{{itm.info}}</span>
+                        <span class="order-info" v-if="item.orderType===2">来自：水票兑换</span>
                         <div class="dispatch-info" v-if="itm.goodsType==='goods_type.2'">
                           <span>已送：{{itm.totalDispatcheNum}}件</span><span>待送：{{itm.waitDispatcheNum}}件</span>
                         </div>
@@ -694,7 +694,8 @@
             width: 100%;
             padding: 0 0 0 160/@rem;
             h3 {
-              padding-bottom: 10/@rem;
+              .borBox;
+              padding:0 200/@rem 10/@rem 0;
               .txt-normal;
               .c3;
               .fz(26);
