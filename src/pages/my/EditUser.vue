@@ -3,12 +3,13 @@
     <div class="f-wrap" v-if="!showMap">
       <group>
         <x-input title="店铺名称：" placeholder="店铺名称" required text-align="right" v-model="params.name"></x-input>
+        <popup-picker title="经营范围" :data="serTypes" :columns="1" v-model="tmpSerType" @on-show=""
+                      @on-hide="" @on-change="changeSerType"></popup-picker>
         <div class="time-group">
           <h3>营业时间<span>*不填为24小时营业</span></h3>
           <datetime title="从：" format="HH:mm" minute-row v-model="startTime"></datetime>
           <datetime title="至：" format="HH:mm" minute-row v-model="endTime"></datetime>
         </div>
-
         <img-uploader title="店铺头像" :api="fileApi" :limit="1" @on-uploaded="getImgUrl"></img-uploader>
       </group>
       <group class="bottom">
@@ -51,7 +52,19 @@
         tmpAddress: {province: '', city: '', detail: ''},
         startTime: null,
         endTime: null,
-        params: {}
+        tmpSerType: [],
+        serTypes: [{key: 'seller_service_type.1', value: '水', name: '水'}, {
+          key: 'seller_service_type.2',
+          value: '奶',
+          name: '奶'
+        }, {key: 'seller_service_type.3', value: '全部', name: '全部'}],
+        params: {
+          name: '',
+          serviceType: '',
+          headimgurl: '',
+          address: '',
+          note: ''
+        }
       }
     },
     components: {Group, Cell, XInput, XTextarea, PopupPicker, Datetime, XAddress, imgUploader, Amap},
@@ -72,15 +85,39 @@
           vm.tmpAddress.detail = data.name
         }
       },
-      choosePoint() {
-        vm.showMap = true;
-      },
       getImgUrl(data) {
         if (me.isArray(data)) {
           vm.params.headimgurl = data.join(',')
         } else {
           vm.params.headimgurl = ''
         }
+      },
+      switchData(data, value, target) {
+        let tmp
+        if (!me.isArray(value)) {
+          tmp = []
+          for (let i = 0; i < data.length; i++) {
+            if (value === data[i].key) {
+              tmp.push(data[i].name)
+            }
+          }
+          vm[target] = tmp
+        } else {
+          let tt = value.join('')
+          for (let i = 0; i < data.length; i++) {
+            if (tt === data[i].name) {
+              tmp = data[i].key
+            }
+          }
+          vm.params[target] = tmp
+        }
+      },
+      choosePoint() {
+        vm.showMap = true;
+      },
+      changeSerType(val) {
+        vm.switchData(vm.serTypes, vm.tmpSerType, 'serviceType')
+        console.log(val, vm.params.serviceType)
       },
       validate() {
         if (!vm.params.name) {
@@ -114,9 +151,16 @@
             var resD = res.data
             vm.params.id = resD.id
             vm.params.name = resD.name
+            vm.params.serviceType = resD.serviceType
             vm.params.headimgurl = resD.headimgurl
             vm.params.address = resD.address
             vm.params.note = resD.note
+            if (resD.businessTime) {
+              var tt = resD.businessTime.split('~')
+              vm.startTime = tt[0] || ''
+              vm.endTime = tt[1] || ''
+            }
+            vm.switchData(vm.serTypes, vm.params.serviceType, 'tmpSerType')
             if (needSave) {
               vm.$store.commit('storeData', {key: 'userInfo', data: res.data})
               me.sessions.set('ynSellerInfo', JSON.stringify(res.data))
@@ -214,6 +258,7 @@
     .btn-save {
       .fix;
       bottom: 0;
+      z-index: 10;
       width: 100%;
       .ma-w(640);
       .borBox;

@@ -14,6 +14,8 @@
       </tab-item>
       <tab-item :selected="params.saleStatus===2?true:false" @on-item-click="filterStatus(2)">停售
       </tab-item>
+      <tab-item :selected="params.saleStatus===2?true:false" @on-item-click="filterStatus(2)">已购买
+      </tab-item>
     </tab>
     <div class="tickets-list">
       <scroller class="inner-scroller" ref="ticketScroller" height="100%" :on-refresh="refresh" :on-infinite="infinite"
