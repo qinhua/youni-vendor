@@ -9,8 +9,6 @@
         <popup-picker title="品牌" :data="brands" :columns="1" v-model="tmpBrand" ref="picker1" @on-show=""
                       @on-hide="" @on-change="changeBrand"></popup-picker>
         <x-input title="商品名称：" placeholder="商品名称" required text-align="right" v-model="params.name"></x-input>
-        <!--<selector placeholder="商品分类" v-model="params.goodsType" title="商品分类" name="goodsType" :options="types"-->
-        <!--@on-change="changeType"></selector>-->
         <!--<x-input title="库存：" placeholder="库存" required text-align="right" type="number"
                  v-model="params.stock"></x-input>-->
         <x-input title="价格：" placeholder="价格" required text-align="right" type="number" v-model="params.price"
@@ -45,7 +43,7 @@
       </group>
       <group class="bottom">
         <div class="tags-group">
-          <label>{{params.type==='goods_type.2'?'类别/规格':'标签'}}</label>
+          <label>{{params.type === 'goods_type.2' ? '类别/规格' : '标签'}}</label>
           <div class="tags-cons">
             <tags-input :tags="label" placeholder="3~5字最佳,最多3个" @focus="handleFocus" @blur="handleBlur"
                         @tags-change="changeTags"></tags-input>
@@ -55,8 +53,7 @@
           <label>详情</label>
           <!--<textarea id="editor"></textarea>-->
           <vue-editor class="needsclick" v-model="params.note" placeholder="我是示例文字…" useCustomImageHandler
-                      @imageAdded="handleImageAdded"
-                      :editorToolbar="customToolbar"></vue-editor>
+                      @imageAdded="handleImageAdded" :editorToolbar="customToolbar"></vue-editor>
         </div>
       </group>
       <div class="btn btn-nextstep" @click="updateGoods(true)" v-if="!isEdit && params.type!=='goods_type.1'">
@@ -91,7 +88,7 @@
   /*import $ from 'jquery'
    import 'simditor/styles/simditor.css'
    import Simditor from 'simditor'*/
-  import {goodsApi, commonApi} from '../../../service/main.js'
+  import {homeApi, goodsApi, commonApi} from '../../../service/main.js'
 
   export default {
     name: 'goods-edit',
@@ -106,48 +103,7 @@
         editPriceTag: false,
         priceStatusText: '去设置',
         fileApi: commonApi.uploadImg,
-        addressData: ChinaAddressV3Data,
-        brands: [{
-          key: 1,
-          value: '怡宝',
-          name: '怡宝'
-        }, {
-          key: 2,
-          value: '康师傅',
-          name: '康师傅'
-        }, {
-          key: 3,
-          value: '百岁山',
-          name: '百岁山'
-        }, {
-          key: 4,
-          value: '花果山',
-          name: '花果山'
-        }, {
-          key: 5,
-          value: '水老官',
-          name: '水老官'
-        }, {
-          key: 6,
-          value: '一方人',
-          name: '一方人'
-        }, {
-          key: 7,
-          value: '农夫山泉',
-          name: '农夫山泉'
-        }, {
-          key: 8,
-          value: '八宝山',
-          name: '八宝山'
-        }, {
-          key: 9,
-          value: '昆仑山',
-          name: '昆仑山'
-        }, {
-          key: -1,
-          value: '其它',
-          name: '其它'
-        }],
+        brands: [],
         types: [{key: 'goods_type.1', value: '水', name: '水'}, {
           key: 'goods_type.2',
           value: '奶',
@@ -199,8 +155,6 @@
       Selector,
       PopupPicker,
       XTextarea,
-      XAddress,
-      ChinaAddressV3Data,
       VueEditor,
       EditSubPrice,
       ImgUploader,
@@ -219,11 +173,29 @@
     watch: {
       '$route'(to, from) {
         if (to.name === 'edit_goods') {
+          vm.getSeller()
           vm.getGoods()
         }
       }
     },
     methods: {
+      getBrands() {
+        var param = vm.params.type ? {goodsType: vm.params.type} : null
+        vm.loadData(homeApi.brandList, param, 'POST', function (res) {
+          var resD = res.data.itemList
+          if (resD.length) {
+            for (var i = 0; i < resD.length; i++) {
+              var cur = resD[i]
+              cur.name = cur.value
+            }
+          }
+          vm.brands = resD
+          vm.switchData(vm.brands, vm.lineData.brandId, 'tmpBrand', 1)
+          vm.switchData(vm.brands, vm.tmpBrand, 'brandId', 1)
+          // vm.brands.unshift({key: '', value: '全部'})
+          // console.log(vm.brands, '品牌列表')
+        })
+      },
       getSeller() {
         vm.seller = vm.$store.state.global.userInfo || (me.sessions.get('ynSellerInfo') ? JSON.parse(me.sessions.get('ynSellerInfo')) : {})
         if (vm.seller.serviceType === 'seller_service_type.1') {
@@ -256,7 +228,7 @@
         }
         // console.log(vm.params.imgurl)
       },
-      initEditor(){
+      initEditor() {
         vm.myEditor = new Simditor({
           textarea: $('#editor'),
           placeholder: '我是示例文字…',
@@ -284,7 +256,7 @@
           vm.params.note = vm.myEditor.getValue()
         })
       },
-      onFocus(val){
+      onFocus(val) {
         // console.log(val)
       },
       switchData(data, value, target, isUpdate) {
@@ -322,7 +294,7 @@
           } else {
             vm.isMilk = false
           }
-          vm.switchData(vm.brands, vm.lineData.brandId, 'tmpBrand', 1)
+          // vm.switchData(vm.brands, vm.lineData.brandId, 'tmpBrand', 1)
           vm.switchData(vm.types, vm.lineData.type, 'tmpType', 1)
           vm.switchData(vm.categories, vm.lineData.category, 'tmpCat', 1)
           vm.renderTags('label', vm.lineData.label)
@@ -367,6 +339,20 @@
           vm.tmpCat = []
 //          vm.myEditor.setValue('')
         }
+
+        vm.getBrands()
+        //奶只有瓶装
+        if (vm.params.type === 'goods_type.2') {
+          vm.categories = [{key: 'goods_category.1', value: '瓶装', name: '瓶装'}]
+        } else {
+          vm.categories = [{key: 'goods_category.1', value: '瓶装', name: '瓶装'}, {
+            key: 'goods_category.2',
+            value: '桶装',
+            name: '桶装'
+          }, {key: 'goods_category.3', value: '其它', name: '其它'}]
+        }
+
+
         /*if (vm.onFetching) return false
          vm.onFetching = true
          vm.loadData(goodsApi.list, {id: vm.params.id}, 'POST', function (res) {
@@ -386,20 +372,20 @@
          })*/
       },
       validate() {
+        if (!vm.params.type) {
+          vm.toast('请选择商品分类！', 'warn')
+          return false
+        }
+        if (!vm.params.category) {
+          vm.toast('请选择商品规格！', 'warn')
+          return false
+        }
         if (vm.params.brandId === '') {
           vm.toast('请选择品牌！', 'warn')
           return false
         }
         if (!vm.params.name) {
           vm.toast('请填写商品名！', 'warn')
-          return false
-        }
-        if (!vm.params.type) {
-          vm.toast('请选择商品分类！', 'warn')
-          return false
-        }
-        if (!vm.params.category) {
-          vm.toast('请选择商品类目！', 'warn')
           return false
         }
         /*if (!vm.params.stock) {
@@ -409,6 +395,12 @@
         if (!vm.params.price) {
           vm.toast('请指定价格！', 'warn')
           return false
+        }
+        if (vm.params.type === 'goods_type.1') {
+          if (!vm.params.mortgage) {
+            vm.toast('请输入空桶押金！', 'warn')
+            return false
+          }
         }
         if (!vm.params.imgurl) {
           vm.toast('请上传商品图片！', 'warn')
@@ -466,26 +458,34 @@
       },
       changeBrand(val) {
         vm.switchData(vm.brands, vm.tmpBrand, 'brandId')
-        console.log(val, vm.params.brandId)
+        // console.log(val, vm.params.brandId)
       },
       changeType(val) {
         vm.switchData(vm.types, vm.tmpType, 'type')
         console.log(val, vm.params.type)
+        //奶只有瓶装
         if (vm.params.type === 'goods_type.2') {
+          vm.categories = [{key: 'goods_category.1', value: '瓶装', name: '瓶装'}]
           delete vm.params.mortgage
           vm.params.price = 1
           vm.isMilk = true
         } else {
+          vm.categories = [{key: 'goods_category.1', value: '瓶装', name: '瓶装'}, {
+            key: 'goods_category.2',
+            value: '桶装',
+            name: '桶装'
+          }, {key: 'goods_category.3', value: '其它', name: '其它'}]
           vm.params.price = null
           vm.isMilk = false
         }
+        vm.getBrands()
       },
       changeStatus(value, disabled) {
         // console.log(value, disabled)
       },
       changeCategory(val) {
         vm.switchData(vm.categories, vm.tmpCat, 'category')
-        console.log(val, vm.params.category)
+        // console.log(val, vm.params.category)
       },
       changeTags(index, text) {
         console.log(index, text)
@@ -533,11 +533,13 @@
         // NOTE: Your key could be different such as:
         var formData = new FormData();
         formData.append('image', file)
+        vm.processing('上传中…', 0, 0, 0, 1)
         vm.$axios({
           url: commonApi.uploadImg,
           method: 'POST',
           data: formData
         }).then(function (result) {
+          vm.processing(0, 1)
           var url = window.youniMall.host + '/' + result.data.imageUrl
           Editor.insertEmbed(cursorLocation, 'image', url);
         }).catch(function (err) {

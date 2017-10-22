@@ -14,7 +14,7 @@
       </tab-item>
       <tab-item :selected="params.saleStatus===2?true:false" @on-item-click="filterStatus(2)">停售
       </tab-item>
-      <tab-item :selected="params.saleStatus===2?true:false" @on-item-click="filterStatus(2)">已购买
+      <tab-item :selected="isSale===true?true:false" @on-item-click="filterStatus('sale')">已售出
       </tab-item>
     </tab>
     <div class="tickets-list">
@@ -23,40 +23,54 @@
                 noDataText="没有更多数据"
                 snapping>
         <!-- content goes here -->
-        <section class="v-items" v-for="(item, index) in goods" :data-id="item.id" :data-orderNumber="item.orderNumber">
+        <section class="v-items" v-for="(item, index) in goods" :data-id="item.id">
           <!--<h4 class="item-top"><i class="ico-store"></i>&nbsp;{{item.sellerName}}&nbsp;&nbsp;<i
             class="fa fa-angle-right cc"></i><span>{{item.statusName}}</span></h4>-->
-          <section class="item-middle">
-            <div class="img-con" :style="item.imgurl?('background-image:url('+item.imgurl+')'):''"></div>
-            <div class="info-con">
-              <h3>{{item.name}}</h3>
-              <section class="middle">
-                <span class="unit-price">售价：￥{{item.price|toFixed}}元</span>
-                <span class="order-info">已售：{{item.saleCount}}件</span>
-              </section>
-              <label><i class="fa fa-tag"></i>&nbsp;{{item.waterNote}}</label>
-            </div>
-            <!--<div class="price-con">-->
-            <!--<p class="price">￥{{item.price}}</p>-->
-            <!--<p class="buy-count">x{{item.buyCount}}</p>-->
-            <!--</div>-->
-          </section>
-          <section class="item-bottom">
-            <!--<div class="extra-info">-->
-            <!--<p v-for="(ext, idx) in item.extras">{{ext.name}}<span>￥{{ext.type ? '-' : ''}}{{ext.value}}.00</span></p>-->
-            <!--</div>-->
-            <!--<div class="total-price">共{{item.buyCount}}件商品&nbsp;合计：<span>￥{{item.total}}</span>.00（含上楼费）</div>-->
-            <div class="btns">
-              <a class="btn btn-del" @click="editTicket(item)">编辑</a>
-              <a class="btn btn-del" @click="setState(item.id,2)" v-if="item.saleStatus===1">下架</a>
-              <a class="btn btn-del" @click="setState(item.id,1)" v-else>上架</a>
-              <a class="btn btn-del" @click="delTicket(item.id||2)">删除</a>
-            </div>
-          </section>
+          <div v-if="!isSale">
+            <section class="item-middle">
+              <div class="img-con" :style="item.imgurl?('background-image:url('+item.imgurl+')'):''"></div>
+              <div class="info-con">
+                <h3>{{item.name}}<span class="validDay">有效期：{{item.validDay}}天</span></h3>
+                <section class="middle">
+                  <span class="unit-price">售价：￥{{item.price | toFixed}}元</span>
+                  <span class="order-info">已售：{{item.saleCount}}件</span>
+                </section>
+                <label v-if="item.waterNote"><i class="fa fa-tag"></i>&nbsp;{{item.waterNote}}</label>
+              </div>
+            </section>
+            <section class="item-bottom">
+              <!--<div class="extra-info">-->
+              <!--<p v-for="(ext, idx) in item.extras">{{ext.name}}<span>￥{{ext.type ? '-' : ''}}{{ext.value}}.00</span></p>-->
+              <!--</div>-->
+              <!--<div class="total-price">共{{item.buyCount}}件商品&nbsp;合计：<span>￥{{item.total}}</span>.00（含上楼费）</div>-->
+              <div class="btns">
+                <a class="btn btn-del" @click="editTicket(item)">编辑</a>
+                <a class="btn btn-del" @click="setState(item.id,2)" v-if="item.saleStatus===1">下架</a>
+                <a class="btn btn-del" @click="setState(item.id,1)" v-else>上架</a>
+                <a class="btn btn-del" @click="delTicket(item.id)">删除</a>
+              </div>
+            </section>
+          </div>
+          <div v-else>
+            <section class="item-middle">
+              <div class="img-con" :style="item.ticketImage?('background-image:url('+item.ticketImage+')'):''"></div>
+              <div class="info-con">
+                <h3>{{item.ticketName}}<span class="validDay">有效期：{{item.validDay}}天</span></h3>
+                <section class="middle">
+                  <span class="unit-price">售价：￥{{item.totalAmount | toFixed}}元</span>
+                  <span class="price">已兑换：<i>{{item.exchangeWaterNum}}</i></span>
+                  <span class="price">未兑换：<i>{{item.totalWaterNum - item.exchangeWaterNum}}</i></span>
+                </section>
+                <!--<label v-if="item.waterNote"><i class="fa fa-tag"></i>&nbsp;{{item.waterNote}}</label>-->
+                <p class="payTime">{{item.payTime}}</p>
+              </div>
+            </section>
+          </div>
+
         </section>
       </scroller>
     </div>
-    <div class="add-goods" v-jump="['edit_ticket',null,3]"><i class="fa fa-plus"></i>&nbsp添加水票</div>
+    <div class="add-goods" v-if="!isSale" v-jump="['edit_ticket',null,3]"><i class="fa fa-plus"></i>&nbsp添加水票</div>
   </div>
 </template>
 
@@ -71,6 +85,8 @@
     name: 'tickets',
     data() {
       return {
+        isSale: false,
+        curApi: ticketApi.list,
         goods: [],
         params: {
           pageSize: 10,
@@ -118,7 +134,7 @@
         !isLoadMore ? vm.params.pageNo = 1 : vm.params.pageNo++
         vm.isPosting = true
         vm.processing()
-        vm.loadData(ticketApi.list, vm.params, 'POST', function (res) {
+        vm.loadData(vm.curApi, vm.params, 'POST', function (res) {
           vm.isPosting = false
           vm.processing(0, 1)
           var resD = res.data.pager
@@ -146,21 +162,32 @@
         })
       },
       refresh(done) {
-        console.log('下拉加载')
+        // console.log('下拉加载')
         setTimeout(function () {
           vm.getTickets()
           vm.$refs.ticketScroller.finishPullToRefresh()
         }, 1200)
       },
       infinite(done) {
-        console.log('无限滚动')
+        // console.log('无限滚动')
         setTimeout(function () {
           vm.getTickets(true)
           vm.$refs.ticketScroller.finishInfinite(true)
         }, 1000)
       },
       filterStatus(status) {
-        status ? vm.params.saleStatus = status : delete vm.params.saleStatus
+        vm.curApi = ticketApi.list
+        vm.isSale = false
+        if (status) {
+          if (status === 'sale') {
+            vm.isSale = true
+            vm.curApi = ticketApi.saleList
+          } else {
+            vm.params.saleStatus = status
+          }
+        } else {
+          delete vm.params.saleStatus
+        }
         vm.getTickets()
       },
       delTicket(id) {
@@ -267,6 +294,7 @@
             background-size: cover;
           }
           .info-con {
+            .rel;
             .borBox;
             width: 100%;
             padding: 0 0 0 160/@rem;
@@ -276,6 +304,11 @@
               .c3;
               .fz(26);
               .ellipsis-clamp-2;
+              .validDay {
+                .fr;
+                .c9;
+                .fz(24);
+              }
             }
             .middle {
               .c9;
@@ -285,26 +318,27 @@
                 padding-right: 40/@rem;
                 .cdiy(@c2);
               }
-              .order-info {
+              .price {
                 .fr;
+                padding-left: 16/@rem;
+                i {
+                  font-style: normal;
+                  .cdiy(@c2);
+                }
               }
             }
             label {
+              .borBox;
+              .block;
+              padding-top: 10/@rem;
               .fz(20);
               i {
                 .cdiy(#FFC107);
               }
             }
-          }
-          .price-con {
-            .flex-r(1);
-            .right;
-            .price {
-              padding-bottom: 10/@rem;
-              .c3;
-              .fz(24);
-            }
-            .buy-count {
+            .payTime {
+              padding-top: 16/@rem;
+              .fr;
               .c9;
               .fz(22);
             }

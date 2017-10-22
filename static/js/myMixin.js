@@ -989,7 +989,7 @@ import $ from 'jquery'
         } else {
           tmpArr = arr[myMixin.Rdn.rdnBetween(0, arr.length)]
         }
-        return me.isArray(tmpArr) ? tmpArr.sort() : tmpArr;
+        return myMixin.isArray(tmpArr) ? tmpArr.sort() : tmpArr;
       },
       //04.生成从任意值开始的指定个数字
       rdnCustom: function (start, lens) {
@@ -1141,6 +1141,21 @@ import $ from 'jquery'
       }
       return source;
     },
+    // 判断是否为隐私模式
+    isPrivacyMode: function () {
+      var testV = +new Date();
+      var result = false;
+      try {
+        localStorage.setItem('checkStealth', testV);
+        if (localStorage.getItem('checkStealth') != testV) {
+          result = true;
+        }
+      } catch (e) {
+        result = true;
+      }
+      return result;
+    },
+
     /**
      * 本地存储LocalStorage
      */
@@ -1418,7 +1433,7 @@ import $ from 'jquery'
     keepFresh: function (endTime, cb, interval) {
       var timer = null;
       timer = setInterval(function () {
-        if (me.compareCurrentDate(endTime)) {
+        if (myMixin.compareCurrentDate(endTime)) {
           cb ? cb() : null;
           clearInterval(timer)
         }
@@ -1760,6 +1775,12 @@ import $ from 'jquery'
       }
       return false;
     },
+
+    // 小数乘法
+    floatMulti: function (num1, num2) {
+      return num1 * 10000 * num2 / 10000;
+    },
+
     // 禁止滑动
     cancleScroll: function (obj) {
       //document.addEventListener('touchmove', function (e) {
@@ -1826,7 +1847,7 @@ import $ from 'jquery'
     },
     //过滤对象中自带属性
     exceptOwnProperty: function (obj) {
-      if (obj && me.isObject(obj)) {
+      if (obj && myMixin.isObject(obj)) {
         var tmpObj = {}
         for (var i in obj) {
           if (obj.hasOwnProperty(i)) {
@@ -2039,9 +2060,15 @@ import $ from 'jquery'
       }
 
       return re;
-    }
-    ,
+    },
 
+    /**
+     *纯js评分
+     */
+    rate: function (score) {
+      var rate = score || 0;
+      return '★★★★★☆☆☆☆☆'.slice(5 - rate, 10 - rate)
+    },
     /**
      * 移动端模拟hover
      * @param obj 对象
@@ -2148,7 +2175,7 @@ import $ from 'jquery'
       mediaA.load();
       if (autoPlay === undefined || !autoPlay) {
       } else {
-        if (me.isWeixin) {
+        if (myMixin.isWeixin) {
           try {
             document.addEventListener("WeixinJSBridgeReady", function () {
               mediaA.play();
@@ -2468,6 +2495,58 @@ import $ from 'jquery'
   Date.prototype.isLeapYear = function () {
     return (0 == this.getYear() % 4 && ((this.getYear() % 100 != 0) || (this.getYear() % 400 == 0)));
   }
+
+//小数加法，用来得到精确的减法结果
+//调用：accAdd(arg1,arg2)
+//返回值：arg1加arg2的精确结果
+  function accAdd(arg1, arg2) {
+    console.log(arguments)
+    var r1, r2, m;
+    try {
+      r1 = arg1.toString().split(".")[1].length
+    } catch (e) {
+      r1 = 0
+    }
+    try {
+      r2 = arg2.toString().split(".")[1].length
+    } catch (e) {
+      r2 = 0
+    }
+    m = Math.pow(10, Math.max(r1, r2))
+    return (arg1 * m + arg2 * m) / m
+  }
+
+//给Number类型增加一个add方法
+  Number.prototype.add = function (arg1, arg2) {
+    return accAdd(arg1, arg2);
+  }
+
+//减法函数，用来得到精确的减法结果
+//调用：accSub(arg1,arg2)
+//返回值：arg1减去arg2的精确结果
+
+  function accSub(arg1, arg2) {
+    var r1, r2, m, n;
+    try {
+      r1 = arg1.toString().split(".")[1].length
+    } catch (e) {
+      r1 = 0
+    }
+    try {
+      r2 = arg2.toString().split(".")[1].length
+    } catch (e) {
+      r2 = 0
+    }
+    m = Math.pow(10, Math.max(r1, r2));
+    n = (r1 >= r2) ? r1 : r2;
+    return ((arg1 * m - arg2 * m) / m).toFixed(n);
+  }
+
+//给Number类型增加一个sub方法
+  Number.prototype.sub = function (arg1, arg2) {
+    return accSub(arg1, arg2);
+  }
+
 
 //最小值
   Array.prototype.min = function () {

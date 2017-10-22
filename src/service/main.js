@@ -15,7 +15,8 @@ window.youniMall = {
 const homeApi = {
   banner: host + '/home/banner',
   topNotice: host + '/home/topNotice',
-  goodsList: host + '/home/goodsList'
+  goodsList: host + '/home/goodsList',
+  brandList: host + '/home/brandList'
 }
 const goodsApi = {
   list: host + '/goods/list',
@@ -32,6 +33,7 @@ const nearbyApi = {
 }
 const ticketApi = {
   list: host + '/waterTicket/list',
+  saleList: host + '/userTicket/listBySeller',
   add: host + '/waterTicket/add',
   update: host + '/waterTicket/sellerUpdate',
   setSaleStatus: host + '/waterTicket/setSaleStatus'

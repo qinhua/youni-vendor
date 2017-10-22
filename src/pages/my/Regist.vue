@@ -41,8 +41,8 @@
         </div>
       </group>
       <group class="bottom">
-        <x-input title="收款人微信号：" placeholder="指定唯一收款人" type="text" text-align="right" required
-                 v-model="params.account"></x-input>
+        <!--<x-input title="收款人微信号：" placeholder="指定唯一收款人" type="text" text-align="right" required
+                 v-model="params.account"></x-input>-->
         <x-input title="登录密码：" placeholder="登录密码" type="password" text-align="right" required
                  v-model="params.passwd"></x-input>
         <x-input title="验证码：" class="weui-vcode" v-model="params.smsCode">
@@ -305,10 +305,10 @@
           vm.toast('请上传身份证背面！', 'warn')
           return false
         }
-        if (!vm.params.account) {
+        /*if (!vm.params.account) {
           vm.toast('请填写收款人账号！')
           return false
-        }
+        }*/
         if (!vm.params.passwd) {
           vm.toast('请填写登录密码！')
           return false

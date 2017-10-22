@@ -22,6 +22,8 @@
             </checker-item>
           </checker>
         </div>
+        <x-input title="有效期：" placeholder="天数(不填则不过期)" text-align="right" type="number"
+                 v-model="params.validDay"></x-input>
         <img-uploader title="水票图片（300*300）" :api="fileApi" :limit="1" @on-uploaded="getImgUrl"></img-uploader>
         <x-textarea title="水票说明：" :max="15" placeholder="水票说明(如买10桶送2桶)" @on-blur="" v-model="params.waterNote"
                     show-clear></x-textarea>
@@ -60,9 +62,7 @@
     CheckerItem,
     Selector,
     PopupPicker,
-    XTextarea,
-    XAddress,
-    ChinaAddressV3Data
+    XTextarea
   } from 'vux'
   import ImgUploader from '../../../components/ImgUploader.vue'
   import goodsSearch from '../../../components/GoodsSearch.vue'
@@ -80,49 +80,8 @@
         lineData: null,
         showGoodsList: false,
         fileApi: commonApi.uploadImg,
-        addressData: ChinaAddressV3Data,
         selGoodsName: '',
-        brands: [{
-          key: 1,
-          value: '怡宝',
-          name: '怡宝'
-        }, {
-          key: 2,
-          value: '康师傅',
-          name: '康师傅'
-        }, {
-          key: 3,
-          value: '百岁山',
-          name: '百岁山'
-        }, {
-          key: 4,
-          value: '花果山',
-          name: '花果山'
-        }, {
-          key: 5,
-          value: '水老官',
-          name: '水老官'
-        }, {
-          key: 6,
-          value: '一方人',
-          name: '一方人'
-        }, {
-          key: 7,
-          value: '农夫山泉',
-          name: '农夫山泉'
-        }, {
-          key: 8,
-          value: '八宝山',
-          name: '八宝山'
-        }, {
-          key: 9,
-          value: '昆仑山',
-          name: '昆仑山'
-        }, {
-          key: -1,
-          value: '其它',
-          name: '其它'
-        }],
+        brands: [],
         types: [{
           'key': 'water_ticket_type.1',
           'value': '买5送1',
@@ -160,6 +119,7 @@
           price: null,
           imgurl: '',
           saleStatus: 1,
+          validDay: null,
           // label: '',
           waterNote: '',
           note: ''
@@ -187,8 +147,6 @@
       Selector,
       PopupPicker,
       XTextarea,
-      XAddress,
-      ChinaAddressV3Data,
       VueEditor,
       goodsSearch,
       ImgUploader,
@@ -206,7 +164,7 @@
     /*computed: {},*/
     watch: {
       '$route'(to, from) {
-        if (to.name === 'edit_goods') {
+        if (to.name === 'edit_ticket') {
           vm.getTicket()
         }
       }
@@ -227,7 +185,7 @@
           vm.params.imgurl = ''
         }
       },
-      initEditor(){
+      initEditor() {
         vm.myEditor = new Simditor({
           textarea: $('#editor'),
           placeholder: '我是示例文字…',
@@ -256,7 +214,7 @@
           vm.params.note = vm.myEditor.getValue()
         })
       },
-      onFocus(val){
+      onFocus(val) {
         // console.log(val)
       },
       switchData(data, value, target, isUpdate) {
@@ -294,6 +252,7 @@
             // stock: vm.lineData.stock,
             waterNum: vm.lineData.waterNum,
             price: vm.lineData.price,
+            validDay: vm.lineData.validDay,
             imgurl: vm.lineData.imgurl,
             saleStatus: vm.lineData.saleStatus,
             waterNote: null,
@@ -314,6 +273,7 @@
             // stock: '',
             waterNum: null,
             price: null,
+            validDay: null,
             imgurl: '',
             saleStatus: 1,
             waterNote: '',
@@ -344,12 +304,12 @@
          })*/
       },
       validate() {
-        if (vm.params.goodsId === '') {
+        if (!vm.selGoodsName && !vm.params.goodsId) {
           vm.toast('请选择关联商品！', 'warn')
           return false
         }
         if (!vm.params.name) {
-          vm.toast('请填写水票名名称！', 'warn')
+          vm.toast('请填写水票名称！', 'warn')
           return false
         }
         if (!vm.params.price) {
@@ -436,7 +396,7 @@
           this.tags.splice(index, 1)
         }
       },
-      changeTextArea(){
+      changeTextArea() {
         vm.params.note = vm.myEditor.getValue()
       },
       handleFocus(index) {
@@ -457,15 +417,16 @@
         // NOTE: Your key could be different such as:
         var formData = new FormData();
         formData.append('image', file)
+        vm.processing('上传中…', 0, 0, 0, 1)
         vm.$axios({
-            url: commonApi.uploadImg,
-            method: 'POST',
-            data: formData
-          })
-          .then(function (result) {
-            var url = window.youniMall.host + '/' + result.data.imageUrl
-            Editor.insertEmbed(cursorLocation, 'image', url);
-          }).catch(function (err) {
+          url: commonApi.uploadImg,
+          method: 'POST',
+          data: formData
+        }).then(function (result) {
+          vm.processing(0, 1)
+          var url = window.youniMall.host + '/' + result.data.imageUrl
+          Editor.insertEmbed(cursorLocation, 'image', url);
+        }).catch(function (err) {
           console.log(err);
         })
       }

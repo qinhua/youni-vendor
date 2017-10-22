@@ -16,9 +16,9 @@ import VueScroller from 'vue-scroller'
 import {AlertPlugin, ConfirmPlugin, ToastPlugin, LoadingPlugin} from 'vux'
 
 const FastClick = require('fastclick')
-if (location.href.indexOf('edit_ticket') === -1 && location.href.indexOf('edit_goods') === -1) {
+/*if (location.href.indexOf('edit_ticket') === -1 && location.href.indexOf('edit_goods') === -1) {
   FastClick.attach(document.body)
-}
+}*/
 Vue.use(require('vue-wechat-title'))
 Vue.use(ConfirmPlugin)
 Vue.use(AlertPlugin)
@@ -31,6 +31,10 @@ Vue.config.productionTip = false
 let me = window.me
 let vm
 
+// 若是隐私模式提示关闭
+if (me.isPrivacyMode()) {
+  alert('为了正常使用，请关闭隐私模式！')
+}
 // 检测是否登录
 var checkLogin = function (openid) {
   $.ajax({
@@ -271,7 +275,7 @@ Vue.prototype.tips = function (content, duration, cls, cb) {
   })
 }
 /* loading */
-Vue.prototype.processing = function (content, isClose, cb, timeCb) {
+Vue.prototype.processing = function (content, isClose, cb, timeCb, neverHide) {
   let _this = this
   if (isClose) {
     _this.$vux.loading.hide()
@@ -281,10 +285,12 @@ Vue.prototype.processing = function (content, isClose, cb, timeCb) {
       text: content || ''
     })
     cb ? cb() : null
-    setTimeout(function () {
-      _this.$vux.loading.hide()
-      timeCb ? timeCb() : null
-    }, 2000)
+    if (!neverHide) {
+      setTimeout(function () {
+        _this.$vux.loading.hide()
+        timeCb ? timeCb() : null
+      }, 2000)
+    }
   }
 }
 Vue.prototype.jump = function (name, params, isParams) {

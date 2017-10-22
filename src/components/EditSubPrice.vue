@@ -102,7 +102,7 @@
       }
     },
     methods: {
-      onFocus(val){
+      onFocus(val) {
         // console.log(val)
       },
       add() {

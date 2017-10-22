@@ -25,19 +25,19 @@
   /* eslint-disable no-unused-vars */
   let me
   let vm
-  import {Grid, GridItem, Group, Cell} from 'vux'
+  import {Group, Cell} from 'vux'
 
   export default {
     name: 'my',
     data() {
       return {}
     },
-    components: {Grid, GridItem, Group, Cell},
+    components: {Group, Cell},
     beforeMount() {
       me = window.me
     },
     mounted() {
-      // me.attachClick()
+
     },
     /*watch: {
       '$route' (to, from) {
@@ -45,10 +45,6 @@
     },*/
     computed: {},
     methods: {
-      // 向父组件传值
-      setPageStatus(data) {
-        this.$emit('listenPage', data)
-      },
       jumpTo(pathName, param, type) {
         /* [type=2] 1:'path'2:'name',3:'query' */
         type = type || 'name'
