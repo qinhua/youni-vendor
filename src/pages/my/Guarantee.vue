@@ -149,15 +149,15 @@
             }
             vm.list = resD.itemList
           } else {
-            /*if (resD.itemList.length) {
-             for (var i = 0; i < resD.itemList.length; i++) {
-             var cur = resD.itemList[i];
-             vm.list.push(cur)
-             }
-             } else {
-             vm.noMore = true
-             }*/
-            resD.itemList.length ? vm.list.concat(resD.itemList) : vm.noMore = true
+            if (resD.itemList.length) {
+              for (var i = 0; i < resD.itemList.length; i++) {
+                var cur = resD.itemList[i];
+                vm.list.push(cur)
+              }
+            } else {
+              vm.noMore = true
+            }
+            // resD.itemList.length ? vm.list.concat(resD.itemList) : vm.noMore = true
           }
           console.log(vm.list, '保证金数据')
         }, function () {

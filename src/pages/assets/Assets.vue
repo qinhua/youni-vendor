@@ -4,7 +4,7 @@
       <div class="withdraw-modal">
         <div class="left">
           <h3>可提现金额</h3>
-          <p>￥{{assets.waitTakeAmount > 0 ? assets.waitTakeAmount: 0.00}}<i>元</i></p>
+          <p>￥{{assets.waitTakeAmount > 0 ? assets.waitTakeAmount : 0.00}}<i>元</i></p>
         </div>
         <!--<div class="right" :data-amount="assets.waitTakeAmount" v-jump="['with_draw']">提现</div>-->
       </div>
@@ -25,9 +25,9 @@
       <cell title="收支明细" link="/income_list">
         <!--<i slot="icon" width="20" style="margin-right:5px;" class="fa fa-table"></i>-->
       </cell>
-      <!--<cell title="提现记录" link="/with_draw_list">
-        &lt;!&ndash;<i slot="icon" width="20" style="margin-right:5px;" class="fa fa-file-text-o"></i>&ndash;&gt;
-      </cell>-->
+      <cell title="提现记录" link="/with_draw_list">
+        <!--<i slot="icon" width="20" style="margin-right:5px;" class="fa fa-file-text-o"></i>-->
+      </cell>
     </group>
   </div>
 </template>

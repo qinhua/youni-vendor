@@ -31,6 +31,7 @@
                   <div class="info-con">
                     <h3>{{item.nickname}}<a :href="'tel:'+item.phone">{{item.phone}}</a></h3>
                     <div class="nums"><span>订单数：{{item.orderCount}}</span><span>已完成：{{item.finishCount}}</span></div>
+                    <div class="address"><i class="fa fa-map-marker i-map"></i>&nbsp;{{item.address}}</div>
                     <!--<div class="progress">
                       <div style='width:150px;height:150px;'>
                         <x-progress :percent="35" :showCancel="false"></x-progress>
@@ -101,14 +102,14 @@
         }
       },
       refresh(done) {
-        console.log('下拉加载')
+        // console.log('下拉加载')
         setTimeout(function () {
           vm.getClients()
           vm.$refs.clientScroller.finishPullToRefresh()
         }, 1000)
       },
       infinite(done) {
-        console.log('无限滚动')
+        // console.log('无限滚动')
         setTimeout(function () {
           vm.getClients(true)
           vm.$refs.clientScroller.finishInfinite(true)
@@ -131,7 +132,14 @@
             }
             vm.clients = resD.itemList
           } else {
-            resD.itemList.length ? vm.clients.concat(resD.itemList) : vm.noMore = true
+            if (resD.itemList.length) {
+              for (var j = 0; j < resD.itemList.length; j++) {
+                var cur = resD.itemList[j];
+                vm.clients.push(cur)
+              }
+            } else {
+              vm.noMore = true
+            }
           }
           vm.results = vm.clients.slice(0)
           // console.log(vm.clients, '客户数据')
@@ -256,6 +264,13 @@
                 .fz(22);
                 span {
                   padding-right: 20/@rem;
+                }
+              }
+              .address {
+                .fz(22);
+                .c6;
+                i {
+                  .cdiy(@c2);
                 }
               }
               .progress {

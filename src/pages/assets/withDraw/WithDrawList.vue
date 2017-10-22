@@ -24,13 +24,13 @@
               <swipeout-button @click.native="onButtonClick('delete',item.id)" type="warn">删除</swipeout-button>
             </div>
             <div slot="content" class="demo-content vux-1px-t">
-              <section class="v-items">
+              <section class="v-items" :data-id="item.sellerId">
                 <section class="wrap">
-                  <img src="static/img/ico_draw.png">
+                  <img :src="item.sellerImage">
                   <div class="info-con">
-                    <h3>金额：{{item.payAmount|toFixed}}元<span>{{item.createTime}}</span></h3>
-                    <!--<div class="nums">&lt;!&ndash;<span>订单总额：￥{{item.payAmount|toFixed}}元</span>&ndash;&gt;<span class="withdraw">金额：+{{item.payAmount|toFixed}}元</span>-->
-                    <!--</div>-->
+                    <h3>商家：{{item.sellerName}}</h3>
+                    <div class="nums"><span>金额：<i>￥{{item.takeAmount | toFixed}}元</i></span><span
+                      class="withdraw">{{item.takeDate}}</span></div>
                     <!--<div class="progress">
                       <div style='width:150px;height:150px;'>
                         <x-progress :percent="35" :showCancel="false"></x-progress>
@@ -65,7 +65,6 @@
         onFetching: false,
         noMore: false,
         params: {
-          status: 5,
           userType: 2,
           pageSize: 10,
           pageNo: 1
@@ -99,14 +98,14 @@
         }
       },
       refresh(done) {
-        console.log('下拉加载')
+        // console.log('下拉加载')
         setTimeout(function () {
           vm.getDraw()
           vm.$refs.drawScroller.finishPullToRefresh()
         }, 1000)
       },
       infinite(done) {
-        console.log('无限滚动')
+        // console.log('无限滚动')
         setTimeout(function () {
           vm.getDraw(true)
           vm.$refs.drawScroller.finishInfinite(true)
@@ -132,7 +131,7 @@
               resD.itemList.length ? vm.list.concat(resD.itemList) : vm.noMore = true
             }
             vm.results = vm.list.slice(0)
-            console.log(vm.list, '订单数据')
+            // console.log(vm.list, '提现数据')
           }, function () {
             vm.onFecthing = false
             vm.processing(0, 1)
@@ -158,7 +157,7 @@
           vm.results = []
           // vm.getDraw()
           for (let i = 0; i < vm.list.length; i++) {
-            if (vm.list[i].createTime.indexOf(val) > -1) {
+            if (vm.list[i].takeDate.indexOf(val) > -1) {
               vm.results.push(vm.list[i])
             }
           }
@@ -168,18 +167,18 @@
       },
       onSubmit() {
         this.$refs.search.setBlur()
-        this.$vux.toast.show({
+        /*this.$vux.toast.show({
           type: 'text',
           position: 'top',
           text: 'on submit'
-        })
+        })*/
         vm.getDraw()
       },
       onFocus() {
-        console.log('on focus')
+        // console.log('on focus')
       },
       onCancel() {
-        console.log('on cancel')
+        // console.log('on cancel')
       }
     }
   }
@@ -216,7 +215,7 @@
           padding: 20/@rem 0;
           .bf;
           .wrap {
-            padding: 14/@rem 20/@rem;
+            padding: 0 20/@rem;
             img {
               .size(80, 80);
               .abs-center-vertical;
@@ -239,12 +238,16 @@
                 }
               }
               .nums {
-                .fz(28);
+                .fz(24);
+                i {
+                  font-style: normal;
+                  .cdiy(@c2);
+                }
                 span {
-                  padding-right: 20/@rem;
                   &.withdraw {
                     .fr;
-                    .c3;
+                    .c9;
+                    .fz(22);
                   }
                 }
               }
