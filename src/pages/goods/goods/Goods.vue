@@ -152,14 +152,14 @@
         })
       },
       refresh(done) {
-        console.log('下拉加载')
+        // console.log('下拉加载')
         setTimeout(function () {
           vm.getGoods()
           vm.$refs.goodsScroller.finishPullToRefresh()
         }, 1200)
       },
       infinite(done) {
-        console.log('无限滚动')
+        // console.log('无限滚动')
         setTimeout(function () {
           vm.getGoods(true)
           vm.$refs.goodsScroller.finishInfinite(true)

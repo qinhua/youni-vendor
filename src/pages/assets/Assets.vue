@@ -8,8 +8,8 @@
         </div>
         <!--<div class="right" :data-amount="assets.waitTakeAmount" v-jump="['with_draw']">提现</div>-->
       </div>
-      <cell title="总收入" link="">
-        ￥{{assets.totalAmount > 0 ? assets.totalAmount : 0.00}}
+      <cell title="总收入" link="" :inline-desc="'其中水票收入：￥'+assets.ticketAmount+'元'">
+        ￥{{assets.totalAmount > 0 ? assets.totalAmount : 0.00}}元
         <!--<i slot="icon" width="20" style="margin-right:5px;" class="fa fa-cube"></i>-->
       </cell>
     </group>
@@ -111,6 +111,10 @@
       .weui-cell {
         padding: 24/@rem !important;
         .fz(26) !important;
+      }
+      .vux-label-desc{
+        .fz(24);
+        .c9;
       }
       .withdraw-modal {
         .rel;

@@ -142,7 +142,7 @@
         if (vm.isPosting) return false
         vm.confirm('确认删除？', null, function () {
           vm.isPosting = true
-          vm.loadData(clientApi.del, {id: id}, 'POST', function (res) {
+          vm.loadData(assetsApi.del, {id: id}, 'POST', function (res) {
             vm.isPosting = false
           }, function () {
             vm.isPosting = false

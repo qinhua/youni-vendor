@@ -77,6 +77,8 @@ const couponApi = {
 }
 const assetsApi = {
   asset: host + '/seller/amount',
+  ordersList: host + '/amount/orderAmountList',
+  ticketsList: host + '/amount/ticketAmountList',
   withDrawList: host + '/takeMoney/listBySeller',
   withDraw: host + '/common/top10'
 }
