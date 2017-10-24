@@ -30,7 +30,7 @@
             <section class="item-middle">
               <div class="img-con" :style="item.imgurl?('background-image:url('+item.imgurl+')'):''"></div>
               <div class="info-con">
-                <h3>{{item.name}}<span class="validDay">有效期：{{item.validDay}}天</span></h3>
+                <h3>{{item.name}}<span class="validDay">{{item.validDay?'有效期：' + item.validDay + '天' : '永久'}}</span></h3>
                 <section class="middle">
                   <span class="unit-price">售价：￥{{item.price | toFixed}}元</span>
                   <span class="order-info">已售：{{item.saleCount}}件</span>
@@ -55,7 +55,7 @@
             <section class="item-middle">
               <div class="img-con" :style="item.ticketImage?('background-image:url('+item.ticketImage+')'):''"></div>
               <div class="info-con">
-                <h3>{{item.ticketName}}<span class="validDay">有效期：{{item.validDay}}天</span></h3>
+                <h3>{{item.ticketName}}<span class="validDay">{{item.validDay?'有效期：' + item.validDay + '天' : '永久'}}</span></h3>
                 <section class="middle">
                   <span class="unit-price">售价：￥{{item.totalAmount | toFixed}}元</span>
                   <span class="price">已兑换：<i>{{item.exchangeWaterNum}}</i></span>
