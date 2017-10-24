@@ -22,7 +22,7 @@
       </cell>
     </group>
     <group class="list-modal bottom">
-      <cell title="收支明细" link="/income_list">
+      <cell title="收支明细" :link="'/income_list?id='+sellerId">
         <!--<i slot="icon" width="20" style="margin-right:5px;" class="fa fa-table"></i>-->
       </cell>
       <cell title="提现记录" link="/with_draw_list">
@@ -43,6 +43,7 @@
     name: 'assets-con',
     data() {
       return {
+        sellerId: null,
         isPosting: false,
         onFetching: false,
         noMore: false,
@@ -71,6 +72,7 @@
     /*computed: {},*/
     methods: {
       getAssets() {
+        vm.sellerId = me.sessions.get('ynSellerInfo') ? JSON.parse(me.sessions.get('ynSellerInfo')).id : null
         if (vm.onFetching) return false
         vm.processing()
         vm.onFetching = true
@@ -112,7 +114,7 @@
         padding: 24/@rem !important;
         .fz(26) !important;
       }
-      .vux-label-desc{
+      .vux-label-desc {
         .fz(24);
         .c9;
       }

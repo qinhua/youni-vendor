@@ -5,7 +5,7 @@
         @result-click="resultClick"
         @on-change="getResult"
         v-model="value"
-        placeholder="输入买家名、商家名搜索"
+        placeholder="输入买家名、时间搜索"
         position="absolute"
         auto-scroll-to-top top="46px"
         @on-focus="onFocus"
@@ -74,6 +74,7 @@
         onFetching: false,
         noMore: false,
         params: {
+          sellerId: null,
           userType: 2,
           pageSize: 10,
           pageNo: 1
@@ -130,6 +131,7 @@
         vm.getIncome()
       },
       getIncome(isLoadMore) {
+        vm.params.sellerId = vm.$route.query.id
         if (vm.onFecthing) return false
         !isLoadMore ? vm.params.pageNo = 1 : vm.params.pageNo++
         vm.processing()
@@ -182,7 +184,7 @@
           vm.results = []
           // vm.getIncome()
           for (let i = 0; i < vm.list.length; i++) {
-            if (vm.list[i].userName.indexOf(val) > -1 || vm.list[i].sellerName.indexOf(val) > -1) {
+            if (vm.list[i].userName.indexOf(val) > -1 || vm.list[i].createTime.indexOf(val) > -1) {
               vm.results.push(vm.list[i])
             }
           }
@@ -193,10 +195,10 @@
       onSubmit() {
         this.$refs.search.setBlur()
         /*this.$vux.toast.show({
-          type: 'text',
-          position: 'top',
-          text: 'on submit'
-        })*/
+         type: 'text',
+         position: 'top',
+         text: 'on submit'
+         })*/
         vm.getIncome()
       },
       onFocus() {

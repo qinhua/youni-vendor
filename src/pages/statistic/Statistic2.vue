@@ -1,11 +1,9 @@
 <template>
   <div class="statistic-con" v-cloak>
     <button-tab class="btn-tab-con">
-      <!--<button-tab-item selected @click.native="onItemClick(1)">订单量</button-tab-item>
-      <button-tab-item @click.native="onItemClick(2)">销售量</button-tab-item>
-      <button-tab-item @click.native="onItemClick(3)">浏览量</button-tab-item>-->
-      <button-tab-item :selected="curType==='orders'?true:false" @click.native="onItemClick(1)">订单</button-tab-item>
-      <button-tab-item :selected="curType==='puv'?true:false" @click.native="onItemClick(2)">浏览量</button-tab-item>
+      <button-tab-item selected @click.native="onItemClick(1)">订单</button-tab-item>
+      <button-tab-item @click.native="onItemClick(2)">商品</button-tab-item>
+      <button-tab-item @click.native="onItemClick(3)">浏览量</button-tab-item>
     </button-tab>
     <!--<tab class="statistic-tab" active-color="#f34c18">
       <tab-item selected @on-item-click="onItemClick(0)">近7天</tab-item>
@@ -20,20 +18,17 @@
     <div class="bottom-col">
       <ul class="blist orders-list" v-show="curType==='orders'">
         <div class="item-top">
-          <span><i class="fa fa-area-chart"></i>&nbsp;近七天</span>
+          <span>近七天</span>
         </div>
         <li v-for="itm in orders">
           <div class="left-con">
-            <span>已支付订单数：<i>{{itm.payOrderCount}}个</i></span>
-            <span>已支付订单金额：<i>{{itm.payOrderAmount}}元</i></span>
-            <span>已完成订单数：<i>{{itm.finishOrderCount}}个</i></span>
+            <span>总订单金额：<i>{{itm.orderTotal}}</i></span>
+            <span>成交金额：<i>{{itm.orderNum}}</i></span>
           </div>
-          <span class="time">{{itm.createDate}}</span>
+          <span class="time">{{itm.analysisDate}}</span>
         </li>
-        <div class="iconNoData" v-if="!orders.length" style="margin-top:20%" v-cloak><i></i>
-          <p>暂无订单</p></div>
       </ul>
-      <!--<ul class="blist sales-list" v-show="curType==='sales'">
+      <ul class="blist sales-list" v-show="curType==='sales'">
         <div class="item-top">
           <span>近七天</span>
           <button type="button" :class="['btn',curSaleIdx===3?'active':'']" @click="changeSaleType(3)">水票</button>
@@ -48,23 +43,10 @@
           </div>
           <span class="time">{{itm.analysisDate}}</span>
         </li>
-        &lt;!&ndash;<div class="item-top">
-          <span>近七天</span>
-          <button type="button" :class="['btn',curSaleIdx===3?'active':'']" @click="changeSaleType(3)">已支付</button>
-          <button type="button" :class="['btn',curSaleIdx===2?'active':'']" @click="changeSaleType(2)">已完成</button>
-          <button type="button" :class="['btn',curSaleIdx===1?'active':'']" @click="changeSaleType(1)">收入</button>
-        </div>
-        <li v-for="itm in curSales">
-          <div class="left-con">
-            <span>销售额：<i>{{itm.saleTotal}}元</i></span>
-            <span>销售数量：<i>{{itm.saleNum}}件</i></span>
-          </div>
-          <span class="time">{{itm.analysisDate}}</span>
-        </li>&ndash;&gt;
-      </ul>-->
+      </ul>
       <ul class="blist puv-list" v-show="curType==='puv'">
         <div class="item-top">
-          <span><i class="fa fa-area-chart"></i>&nbsp;近七天</span>
+          <span>近七天</span>
         </div>
         <li v-for="itm in puv">
           <div class="left-con">
@@ -73,8 +55,6 @@
           </div>
           <span class="time">{{itm.puvDate}}</span>
         </li>
-        <div class="iconNoData" v-if="!puv.length" style="margin-top:20%" v-cloak><i></i>
-          <p>暂无订单</p></div>
       </ul>
 
     </div>
@@ -97,7 +77,7 @@
       return {
         seller: null,
         curType: 'orders',
-        curSaleIdx: 1,
+        curSaleIdx: 0,
         curSaleType: 'goods.all',
         orders: [],
         sales: [],
@@ -140,6 +120,7 @@
     },
     mounted() {
       vm = this
+      vm.seller = vm.$store.state.global.userInfo || (me.sessions.get('ynSellerInfo') ? JSON.parse(me.sessions.get('ynSellerInfo')) : {})
       vm.getOrderData()
 //      var myChart = vm.$refs.myChart
 //      window.onresize = function () {
@@ -233,8 +214,6 @@
       '$route'(to, from) {
         if (to.name === 'statistic') {
           vm.getOrderData()
-        }else{
-          vm.curType = 'orders'
         }
       }
     },
@@ -245,11 +224,11 @@
             vm.curType = 'orders'
             !vm.orders.length ? vm.getOrderData() : null
             break
-          /*case 2:
-           vm.curType = 'sales'
-           !vm.puv.length ? vm.getSaleData() : null
-           break*/
           case 2:
+            vm.curType = 'sales'
+            !vm.puv.length ? vm.getPuvData() : null
+            break
+          case 3:
             vm.curType = 'puv'
             !vm.puv.length ? vm.getPuvData() : null
             break
@@ -274,6 +253,21 @@
         }
         vm.getCurSale(vm.curSaleType)
       },
+      getOrderData() {
+        if (vm.onFetching) return false
+        vm.processing()
+        vm.onFetching = true
+        vm.loadData(statisticApi.orderAnalysis, {sellerId: vm.seller.id, days: 7}, 'POST', function (res) {
+          var resD = res.data.itemList
+          vm.orders = resD
+          // console.log(vm.orders, '订单统计数据')
+          vm.onFetching = false
+          vm.processing(0, 1)
+        }, function () {
+          vm.onFetching = false
+          vm.processing(0, 1)
+        })
+      },
       getCurSale(type) {
         if (!type) {
           type = 'goods.all'
@@ -291,22 +285,6 @@
         }
         vm.curSales = tmp
       },
-      getOrderData() {
-        vm.seller = vm.$store.state.global.userInfo || (me.sessions.get('ynSellerInfo') ? JSON.parse(me.sessions.get('ynSellerInfo')) : {})
-        if (vm.onFetching) return false
-        vm.processing()
-        vm.onFetching = true
-        vm.loadData(statisticApi.orderAnalysis, {sellerId: vm.seller.id, days: 7}, 'POST', function (res) {
-          var resD = res.data.itemList
-          vm.orders = resD
-          // console.log(vm.orders, '订单统计数据')
-          vm.onFetching = false
-          vm.processing(0, 1)
-        }, function () {
-          vm.onFetching = false
-          vm.processing(0, 1)
-        }, true)
-      },
       getSaleData() {
         if (vm.onFetching) return false
         vm.processing()
@@ -321,7 +299,7 @@
         }, function () {
           vm.onFetching = false
           vm.processing(0, 1)
-        }, true)
+        })
       },
       getPuvData() {
         if (vm.onFetching) return false
@@ -336,7 +314,19 @@
         }, function () {
           vm.onFetching = false
           vm.processing(0, 1)
-        }, true)
+        })
+      },
+      delOrder(id) {
+        if (vm.isPosting) return false
+        vm.confirm('确认删除？', '订单删除后不可恢复！', function () {
+          vm.isPosting = true
+          vm.loadData(orderApi.delOrder + '?id=' + id, vm.params, 'POST', function (res) {
+            vm.isPosting = false
+          }, function () {
+            vm.isPosting = false
+          })
+        }, function () {
+        })
       },
       doRandom() {
         const that = this;
@@ -391,7 +381,7 @@
       padding: 20/@rem;
     }
     .bottom-col {
-      margin-top: 110/@rem;
+      margin-top: 120/@rem;
       padding-bottom: 24px;
     }
     .blist {
@@ -425,7 +415,7 @@
         overflow: hidden;
         background: #eaeaea;
         .bor-t;
-        span {
+        span{
           .fl;
           padding: 0 20/@rem;
           line-height: 1.8;
