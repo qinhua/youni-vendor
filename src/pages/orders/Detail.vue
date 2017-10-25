@@ -201,7 +201,7 @@
       getAppraise(index) {
         vm.loadData(orderApi.appraise, {type: index || 0}, 'POST', function (res) {
           vm.appraiseData = vm.appraise = res.data.itemList
-          console.log(vm.appraiseData, '用户评价数据')
+          // console.log(vm.appraiseData, '用户评价数据')
           cb ? cb() : null
         }, function () {
         })

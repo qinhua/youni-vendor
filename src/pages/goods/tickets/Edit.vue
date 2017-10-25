@@ -208,7 +208,7 @@
 
         })
         /*vm.myEditor.on( 'valuechanged', function(e, src){
-         console.log(vm.myEditor.getValue())
+         // console.log(vm.myEditor.getValue())
          })*/
         vm.myEditor.on('blur', function (e, src) {
           vm.params.note = vm.myEditor.getValue()
@@ -296,7 +296,7 @@
          vm.switchData(vm.categories, vm.params.category, 'tmpCat')
          vm.renderTags(resD.label)
          vm.goods = resD
-         console.log(vm.goods)
+         // console.log(vm.goods)
          }
          vm.isPosting = false
          }, function () {
@@ -348,7 +348,7 @@
         } else {
           curApi = ticketApi.add
         }
-        console.log('最后选择的数据：', vm.params)
+        // console.log('最后选择的数据：', vm.params)
         vm.isPosting = true
         vm.processing()
         vm.loadData(curApi, vm.params, 'POST', function (res) {
@@ -362,30 +362,30 @@
         })
       },
       logHide(str) {
-        console.log('on-hide', str)
+        // console.log('on-hide', str)
       },
       changeArea(ids, names) {
-        console.log(ids, names)
+        // console.log(ids, names)
         vm.params.province = ids[0]
         vm.params.city = ids[1]
       },
       changeBrand(val) {
         vm.switchData(vm.brands, vm.tmpBrand, 'brandId')
-        console.log(val, vm.params.brandId)
+        // console.log(val, vm.params.brandId)
       },
       changeType(val) {
         vm.switchData(vm.types, vm.tmpType, 'ticketType')
-        console.log(val, vm.params.ticketType)
+        // console.log(val, vm.params.ticketType)
       },
       changeStatus(value, disabled) {
         // console.log(value, disabled)
       },
       changeCategory(val) {
         vm.switchData(vm.categories, vm.tmpCat, 'category')
-        console.log(val, vm.params.category)
+        // console.log(val, vm.params.category)
       },
       changeTags(index, text) {
-        console.log(index, text)
+        // console.log(index, text)
         if (index === 3) {
           vm.toast('最多3个标签！', 'warn')
           return

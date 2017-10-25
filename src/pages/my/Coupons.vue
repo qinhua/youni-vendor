@@ -83,14 +83,14 @@
         this.$emit('listenPage', data)
       },
       refresh (done) {
-        console.log('下拉加载')
+        // console.log('下拉加载')
         setTimeout(function () {
           vm.getCoupons()
           vm.$refs.couponScroller.finishPullToRefresh()
         }, 1200)
       },
       infinite (done) {
-        console.log('无限滚动')
+        // console.log('无限滚动')
         setTimeout(function () {
           vm.getCoupons(true)
           vm.$refs.couponScroller.finishInfinite(true)
@@ -142,7 +142,7 @@
           } else {
             vm.coupons.push(resD)
           }
-          console.log(vm.coupons, '优惠券数据')
+          // console.log(vm.coupons, '优惠券数据')
           vm.onFetching = false
           vm.processing(0, 1)
         }, function () {

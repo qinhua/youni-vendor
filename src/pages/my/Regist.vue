@@ -362,15 +362,15 @@
       },
       changeType(val) {
         vm.switchData(vm.types, vm.tmpType, 'type')
-        console.log(val, vm.params.type)
+        // console.log(val, vm.params.type)
       },
       changeSerType(val) {
         vm.switchData(vm.serTypes, vm.tmpSerType, 'serviceType')
-        console.log(val, vm.params.serviceType)
+        // console.log(val, vm.params.serviceType)
       },
       changeLevel(val) {
         vm.switchData(vm.levels, vm.tmpLevel, 'authLevel')
-        console.log(val)
+        // console.log(val)
       }
     }
   }

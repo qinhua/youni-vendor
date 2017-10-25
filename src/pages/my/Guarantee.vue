@@ -159,7 +159,7 @@
             }
             // resD.itemList.length ? vm.list.concat(resD.itemList) : vm.noMore = true
           }
-          console.log(vm.list, '保证金数据')
+          // console.log(vm.list, '保证金数据')
         }, function () {
           vm.isPosting = false
           // vm.processing(0, 1)

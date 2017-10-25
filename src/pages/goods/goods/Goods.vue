@@ -146,7 +146,7 @@
               vm.noMore = true
             }
           }
-          console.log(vm.goods, '商品数据')
+          // console.log(vm.goods, '商品数据')
         }, function () {
           vm.isPosting = false
         })

@@ -114,7 +114,7 @@
             resD.itemList.length ? vm.goods.concat(resD.itemList) : vm.noMore = true
           }
           vm.results = vm.goods
-          console.log(vm.goods, '商品数据')
+          // console.log(vm.goods, '商品数据')
         }, function () {
           vm.isPosting = false
         })

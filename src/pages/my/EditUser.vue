@@ -78,7 +78,7 @@
     methods: {
       getMap(data) {
         vm.showMap = false;
-        console.log(data, 'home amap info')
+        // console.log(data, 'home amap info')
         if (data) {
           vm.params.lon = data.lng
           vm.params.lat = data.lat
@@ -117,7 +117,7 @@
       },
       changeSerType(val) {
         vm.switchData(vm.serTypes, vm.tmpSerType, 'serviceType')
-        console.log(val, vm.params.serviceType)
+        // console.log(val, vm.params.serviceType)
       },
       validate() {
         if (!vm.params.name) {

@@ -305,14 +305,14 @@
       /* 页面数据 */
       getBanner (cb) {
         vm.loadData(homeApi.banner, null, 'POST', function (res) {
-          console.log(res.data, '首页Banner')
+          // console.log(res.data, '首页Banner')
           vm.banner = res.data.itemList
           cb ? cb() : null
         })
       },
       getNotice () {
         vm.loadData(homeApi.topNotice, null, 'POST', function (res) {
-          console.log(res.data, '首页TopNews')
+          // console.log(res.data, '首页TopNews')
           vm.notice = res.data.itemList
         })
       },
@@ -327,7 +327,7 @@
             filter: ''
           }
         vm.loadData(nearbyApi.shopsList, params, 'POST', function (res) {
-          console.log(res.data, 'shopsList')
+          // console.log(res.data, 'shopsList')
           if (!isLoadMore) {
             vm.shops = res.data.itemList
           } else {
@@ -360,7 +360,7 @@
       },
       chooseFilter (idx, key, value, e) {
         vm.shops = []
-        console.log(JSON.stringify(vm.filterData), vm.curFilterType)
+        // console.log(JSON.stringify(vm.filterData), vm.curFilterType)
         if (JSON.stringify(vm.filterData).indexOf(vm.curFilterType) === -1) {
           vm.filterData.push({
             type: vm.curFilterType,
@@ -369,7 +369,7 @@
           })
         } else {
           for (var i = 0; i < vm.filterData.length; i++) {
-            console.log(vm.filterData[i].filterName, value)
+            // console.log(vm.filterData[i].filterName, value)
             if (vm.filterData[i].filterName !== value) {
               vm.filterData[i] = {
                 type: vm.curFilterType,
@@ -381,7 +381,7 @@
         }
         vm.factive = ''
         vm.showFilterCon = false
-        console.log(vm.filterData, '最后的筛选数据')
+        // console.log(vm.filterData, '最后的筛选数据')
         var lastF = {
           goodsType: 1,
           goodsCategory: 'water',
@@ -434,7 +434,7 @@
         })
       },
       changeCount (index, val) {
-        console.log(arguments)
+        // console.log(arguments)
       }
     }
   }

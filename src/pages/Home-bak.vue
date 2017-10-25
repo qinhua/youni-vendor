@@ -421,7 +421,7 @@
             } else {
               resD.itemList.length ? vm.orders.concat(resD.itemList) : vm.noMore = true
             }
-            console.log(vm.orders, '订单数据')
+            // console.log(vm.orders, '订单数据')
           }, function () {
             vm.onFecthing = false
             vm.processing(0, 1)

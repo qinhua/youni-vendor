@@ -127,14 +127,14 @@
         this.$router.push({path: '/appraise' + (param ? '/' + param : '')})
       },
       refresh (done) {
-        console.log('下拉加载')
+        // console.log('下拉加载')
         setTimeout(function () {
           vm.getOrders()
           vm.$refs.orderScroller.finishPullToRefresh()
         }, 1200)
       },
       infinite (done) {
-        console.log('无限滚动')
+        // console.log('无限滚动')
         setTimeout(function () {
           vm.getOrders(true)
           vm.$refs.orderScroller.finishInfinite(true)
@@ -160,7 +160,7 @@
         vm.loadData(goodsApi.detail, vm.params, 'POST', function (res) {
           // var resD = res.data.itemList
           vm.imgs = res.data.itemList
-          console.log(vm.imgs, '商品图片数据')
+          // console.log(vm.imgs, '商品图片数据')
           cb ? cb() : null
           vm.onFetching = false
           vm.processing(0, 1)
@@ -182,7 +182,7 @@
         })
       },
       onItemClick (index) {
-        console.log('on item click:', index)
+        // console.log('on item click:', index)
       },
       addTab () {
         if (this.list.length < 5) {

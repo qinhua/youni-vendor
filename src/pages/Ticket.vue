@@ -97,14 +97,14 @@
         vm.$router.push({path: '/detail/' + id})
       },
       refresh (done) {
-        console.log('下拉加载')
+        // console.log('下拉加载')
         setTimeout(function () {
           vm.getTickets()
           vm.$refs.ticketScroller.finishPullToRefresh()
         }, 1200)
       },
       infinite (done) {
-        console.log('无限滚动')
+        // console.log('无限滚动')
         setTimeout(function () {
           vm.getTickets(true)
           vm.$refs.ticketScroller.finishInfinite(true)
@@ -134,7 +134,7 @@
           } else {
             vm.tickets.push(res.data.itemList, '水票数据')
           }
-          console.log(vm.tickets)
+          // console.log(vm.tickets)
           vm.onFetching = false
         }, function () {
           vm.onFetching = false

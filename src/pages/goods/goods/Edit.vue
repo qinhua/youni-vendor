@@ -420,7 +420,7 @@
         } else {
           curApi = goodsApi.add
         }
-        console.log('最后选择的数据：', vm.params)
+        // console.log('最后选择的数据：', vm.params)
         /*此处转换一些字段类型*/
         vm.formatNewTag('label')
         vm.formatNewTag('flavourLabel')

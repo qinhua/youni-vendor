@@ -63,7 +63,7 @@
         vm.loadData(userApi.getAddress, {userId: vm.userId}, 'POST', function (res) {
           vm.list = res.data.itemList
           vm.$store.state.global.address = vm.list
-          console.log(vm.list, '地址数据')
+          // console.log(vm.list, '地址数据')
           vm.isPosting = false
           vm.processing(0, 1)
         }, function () {
@@ -80,7 +80,7 @@
         /* vm.isPosting = true
         vm.processing()
         vm.loadData(userApi.updateAddress, {id: id}, 'POST', function (res) {
-          console.log(res.data)
+          // console.log(res.data)
           vm.isPosting = false
           vm.processing(0, 1)
         }, function () {
@@ -93,7 +93,7 @@
         vm.isPosting = true
         vm.processing()
         vm.loadData(userApi.addAddress, vm.params, 'POST', function (res) {
-          console.log(res.data)
+          // console.log(res.data)
           vm.isPosting = false
           vm.processing(0, 1)
         }, function () {

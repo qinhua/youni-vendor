@@ -63,7 +63,7 @@
         })
       },
       onchange(val) {
-        console.log(arguments)
+        // console.log(arguments)
       },
       validate() {
         if (!vm.label) {

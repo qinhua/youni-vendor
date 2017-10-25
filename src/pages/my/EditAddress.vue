@@ -53,19 +53,18 @@
       // me.attachClick()
       vm.param.id = vm.$route.query.id
       vm.param.userId = vm.$store.state.global.userId
-      console.log(vm.param)
+      // console.log(vm.param)
     },
     methods: {
       logHide (str) {
-        console.log('on-hide', str)
+        // console.log('on-hide', str)
       },
       changeArea (ids, names) {
-        console.log(ids, names)
+        // console.log(ids, names)
         vm.param.area = names.join('')
       },
       updateAddress () {
         if (vm.isPosting) return false
-        console.log(vm.param)
         if (!vm.param.name || !vm.param.phone || !vm.param.area || !vm.param.detailAddress) {
           vm.toast('请先填写完整！', 3)
           return false
@@ -93,7 +92,7 @@
           vm.loadData(userApi.addAddress, vm.param, 'POST', function (res) {
             vm.isPosting = false
             vm.processing(0, 1)
-            console.log(res, '新增地址')
+            // console.log(res, '新增地址')
             vm.$router.back()
           }, function () {
             vm.isPosting = false

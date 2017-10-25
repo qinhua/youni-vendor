@@ -143,7 +143,7 @@
          vm.isPosting = false
          vm.params = res.data || {}
          // vm.switchData(vm.types, vm.params.goodsType, 'tmpType')
-         console.log(vm.params, '编辑的数据')
+         // console.log(vm.params, '编辑的数据')
        }, function () {
          vm.isPosting = false
        })*/
@@ -194,11 +194,11 @@
         })
       },
       onChange(val) {
-        console.log('change', val)
+        // console.log('change', val)
       },
       changeType(val) {
         vm.switchData(vm.types, vm.tmpType, 'goodsType')
-        console.log(val, vm.params.goodsType)
+        // console.log(val, vm.params.goodsType)
       }
     }
   }
