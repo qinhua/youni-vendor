@@ -2,11 +2,13 @@
   <div class="goods-edit-price-con" v-cloak>
     <div class="top-con">
       <group v-if="isEdit" v-cloak>
-        <x-input title="订奶月份：" placeholder="如：订1个月" required text-align="right" v-model="params.note"></x-input>
+        <!--<x-input title="订奶月份：" placeholder="如：订1个月" required text-align="right" v-model="params.note"></x-input>-->
+        <popup-picker title="订奶月份" :data="scopes" :columns="1" v-model="tmpScope"
+                      @on-change="changeMonth"></popup-picker>
         <x-input title="商品原价：" placeholder="商品原价(元)" required text-align="right" type="number"
                  v-model="params.originPrice" @on-focus="onFocus"></x-input>
-        <x-input title="销售数量：" placeholder="销售数量(件)" required text-align="right" type="number"
-                 v-model="params.saleNum" @on-focus="onFocus"></x-input>
+        <!--<x-input title="销售数量：" placeholder="销售数量(件)" required text-align="right" type="number"
+                 v-model="params.saleNum" @on-focus="onFocus"></x-input>-->
         <x-input title="销售价格：" placeholder="销售价格(元)" required text-align="right" type="number"
                  v-model="params.salePrice" @on-focus="onFocus"></x-input>
       </group>
@@ -56,6 +58,7 @@
     Group,
     Cell,
     XInput,
+    PopupPicker,
     Swipeout,
     SwipeoutItem,
     SwipeoutButton
@@ -71,10 +74,11 @@
         isEdit: false,
         limit: 8,
         tags: [],
+        scopes: [{key: 0, value: '请选择', name: '请选择'}],
+        tmpScope: ['请选择'],
         params: {
           goodsId: null,
-          note: '',
-          saleNum: null,
+          months: null,
           originPrice: null,
           salePrice: null
         }
@@ -85,6 +89,7 @@
       Group,
       Cell,
       XInput,
+      PopupPicker,
       Swipeout,
       SwipeoutItem,
       SwipeoutButton
@@ -105,6 +110,29 @@
       onFocus(val) {
         // console.log(val)
       },
+      switchData(data, value, target) {
+        let tmp
+        if (typeof value === 'number') {
+          tmp = []
+          for (let i = 0; i < data.length; i++) {
+            if (value === data[i].key) {
+              tmp.push(data[i].name)
+            }
+          }
+          vm[target] = tmp
+        } else {
+          let tt = value.join('')
+          for (let i = 0; i < data.length; i++) {
+            if (tt === data[i].name) {
+              tmp = data[i].key
+            }
+          }
+          vm.params[target] = tmp
+        }
+      },
+      changeMonth(val) {
+        vm.switchData(vm.scopes, vm.tmpScope, 'months')
+      },
       add() {
         if (vm.tags.length > vm.limit) {
           vm.toast('最多' + vm.limit + '个标签！', 'warn')
@@ -115,8 +143,7 @@
       clear(isCancel) {
         vm.params = {
           gooodsId: vm.goodsId,
-          note: '',
-          saleNum: null,
+          months: null,
           originPrice: null,
           salePrice: null
         }
@@ -135,7 +162,7 @@
             vm.getTags()
           }, function () {
             vm.isPosting = false
-          })
+          }, true)
         })
       },
       getTags() {
@@ -146,24 +173,27 @@
           vm.isPosting = false
           vm.processing(0, 1)
           vm.tags = res.data.itemList
+          for (var i = 1; i < 100; i++) {
+            vm.scopes.push({key: i, value: i + '个月', name: i + '个月'})
+          }
         }, function () {
           vm.isPosting = false
           vm.processing(0, 1)
-        })
+        }, true)
       },
       validate() {
-        if (!vm.params.note) {
-          vm.toast('请输入标签名！', 'warn')
+        if (!vm.params.months) {
+          vm.toast('请选择月份！', 'warn')
           return false
         }
         if (!vm.params.originPrice) {
           vm.toast('请输入原价！', 'warn')
           return false
         }
-        if (!vm.params.saleNum) {
+        /*if (!vm.params.saleNum) {
           vm.toast('请输入数量！', 'warn')
           return false
-        }
+        }*/
         if (!vm.params.salePrice) {
           vm.toast('请输入销售价格！', 'warn')
           return false
@@ -191,7 +221,7 @@
           }, function () {
             vm.isPosting = false
             vm.processing(0, 1)
-          })
+          }, true)
         }
       },
       finish() {
