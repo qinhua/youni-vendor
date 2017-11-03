@@ -61,10 +61,10 @@
           me.locals.set('beforeLoginUrl', '/login')
           vm.jump('author')
         }
-        if (me.locals.get('isAudit') === vm.$store.state.global.wxInfo.openid) {
+        /*if (me.locals.get('isAudit') === vm.$store.state.global.wxInfo.openid) {
           vm.jump('audit')
           return
-        }
+        }*/
         vm.loadData(commonApi.check, null, 'POST', function (res) {
           vm.processing()
           if (res.data.success) {
