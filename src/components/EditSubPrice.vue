@@ -112,15 +112,16 @@
       },
       switchData(data, value, target) {
         let tmp
-        if (typeof value === 'number') {
+        if (!me.isArray(value)) {
           tmp = []
           for (let i = 0; i < data.length; i++) {
             if (value === data[i].key) {
-              tmp.push(data[i].name)
+              tmp = [data[i].name]
             }
           }
           vm[target] = tmp
         } else {
+          tmp = null
           let tt = value.join('')
           for (let i = 0; i < data.length; i++) {
             if (tt === data[i].name) {
@@ -147,11 +148,13 @@
           originPrice: null,
           salePrice: null
         }
+        vm.tmpScope = ['请选择']
         vm.isEdit = !isCancel
       },
       edit(data) {
         vm.isEdit = true
         vm.params = data
+        vm.switchData(vm.scopes, vm.params.months, 'tmpScope')
       },
       del(id) {
         if (vm.isPosting) return false
@@ -165,6 +168,11 @@
           }, true)
         })
       },
+      generateMonth(){
+        for (var i = 1; i < 100; i++) {
+          vm.scopes.push({key: i, value: i + '个月', name: i + '个月'})
+        }
+      },
       getTags() {
         if (!vm.goodsId) return false
         vm.isPosting = true
@@ -173,9 +181,7 @@
           vm.isPosting = false
           vm.processing(0, 1)
           vm.tags = res.data.itemList
-          for (var i = 1; i < 100; i++) {
-            vm.scopes.push({key: i, value: i + '个月', name: i + '个月'})
-          }
+          vm.generateMonth()
         }, function () {
           vm.isPosting = false
           vm.processing(0, 1)
@@ -191,9 +197,9 @@
           return false
         }
         /*if (!vm.params.saleNum) {
-          vm.toast('请输入数量！', 'warn')
-          return false
-        }*/
+         vm.toast('请输入数量！', 'warn')
+         return false
+         }*/
         if (!vm.params.salePrice) {
           vm.toast('请输入销售价格！', 'warn')
           return false
@@ -214,6 +220,7 @@
               vm.isEdit = false
               vm.processing(0, 1)
               vm.getTags()
+              vm.tmpScope = ['请选择']
               vm.clear(true)
             } else {
               vm.toast(res.data || '保存失败！', 'warn')

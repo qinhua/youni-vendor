@@ -3,7 +3,7 @@
     <div class="edit-con" v-if="!editPriceTag">
       <group>
         <popup-picker title="商品分类" :data="types" :columns="1" v-model="tmpType" ref="picker2" @on-show=""
-                      @on-hide="" @on-change="changeType"></popup-picker>
+                      @on-hide="" @on-change="changeType" v-if="!isEdit"></popup-picker>
         <popup-picker title="商品规格" :data="categories" :columns="1" v-model="tmpCat" ref="picker3" @on-show=""
                       @on-hide="" @on-change="changeCategory"></popup-picker>
         <popup-picker title="品牌" :data="brands" :columns="1" v-model="tmpBrand" ref="picker1" @on-show=""
@@ -166,68 +166,28 @@
     },
     mounted() {
       vm = this
-      vm.getSeller()
       vm.getGoods()
     },
     /*computed: {},*/
     watch: {
       '$route'(to, from) {
         if (to.name === 'edit_goods') {
-          vm.getSeller()
           vm.getGoods()
+        } else {
+          vm.types = [{key: 'goods_type.1', value: '水', name: '水'}, {
+            key: 'goods_type.2',
+            value: '奶',
+            name: '奶'
+          }]
+          vm.categories = [{key: 'goods_category.1', value: '瓶装', name: '瓶装'}, {
+            key: 'goods_category.2',
+            value: '桶装',
+            name: '桶装'
+          }, {key: 'goods_category.3', value: '其它', name: '其它'}]
         }
       }
     },
     methods: {
-      getBrands() {
-        var param = vm.params.type ? {goodsType: vm.params.type} : null
-        vm.loadData(homeApi.brandList, param, 'POST', function (res) {
-          var resD = res.data.itemList
-          if (resD.length) {
-            for (var i = 0; i < resD.length; i++) {
-              var cur = resD[i]
-              cur.name = cur.value
-            }
-          }
-          vm.brands = resD
-          vm.switchData(vm.brands, vm.lineData.brandId, 'tmpBrand', 1)
-          vm.switchData(vm.brands, vm.tmpBrand, 'brandId', 1)
-          // vm.brands.unshift({key: '', value: '全部'})
-          // console.log(vm.brands, '品牌列表')
-        })
-      },
-      getSeller() {
-        vm.seller = vm.$store.state.global.userInfo || (me.sessions.get('ynSellerInfo') ? JSON.parse(me.sessions.get('ynSellerInfo')) : {})
-        if (vm.seller.serviceType === 'seller_service_type.1') {
-          vm.types = [{key: 'goods_type.1', value: '水'}]
-        }
-        if (vm.seller.serviceType === 'seller_service_type.2') {
-          vm.types = [{
-            key: 'goods_type.2',
-            value: '奶',
-            name: '奶'
-          }]
-        }
-        if (vm.seller.serviceType === 'seller_service_type.3') {
-          vm.types = [{
-            key: 'goods_type.1',
-            value: '水',
-            name: '水'
-          }, {
-            key: 'goods_type.2',
-            value: '奶',
-            name: '奶'
-          }]
-        }
-      },
-      getImgUrl(data) {
-        if (me.isArray(data) && data.length) {
-          vm.params.imgurl = data.join(',')
-        } else {
-          vm.params.imgurl = ''
-        }
-        // console.log(vm.params.imgurl)
-      },
       initEditor() {
         vm.myEditor = new Simditor({
           textarea: $('#editor'),
@@ -256,35 +216,102 @@
           vm.params.note = vm.myEditor.getValue()
         })
       },
-      onFocus(val) {
-        // console.log(val)
-      },
       switchData(data, value, target, isUpdate) {
         let tmp
-        if (isUpdate) {
-          tmp = []
-          for (let i = 0; i < data.length; i++) {
-            if (value == data[i].key) {
-              tmp.push(data[i].name)
+        if (value) {
+          if (isUpdate) {
+            tmp = []
+            for (let i = 0; i < data.length; i++) {
+              if (value == data[i].key) {
+                tmp.push(data[i].name)
+              }
             }
-          }
-          vm[target] = tmp
-        } else {
-          let tt = value.join('')
-          for (let i = 0; i < data.length; i++) {
-            if (tt === data[i].name) {
-              tmp = data[i].key
+            vm[target] = tmp
+          } else {
+            let tt = value.join('')
+            for (let i = 0; i < data.length; i++) {
+              if (tt === data[i].name) {
+                tmp = data[i].key
+              }
             }
+            vm.params[target] = tmp
           }
-          vm.params[target] = tmp
         }
+      },
+      getBrands(isUpdate) {
+        var param = vm.params.type ? {goodsType: vm.params.type} : null
+        vm.loadData(homeApi.brandList, param, 'POST', function (res) {
+          var resD = res.data.itemList
+          if (resD.length) {
+            for (var i = 0; i < resD.length; i++) {
+              var cur = resD[i]
+              cur.name = cur.value
+            }
+          }
+          vm.brands = resD
+          if (isUpdate) {
+            vm.switchData(vm.brands, vm.lineData.brandId, 'tmpBrand', 1)
+          }
+
+          // vm.brands.unshift({key: '', value: '全部'})
+          // console.log(vm.brands, '品牌列表')
+        })
+      },
+      getSeller() {
+        vm.seller = vm.$store.state.global.userInfo || (me.sessions.get('ynSellerInfo') ? JSON.parse(me.sessions.get('ynSellerInfo')) : {})
+        if (vm.seller.serviceType === 'seller_service_type.1') {
+          vm.types = [{key: 'goods_type.1', value: '水', name: '水'}]
+          vm.tmpType = ['水']
+          vm.categories = [{key: 'goods_category.1', value: '瓶装', name: '瓶装'}, {
+            key: 'goods_category.2',
+            value: '桶装',
+            name: '桶装'
+          }, {key: 'goods_category.3', value: '其它', name: '其它'}]
+        }
+        if (vm.seller.serviceType === 'seller_service_type.2') {
+          vm.types = [{
+            key: 'goods_type.2',
+            value: '奶',
+            name: '奶'
+          }]
+          vm.categories = [{key: 'goods_category.1', value: '瓶装', name: '瓶装'}]
+          vm.tmpType = ['奶']
+        }
+        if (vm.seller.serviceType === 'seller_service_type.3') {
+          vm.types = [{
+            key: 'goods_type.1',
+            value: '水',
+            name: '水'
+          }, {
+            key: 'goods_type.2',
+            value: '奶',
+            name: '奶'
+          }]
+          vm.tmpType = ['水']
+          vm.categories = [{key: 'goods_category.1', value: '瓶装', name: '瓶装'}, {
+            key: 'goods_category.2',
+            value: '桶装',
+            name: '桶装'
+          }, {key: 'goods_category.3', value: '其它', name: '其它'}]
+        }
+        vm.tmpCat = ['瓶装']
+        vm.switchData(vm.types, vm.tmpType, 'type')
+        vm.switchData(vm.categories, vm.tmpCat, 'category')
+      },
+      getImgUrl(data) {
+        if (me.isArray(data) && data.length) {
+          vm.params.imgurl = data.join(',')
+        } else {
+          vm.params.imgurl = ''
+        }
+        // console.log(vm.params.imgurl)
       },
       getPriceTagStatus(data) {
         vm.editPriceTag = data.status
         vm.priceStatusText = data.message
       },
       getGoods() {
-//        vm.initEditor()
+        // vm.initEditor()
         vm.editPriceTag = false
         vm.lineData = vm.$route.query.linedata ? JSON.parse(decodeURIComponent(vm.$route.query.linedata)) : ''
         vm.isEdit = vm.lineData.id ? true : false
@@ -294,7 +321,7 @@
           } else {
             vm.isMilk = false
           }
-          // vm.switchData(vm.brands, vm.lineData.brandId, 'tmpBrand', 1)
+          vm.switchData(vm.brands, vm.lineData.brandId, 'tmpBrand', 1)
           vm.switchData(vm.types, vm.lineData.type, 'tmpType', 1)
           vm.switchData(vm.categories, vm.lineData.category, 'tmpCat', 1)
           vm.renderTags('label', vm.lineData.label)
@@ -316,6 +343,17 @@
              discountNote: '',*/
             note: vm.lineData.note
           }
+          //奶只有瓶装
+          if (vm.params.type === 'goods_type.2') {
+            vm.categories = [{key: 'goods_category.1', value: '瓶装', name: '瓶装'}]
+          } else {
+            vm.categories = [{key: 'goods_category.1', value: '瓶装', name: '瓶装'}, {
+              key: 'goods_category.2',
+              value: '桶装',
+              name: '桶装'
+            }, {key: 'goods_category.3', value: '其它', name: '其它'}]
+          }
+          vm.getBrands(true)
 //          vm.myEditor.setValue(vm.lineData.note)
         } else {
           vm.params = {
@@ -335,24 +373,12 @@
           vm.label = []
           vm.flavourLabel = []
           vm.tmpBrand = []
-          vm.tmpType = ['水']
-          vm.tmpCat = []
+          vm.getSeller()
+          vm.getBrands()
 //          vm.myEditor.setValue('')
         }
 
-        vm.getBrands()
-        //奶只有瓶装
-        if (vm.params.type === 'goods_type.2') {
-          vm.categories = [{key: 'goods_category.1', value: '瓶装', name: '瓶装'}]
-        } else {
-          vm.categories = [{key: 'goods_category.1', value: '瓶装', name: '瓶装'}, {
-            key: 'goods_category.2',
-            value: '桶装',
-            name: '桶装'
-          }, {key: 'goods_category.3', value: '其它', name: '其它'}]
-        }
-
-
+        // 从接口取
         /*if (vm.onFetching) return false
          vm.onFetching = true
          vm.loadData(goodsApi.list, {id: vm.params.id}, 'POST', function (res) {
@@ -380,7 +406,7 @@
           vm.toast('请选择商品规格！', 'warn')
           return false
         }
-        if (vm.params.brandId === '') {
+        if (!vm.params.brandId) {
           vm.toast('请选择品牌！', 'warn')
           return false
         }
@@ -449,10 +475,13 @@
         })
       },
       logHide(str) {
-        console.log('on-hide', str)
+        // console.log('on-hide', str)
+      },
+      onFocus(val) {
+        // console.log(val)
       },
       changeArea(ids, names) {
-        console.log(ids, names)
+        // console.log(ids, names)
         vm.params.province = ids[0]
         vm.params.city = ids[1]
       },
@@ -462,12 +491,12 @@
       },
       changeType(val) {
         vm.switchData(vm.types, vm.tmpType, 'type')
-        console.log(val, vm.params.type)
+        // console.log(val, vm.params.type)
         //奶只有瓶装
         if (vm.params.type === 'goods_type.2') {
           vm.categories = [{key: 'goods_category.1', value: '瓶装', name: '瓶装'}]
           delete vm.params.mortgage
-          vm.params.price = 1
+          vm.params.price = 1 //默认价
           vm.isMilk = true
         } else {
           vm.categories = [{key: 'goods_category.1', value: '瓶装', name: '瓶装'}, {
@@ -478,6 +507,7 @@
           vm.params.price = null
           vm.isMilk = false
         }
+        vm.tmpCat = ['瓶装']
         vm.getBrands()
       },
       changeStatus(value, disabled) {
@@ -488,7 +518,7 @@
         // console.log(val, vm.params.category)
       },
       changeTags(index, text) {
-        console.log(index, text)
+        // console.log(index, text)
         if (index === 3) {
           vm.toast('最多3个标签！', 'warn')
           return
@@ -500,7 +530,7 @@
         }
       },
       changeFavorTags(index, text) {
-        console.log(index, text)
+        // console.log(index, text)
         /*if (index === 5) {
          vm.toast('最多5个标签！', 'warn')
          return
