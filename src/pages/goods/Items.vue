@@ -8,7 +8,7 @@
         <i slot="icon" width="20" style="margin-right:5px;" class="fa fa-money"></i>
       </cell>-->
       <cell title="商品管理" link="/goods"></cell>
-      <cell title="水票管理" link="/tickets"></cell>
+      <cell title="水票管理" link="/tickets" v-if="showTicket"></cell>
     </group>
   </div>
 </template>
@@ -17,27 +17,31 @@
   /* eslint-disable no-unused-vars */
   let me
   let vm
-  import {Grid, GridItem, Group, Cell} from 'vux'
+  import {Group, Cell} from 'vux'
 
   export default {
-    name: 'my',
+    name: 'item',
     data () {
       return {
-        sellerName: '水一波旗舰店',
-        count: 0
+        seller: null,
+        showTicket: false
       }
     },
-    components: {Grid, GridItem, Group, Cell},
+    components: {Group, Cell},
     beforeMount () {
       me = window.me
     },
     mounted () {
-      // me.attachClick()
+      vm = this
+      vm.getSeller()
     },
-    /*watch: {
+    watch: {
       '$route' (to, from) {
+        if (to.name === 'goods_items') {
+          vm.getSeller()
+        }
       }
-    },*/
+    },
     computed: {},
     methods: {
       // 向父组件传值
@@ -57,6 +61,12 @@
           if (type === 3) {
             this.$router.push({path: '/' + pathName, query: param || ''})
           }
+        }
+      },
+      getSeller() {
+        vm.seller = vm.$store.state.global.userInfo || (me.sessions.get('ynSellerInfo') ? JSON.parse(me.sessions.get('ynSellerInfo')) : {})
+        if (vm.seller.serviceType === 'seller_service_type.1' || vm.seller.serviceType === 'seller_service_type.3') {
+          vm.showTicket = true
         }
       }
     }

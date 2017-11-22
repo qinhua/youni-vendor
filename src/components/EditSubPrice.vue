@@ -7,7 +7,7 @@
                       @on-change="changeMonth"></popup-picker>
         <x-input title="商品原价：" placeholder="商品原价(元)" required text-align="right" type="number"
                  v-model="params.originPrice" @on-focus="onFocus"></x-input>
-        <!--<x-input title="销售数量：" placeholder="销售数量(件)" required text-align="right" type="number"
+        <!--<x-input title="销售数量：" placeholder="销售数量(瓶)" required text-align="right" type="number"
                  v-model="params.saleNum" @on-focus="onFocus"></x-input>-->
         <x-input title="销售价格：" placeholder="销售价格(元)" required text-align="right" type="number"
                  v-model="params.salePrice" @on-focus="onFocus"></x-input>
@@ -37,7 +37,7 @@
             <li>
               <p>{{index + 1}}.[ {{item.note}} ]</p>
               <div class="sub-con">
-                <span>数量：<i>{{item.saleNum}}件</i></span>
+                <span>数量：<i>{{item.saleNum}}瓶</i></span>
                 <span>原价：<i class="txt-del">{{item.originPrice}}元</i></span>
                 <span>销售价：<i>{{item.salePrice}}元</i></span>
               </div>

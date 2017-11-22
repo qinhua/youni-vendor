@@ -8,15 +8,15 @@
       <ul class="contact">
         <li><i class="wx"></i>
           <p>官方微信：友你生活</p></li>
-        <li><i class="wb"></i>
-          <p>官方微博：友你生活</p></li>
+        <!--<li><i class="wb"></i>
+          <p>官方微博：友你生活</p></li>-->
       </ul>
     </div>
-    <div class="bottom">
+    <!--<div class="bottom">
       <div class="terms">
         <a href="">《隐私协议》</a>&nbsp;|&nbsp;<a href="">《服务条款》</a>
       </div>
-    </div>
+    </div>-->
   </div>
 </template>
 

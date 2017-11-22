@@ -73,8 +73,12 @@
       vm = this
       vm.getDeposits()
       vm.$nextTick(function () {
-        vm.$refs.guaScroller.finishInfinite(true)
-        vm.$refs.guaScroller.resize()
+        try{
+          vm.$refs.guaScroller.finishInfinite(true)
+          vm.$refs.guaScroller.resize()
+        }catch(e){
+            // console.log(e)
+        }
       })
     },
     computed: {},

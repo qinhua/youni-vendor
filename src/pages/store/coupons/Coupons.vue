@@ -99,10 +99,10 @@
           vm.isPosting = false
           vm.processing(0, 1)
           var resD = res.data
-          if (res.data) {
+          if (res.success&&res.data) {
             resD.expired = me.compareCurrentDate(resD.expireTime)
+            vm.coupons = resD
           }
-          vm.coupons = resD
           // console.log(vm.coupons, '优惠券数据')
         }, function () {
           vm.isPosting = false
