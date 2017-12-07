@@ -64,9 +64,11 @@
           <!--<div class="total-price">
             共{{details.totalGoodsNum}}件商品&nbsp;合计：<span>￥{{details.payAmount | toFixed}}</span>（含上楼费）
           </div>-->
-          <div class="total-price" v-if="details.payAmount!==details.totalAmount">共{{details.totalGoodsNum}}件商品&nbsp;&nbsp;合计：<i class="txt-normal txt-del c9">￥{{details.totalAmount | toFixed}}</i>&nbsp;&nbsp;实付：<span>￥{{details.payAmount | toFixed}}元</span>
+          <div class="total-price" v-if="details.payAmount!==details.totalAmount">共{{details.totalGoodsNum}}件商品&nbsp;&nbsp;合计：<i
+            class="txt-normal txt-del c9">￥{{details.totalAmount | toFixed}}</i>&nbsp;&nbsp;实付：<span>￥{{details.payAmount | toFixed}}元</span>
           </div>
-          <div class="total-price" v-else>共{{details.totalGoodsNum}}件商品&nbsp;&nbsp;合计：<span>￥{{details.payAmount | toFixed}}元</span></div>
+          <div class="total-price" v-else>
+            共{{details.totalGoodsNum}}件商品&nbsp;&nbsp;合计：<span>￥{{details.payAmount | toFixed}}元</span></div>
 
           <!--<a class="btn btn-del" @click="cancelOrder(item.orderId)">取消订单</a>-->
           <!--<a class="btn btn-del" @click="delOrder(item.orderId)">删除订单</a>-->
@@ -120,11 +122,12 @@
     </div>
 
     <div class="extra-col">
+      <p v-if="details.note">配送方式：{{details.note}}</p>
+      <p>派送时间：{{details.dispatchTime}}</p>
       <p>订单编号：{{details.appOrderNumber}}</p>
       <p>创建时间：{{details.createTime}}</p>
-      <!--<p>付款时间：{{details.createTime}}</p>
-      <p>派送时间：{{details.createTime}}</p>
-      <p>成交时间：{{details.createTime}}</p>-->
+      <!--<p>付款时间：{{details.createTime}}</p>-->
+      <!--<p>成交时间：{{details.createTime}}</p>-->
     </div>
   </div>
 </template>
