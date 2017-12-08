@@ -5,7 +5,7 @@
         <!--<x-input title="订奶月份：" placeholder="如：订1个月" required text-align="right" v-model="params.note"></x-input>-->
         <popup-picker title="订奶月份" :data="scopes" :columns="1" v-model="tmpScope"
                       @on-change="changeMonth"></popup-picker>
-        <x-input title="赠送数量：" placeholder="默认0瓶" text-align="right" type="number"
+        <x-input title="赠送天数：" placeholder="默认0天" text-align="right" type="number"
                  v-model="params.extraNum" @on-focus="onFocus"></x-input>
         <x-input title="商品原价：" placeholder="商品原价(元)" required text-align="right" type="number"
                  v-model="params.originPrice" @on-focus="onFocus"></x-input>
@@ -39,7 +39,7 @@
             <li>
               <p>{{index + 1}}.[ {{item.note}} ]</p>
               <div class="sub-con">
-                <span>数量：<i>{{item.saleNum}}瓶{{item.extraNum ? '（赠' + item.extraNum + '瓶）' : ''}}</i></span>
+                <span>数量：<i>{{item.saleNum}}瓶{{item.extraNum ? '（赠' + item.extraNum + '天）' : ''}}</i></span>
                 <span>原价：<i class="txt-del">{{item.originPrice}}元</i></span>
                 <span>销售价：<i>{{item.salePrice}}元</i></span>
               </div>
